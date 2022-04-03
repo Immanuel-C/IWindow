@@ -4,8 +4,7 @@
 #include <iostream>
 
 namespace IWindow {
-    void DefaultWindowPosCallback(Window& window, uint32_t x, uint32_t y) { 
-    }
+
 
     Window::Window(uint32_t width, uint32_t height, const std::string& title, uint32_t x, uint32_t y) { Create(width, height, title, x, y); }
 
@@ -14,9 +13,10 @@ namespace IWindow {
         m_height = height;
         m_x = x;
         m_y = y;
+        m_title = title;
         
         m_posCallback = DefaultWindowPosCallback;
-
+        m_sizeCallback = DefaultWindowSizeCallback;
         
         HINSTANCE instance = GetModuleHandleA(0);
 
@@ -35,7 +35,7 @@ namespace IWindow {
         (
             WS_EX_APPWINDOW,        // Window Type?
             "Window",               // Class Name
-            title.c_str(),          // Window Name
+            m_title.c_str(),          // Window Name
             WS_OVERLAPPEDWINDOW |                 
             WS_CAPTION          | 
             WS_SYSMENU          | 
@@ -100,9 +100,16 @@ namespace IWindow {
             m_running = false;        
             break;
         case WM_WINDOWPOSCHANGING:
-            SetWindowPosiiton(GetWindowPosition().x, GetWindowPosition().y);
-            m_posCallback(*this, GetWindowPosition().x, GetWindowPosition().y);
+            m_x = GetWindowPosition().x;
+            m_y = GetWindowPosition().y;
+            m_posCallback(*this, m_x, m_y);
             break;
+        case WM_SIZE: {
+            m_width = LOWORD(lparam);
+            m_height = HIWORD(lparam);
+            m_sizeCallback(*this, m_width, m_height);
+            break;
+        }
         default:
             break;
         }
@@ -142,7 +149,7 @@ namespace IWindow {
     }
 
 
-    void Window::SetPosCallback(WindowPosCallback callback) {
-        m_posCallback = callback;
-    }
+    void Window::SetPosCallback(WindowPosCallback callback) { m_posCallback = callback; }
+
+    void Window::SetSizeCallback(WindowSizeCallback callback) { m_sizeCallback = callback; }
 }

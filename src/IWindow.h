@@ -22,6 +22,7 @@ namespace IWindow {
     class Window;
 
     typedef void (*WindowPosCallback)(Window&, uint32_t, uint32_t);
+    typedef void (*WindowSizeCallback)(Window&, uint32_t, uint32_t);
 
 
     class Window {
@@ -47,16 +48,23 @@ namespace IWindow {
 
 
             void SetPosCallback(WindowPosCallback callback);
+            void SetSizeCallback(WindowSizeCallback callback);
+
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
 
         uint32_t m_width = 0, m_height = 0, m_x = 0, m_y = 0;
+        std::string m_title = "";
 
         NativeWindowHandle m_window;
 
         bool m_running = true;
 
+        static void DefaultWindowPosCallback(Window& window, uint32_t x, uint32_t y) {}
+        static void DefaultWindowSizeCallback(Window& window, uint32_t width, uint32_t height) {}
+
         WindowPosCallback m_posCallback;
+        WindowSizeCallback m_sizeCallback;
     };
 }
