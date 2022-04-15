@@ -23,14 +23,13 @@ namespace IWindow {
         int64_t x, y;
     };
 
-    class Window;
-
-    typedef std::function<void(Window&, int64_t, int64_t)> WindowPosCallback;
-    typedef WindowPosCallback WindowSizeCallback;
 
 
     class Window {
-        public:
+    private:
+        typedef std::function<void(Window&, int64_t, int64_t)> WindowPosCallback;
+        typedef WindowPosCallback WindowSizeCallback;
+    public:
             Window() {}
             Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
 
@@ -56,7 +55,6 @@ namespace IWindow {
 
             void SetPosCallback(WindowPosCallback callback);
             void SetSizeCallback(WindowSizeCallback callback);
-            
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -73,7 +71,9 @@ namespace IWindow {
 
         std::array<bool, (int)Key::Max> m_keys;
 
+
         WindowPosCallback m_posCallback;
         WindowSizeCallback m_sizeCallback;
+
     };
 }

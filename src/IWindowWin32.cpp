@@ -122,6 +122,12 @@ namespace IWindow {
         case WM_KEYUP: 
             m_keys[wparam] = false;
             break;
+        case WM_SYSKEYDOWN:
+            m_keys[wparam] = true;
+            break;
+        case WM_SYSKEYUP:
+            m_keys[wparam] = false;
+            break;
         default:
             break;
         }

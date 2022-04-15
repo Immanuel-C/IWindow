@@ -20,7 +20,7 @@ int main() {
     
     while (window.IsRunning()) {
 
-        if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W))
+        if (window.IsKeyDown(IWindow::Key::F10, IWindow::Key::A))
             std::cout << "Key A and W were pressed!\n";
 
         window.Update();
