@@ -51,6 +51,10 @@ namespace IWindow {
             template<typename... Args>
             bool IsKeyDown(Key key, Args... args) { return IsKeyDown(key) && IsKeyDown(args...); }
 
+            bool IsKeyUp(Key key);
+            template<typename... Args>
+            bool IsKeyUp(Key key, Args... args) { return IsKeyUp(key) && IsKeyUp(args...); }
+
             ~Window(); 
 
             void SetPosCallback(WindowPosCallback callback);
@@ -69,7 +73,7 @@ namespace IWindow {
         static void DefaultWindowPosCallback(Window& window, int64_t x, int64_t y) {}
         static void DefaultWindowSizeCallback(Window& window, int64_t width, int64_t height) {}
 
-        std::array<bool, (int)Key::Max> m_keys;
+        std::array<bool, (int)Key::Max> m_keys{false};
 
 
         WindowPosCallback m_posCallback;

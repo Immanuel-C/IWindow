@@ -17,9 +17,6 @@ namespace IWindow {
         m_posCallback = DefaultWindowPosCallback;
         m_sizeCallback = DefaultWindowSizeCallback;
 
-
-        for (bool& key : m_keys) 
-            key = false;
         
         HINSTANCE instance = GetModuleHandleA(0);
 
@@ -160,6 +157,8 @@ namespace IWindow {
     }
 
     bool Window::IsKeyDown(Key key) { return m_keys[(int)key]; }
+
+    bool Window::IsKeyUp(Key key) { return !IsKeyDown(key); }
 
 
 

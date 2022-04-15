@@ -3,12 +3,12 @@
 #include <iostream>
 
 void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-    //std::cout << x << ", " << y << '\n';
+    std::cout << "Window position: " << x << ", " << y << '\n';
 }
 
 
 void WindowSizeCallback(IWindow::Window& window, int64_t width, int64_t height) {
-    std::cout << width << ", " << height << '\n';
+    std::cout << "Window Size: " << width << ", " << height << '\n';
 }
 
 int main() {
@@ -20,7 +20,7 @@ int main() {
     
     while (window.IsRunning()) {
 
-        if (window.IsKeyDown(IWindow::Key::F10, IWindow::Key::A))
+        if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
             std::cout << "Key A and W were pressed!\n";
 
         window.Update();
