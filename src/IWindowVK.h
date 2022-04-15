@@ -3,7 +3,7 @@
 #include "IWindow.h"
 
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 #if defined(_WIN32)
 #include <vulkan/vulkan_win32.h>
 #endif 
