@@ -31,7 +31,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    VkSurfaceKHR surface;
+    VkSurfaceKHR surface = nullptr;
     if (IWindow::Vk::CreateSurface(instance, surface, window) != VK_SUCCESS) {
         std::cerr << "Failed to create window surface\n";
         return EXIT_FAILURE;

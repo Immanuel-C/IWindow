@@ -6,9 +6,9 @@
 namespace IWindow {
 
 
-    Window::Window(uint32_t width, uint32_t height, const std::string& title, uint32_t x, uint32_t y) { Create(width, height, title, x, y); }
+    Window::Window(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) { Create(width, height, title, x, y); }
 
-    bool Window::Create(uint32_t width, uint32_t height, const std::string& title, uint32_t x, uint32_t y) {
+    bool Window::Create(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) {
         m_width = width;
         m_height = height;
         m_x = x;
@@ -23,7 +23,8 @@ namespace IWindow {
         WNDCLASS wc{};
         wc.lpfnWndProc = s_WindowCallback;
         wc.hInstance = instance;
-        wc.lpszClassName = TEXT("Window");
+        wc.lpszClassName = TEXT("IWindow::Window");
+
 
         if (!::RegisterClass(&wc)) {
             ::MessageBoxA(nullptr, "Failed to register window class!", "Error", MB_ICONEXCLAMATION | MB_OK);
@@ -31,25 +32,25 @@ namespace IWindow {
         }
 
         m_window = 
-        ::CreateWindowExA
+        ::CreateWindowExW
         (
-            WS_EX_APPWINDOW,        // Window Type?
-            "Window",               // Class Name
-            m_title.c_str(),          // Window Name
+            WS_EX_APPWINDOW,                       // Window Type?
+            TEXT("IWindow::Window"),               // Class Name
+            std::wstring{title.begin(), title.end()}.c_str(),           // Window Name
             WS_OVERLAPPEDWINDOW |                 
             WS_CAPTION          | 
             WS_SYSMENU          | 
             WS_MINIMIZEBOX      | 
             WS_MAXIMIZEBOX      | 
-            WS_OVERLAPPED,          // Styles
-            x,                      // PosX
-            y,                      // PosY
-            width,                  // SizeX
-            height,                 // SizeY
-            nullptr,                // Parent Window
-            nullptr,                // ? HMENU
-            instance,               // hinstance
-            this                    // user param
+            WS_OVERLAPPED,                          // Styles
+            (int)x,                                 // PosX
+            (int)y,                                 // PosY
+            (int)width,                             // SizeX
+            (int)height,                            // SizeY
+            nullptr,                                // Parent Window
+            nullptr,                                // HMENU?
+            instance,                               // hinstance
+            nullptr                                 // lpParam LPVOID?
         );
 
         if (!m_window) {
@@ -60,8 +61,6 @@ namespace IWindow {
         ::SetWindowLongPtr(m_window, GWLP_USERDATA, (LONG_PTR)this);
 
         ::ShowWindow(m_window, SW_SHOW);
-
-
 
         return true;
     }
@@ -87,7 +86,9 @@ namespace IWindow {
 
         if (!iWindow) {
             iWindow = (Window*)GetWindowLongPtr(window, GWLP_USERDATA);
-            return DefWindowProcA(window, msg, wparam, lparam);
+            if (::IsWindowUnicode(window))
+                return ::DefWindowProcW(window, msg, wparam, lparam);
+            return ::DefWindowProcA(window, msg, wparam, lparam);
         }
 
         return iWindow->WindowCallback(window, msg, wparam, lparam);
@@ -99,11 +100,13 @@ namespace IWindow {
         case WM_CLOSE:
             m_running = false;        
             break;
-        case WM_WINDOWPOSCHANGING:
-            m_x = GetWindowPosition().x;
-            m_y = GetWindowPosition().y;
+        case WM_MOVE: {
+            // if lparam is less than zero than it will act like a uint
+            m_x = LOWORD(lparam) >= 65000 ? 0 : LOWORD(lparam);
+            m_y = HIWORD(lparam) >= 65000  ? 0 : HIWORD(lparam);
             m_posCallback(*this, m_x, m_y);
             break;
+        }
         case WM_SIZE: {
             m_width = LOWORD(lparam);
             m_height = HIWORD(lparam);
@@ -113,39 +116,42 @@ namespace IWindow {
         default:
             break;
         }
+
+        if (::IsWindowUnicode(window))
+            return ::DefWindowProcW(window, msg, wparam, lparam);
         
-        return DefWindowProcA(window, msg, wparam, lparam);
+        return ::DefWindowProcA(window, msg, wparam, lparam);
     }
 
     WindowSize Window::GetWindowSize() {
         RECT rect;
         ::GetClientRect(m_window, &rect);
 
-        return WindowSize{(uint32_t)rect.right - rect.left, (uint32_t)rect.bottom - rect.top};
+        return WindowSize{(int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top};
     }
 
-    void Window::SetWindowSize(uint32_t width, uint32_t height) {
+    void Window::SetWindowSize(int64_t width, int64_t height) {
         m_width = width;
         m_height = height;
 
-        ::SetWindowPos(m_window, nullptr, m_x, m_y, m_width, m_height, SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW);    
+        ::SetWindowPos(m_window, nullptr, (int)m_x, (int)m_y, (int)m_width, (int)m_height, SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
 
-    void Window::SetWindowPosiiton(uint32_t x, uint32_t y) {
+    void Window::SetWindowPosiiton(int64_t x, int64_t y) {
         m_x = x;
         m_y = y;
 
-        ::SetWindowPos(m_window, nullptr, m_x, m_y, m_width, m_height, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);    
+        ::SetWindowPos(m_window, nullptr, (int)m_x, (int)m_y, (int)m_width, (int)m_height, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
 
     Window::~Window() { ::DestroyWindow(m_window); }
 
     WindowPos Window::GetWindowPosition() {
-        WINDOWPLACEMENT windowPlacement;
+        WINDOWPLACEMENT windowPlacement{};
         
         ::GetWindowPlacement(m_window, &windowPlacement);
 
-        return WindowPos{(uint32_t)windowPlacement.rcNormalPosition.left, (uint32_t)windowPlacement.rcNormalPosition.top};
+        return WindowPos{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
     }
 
 

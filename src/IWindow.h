@@ -13,24 +13,24 @@
 
 namespace IWindow {
     struct WindowSize {
-        uint32_t width, height;
+        int64_t width, height;
     };
     struct WindowPos {
-        uint32_t x, y;
+        int64_t x, y;
     };
 
     class Window;
 
-    typedef void (*WindowPosCallback)(Window&, uint32_t, uint32_t);
-    typedef void (*WindowSizeCallback)(Window&, uint32_t, uint32_t);
+    typedef void (*WindowPosCallback)(Window&, int64_t, int64_t);
+    typedef void (*WindowSizeCallback)(Window&, int64_t, int64_t);
 
 
     class Window {
         public:
             Window() {}
-            Window(uint32_t width, uint32_t height, const std::string& title, uint32_t x = 100, uint32_t y = 100);
+            Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
 
-            bool Create(uint32_t width, uint32_t height, const std::string& title, uint32_t x = 100, uint32_t y = 100);
+            bool Create(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
 
             void Update();
 
@@ -41,28 +41,29 @@ namespace IWindow {
             WindowSize GetWindowSize();
             WindowPos GetWindowPosition();
 
-            void SetWindowSize(uint32_t width, uint32_t height);
-            void SetWindowPosiiton(uint32_t x, uint32_t y);
+            void SetWindowSize(int64_t width, int64_t height);
+            void SetWindowPosiiton(int64_t x, int64_t y);
 
             ~Window(); 
 
 
             void SetPosCallback(WindowPosCallback callback);
             void SetSizeCallback(WindowSizeCallback callback);
+            
 
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
 
-        uint32_t m_width = 0, m_height = 0, m_x = 0, m_y = 0;
+        int64_t m_width = 0, m_height = 0, m_x = 0, m_y = 0;
         std::string m_title = "";
 
         NativeWindowHandle m_window;
 
         bool m_running = true;
 
-        static void DefaultWindowPosCallback(Window& window, uint32_t x, uint32_t y) {}
-        static void DefaultWindowSizeCallback(Window& window, uint32_t width, uint32_t height) {}
+        static void DefaultWindowPosCallback(Window& window, int64_t x, int64_t y) {}
+        static void DefaultWindowSizeCallback(Window& window, int64_t width, int64_t height) {}
 
         WindowPosCallback m_posCallback;
         WindowSizeCallback m_sizeCallback;
