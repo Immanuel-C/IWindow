@@ -4,9 +4,8 @@
 #include <iostream>
 
 namespace IWindow {
-
-
     Window::Window(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) { Create(width, height, title, x, y); }
+    Window::~Window() { ::DestroyWindow(m_window); }
 
     bool Window::Create(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) {
         m_width = width;
@@ -17,6 +16,10 @@ namespace IWindow {
         
         m_posCallback = DefaultWindowPosCallback;
         m_sizeCallback = DefaultWindowSizeCallback;
+
+
+        for (bool& key : m_keys) 
+            key = false;
         
         HINSTANCE instance = GetModuleHandleA(0);
 
@@ -113,6 +116,12 @@ namespace IWindow {
             m_sizeCallback(*this, m_width, m_height);
             break;
         }
+        case WM_KEYDOWN: 
+            m_keys[wparam] = true;
+            break;
+        case WM_KEYUP: 
+            m_keys[wparam] = false;
+            break;
         default:
             break;
         }
@@ -144,7 +153,9 @@ namespace IWindow {
         ::SetWindowPos(m_window, nullptr, (int)m_x, (int)m_y, (int)m_width, (int)m_height, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
 
-    Window::~Window() { ::DestroyWindow(m_window); }
+    bool Window::IsKeyDown(Key key) { return m_keys[(int)key]; }
+
+
 
     WindowPos Window::GetWindowPosition() {
         WINDOWPLACEMENT windowPlacement{};

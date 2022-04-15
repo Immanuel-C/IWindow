@@ -25,7 +25,7 @@ int main() {
     instanceInfo.enabledExtensionCount = (uint32_t)iWindowExtensionNames.size();
     instanceInfo.ppEnabledExtensionNames = iWindowExtensionNames.data();
 
-    VkInstance instance;
+    VkInstance instance = nullptr;
     if (vkCreateInstance(&instanceInfo, nullptr, &instance) != VK_SUCCESS) {
         std::cerr << "Failed to create instance\n";
         return EXIT_FAILURE;

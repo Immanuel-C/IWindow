@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include <string>
 
 
@@ -10,6 +11,7 @@
 #endif
 
 #include "IWindowPlatform.h"
+#include "IWindowCodes.h"
 
 #include <functional>
 
@@ -46,13 +48,15 @@ namespace IWindow {
             void SetWindowSize(int64_t width, int64_t height);
             void SetWindowPosiiton(int64_t x, int64_t y);
 
-            ~Window(); 
+            bool IsKeyDown(Key key);
+            template<typename... Args>
+            bool IsKeyDown(Key key, Args... args) { return IsKeyDown(key) && IsKeyDown(args...); }
 
+            ~Window(); 
 
             void SetPosCallback(WindowPosCallback callback);
             void SetSizeCallback(WindowSizeCallback callback);
             
-
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -66,6 +70,8 @@ namespace IWindow {
 
         static void DefaultWindowPosCallback(Window& window, int64_t x, int64_t y) {}
         static void DefaultWindowSizeCallback(Window& window, int64_t width, int64_t height) {}
+
+        std::array<bool, (int)Key::Max> m_keys;
 
         WindowPosCallback m_posCallback;
         WindowSizeCallback m_sizeCallback;

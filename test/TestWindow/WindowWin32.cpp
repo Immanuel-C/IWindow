@@ -12,13 +12,16 @@ void WindowSizeCallback(IWindow::Window& window, int64_t width, int64_t height) 
 }
 
 int main() {
-    IWindow::Window window;
+    IWindow::Window window{};
     if (!window.Create(1280, 720, u8"Hello IWindow")) return EXIT_FAILURE;
 
     window.SetPosCallback(WindowPosCallback);
     window.SetSizeCallback(WindowSizeCallback);
     
     while (window.IsRunning()) {
+
+        if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W))
+            std::cout << "Key A and W were pressed!\n";
 
         window.Update();
     }
