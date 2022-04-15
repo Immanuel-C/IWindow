@@ -6,3 +6,5 @@
 # How to build
 
 Use premake5. If you dont have premake5 you can install it [here](https://premake.github.io/).
+
+More info soon...
