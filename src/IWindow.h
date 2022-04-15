@@ -11,6 +11,8 @@
 
 #include "IWindowPlatform.h"
 
+#include <functional>
+
 namespace IWindow {
     struct WindowSize {
         int64_t width, height;
@@ -21,8 +23,8 @@ namespace IWindow {
 
     class Window;
 
-    typedef void (*WindowPosCallback)(Window&, int64_t, int64_t);
-    typedef void (*WindowSizeCallback)(Window&, int64_t, int64_t);
+    typedef std::function<void(Window&, int64_t, int64_t)> WindowPosCallback;
+    typedef WindowPosCallback WindowSizeCallback;
 
 
     class Window {

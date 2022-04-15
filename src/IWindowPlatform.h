@@ -4,9 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-namespace IWindow {
-	typedef HWND NativeWindowHandle;
-}
+typedef HWND NativeWindowHandle; 
 
 #endif
 
