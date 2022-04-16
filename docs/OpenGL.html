@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>What is IWindow And How Can I Build It - IWindow Docs</title>
+        <title>OpenGL - IWindow Docs</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html" class="active">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html" class="active">OpenGL</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,24 +134,69 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="what-is-iwindow"><a class="header" href="#what-is-iwindow">What is IWindow</a></h1>
-<p>IWindow is a windowing library that is meant to be used with Vulkan or OpenGL. </p>
-<p>The goal of IWindow is:</p>
-<ul>
-<li>IWindow should be cross-platform and work with Win32 (Windows) and X11 (Linux) windowing apis but currently there is only a Win32 version.</li>
-</ul>
-<h1 id="how-can-i-build-iwindow"><a class="header" href="#how-can-i-build-iwindow">How can I build IWindow?</a></h1>
-<p>IWindow uses the <a href="https://premake.github.io/">premake5</a> build system.</p>
-<p>IWindow comes with premade premake projects to build easily to a static library. These projects are <code>IWindowWin32GL</code> and <code>IWindowWin32Vk</code>. As the name suggests GL is for OpenGL projects and Vk is for Vulkan. There is also a <code>IWindowWin32All</code> project for OpenGL and Vulkan. </p>
-<h1 id="important-stuff-you-should-know-about"><a class="header" href="#important-stuff-you-should-know-about">Important Stuff You Should Know About</a></h1>
-<p>All functions/classes are in the <code>IWindow</code> namespace but the definitions dont include <code>IWindow</code> in the names.</p>
+                        <h1 id="opengl-with-iwindow"><a class="header" href="#opengl-with-iwindow">OpenGL with IWindow</a></h1>
+<p>IWindow will handle creating the OpenGL context with the <code>GL::Context</code> class and <code>LoadOpenGLFunction(const char* name)</code>.</p>
+<pre><code class="language-cpp">// in IWindowGL.h
+namespace IWindow {
+    namespace GL {
+        class Context {
+        public:
+            Context() = default;
+            Context(Window&amp; window, uint16_t majorVersion, uint16_t minorVersion);
+            ~Context();
+            
+            bool Create(Window&amp; window, uint16_t majorVersion, uint16_t minorVersion);
+
+            void MakeContextNotCurrent();
+            void MakeContextCurrent();
+
+            void SwapBuffers();
+
+            void operator=(Context&amp;) = delete;
+            Context(Context&amp;) = delete;
+        };
+
+        void* LoadOpenGLFunction(const char* name);
+    }
+}
+</code></pre>
+<p>The context class is less complecated than than the window class.</p>
+<h2 id="main-functions"><a class="header" href="#main-functions">Main Functions</a></h2>
+<p>like the window class the Context class has two ways you can create it with and the same rules that applied to the window class applies here.</p>
+<p>Example:</p>
+<pre><code class="language-cpp">    ...
+    IWindow::GL::Context glContext;
+
+    if (!glContext.Create(...)) HandleError();
+
+    ...
+
+    while(window.IsRunning()) {
+        ...
+        window.Update();
+    }
+
+    ...
+</code></pre>
+<p><code>void MakeContextCurrent()</code> tells opengl to render to the window passed into the <code>Create</code> function or the constructor. This function is called in the <code>Create</code> function/the constructor. </p>
+<p><code>void SwapBuffers()</code> Swaps the front and back framebuffers should be called every frame.</p>
+<p>Example:</p>
+<pre><code class="language-cpp">    ...
+    while(window.IsRunning()) {
+        window.Update();
+        glContext.SwapBuffers();
+    }
+    ...
+</code></pre>
+<h2 id="advanced-functions"><a class="header" href="#advanced-functions">Advanced Functions</a></h2>
+<p><code>void* LoadOpenGLFunction(const char* name)</code> loads a function from opengl the dlls.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="next" href="WindowClass.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
+                            <a rel="prev" href="Vulkan.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -159,27 +204,13 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="next" href="WindowClass.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
+                    <a rel="prev" href="Vulkan.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            var socket = new WebSocket("ws://localhost:3000/__livereload");
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Window Class - IWindow Docs</title>
+        <title>What is IWindow And How Can I Build It - IWindow Docs</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html" class="active">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html" class="active">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,128 +134,23 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="window-class"><a class="header" href="#window-class">Window Class</a></h1>
-<p>The window class is where the magic happens. The window class as the name suggests is the class that is reponsible for creating the window on your screen.</p>
-<p>This is what the window class .h file looks like</p>
-<pre><code class="language-cpp">namespace IWindow {
-    class Window {
-    public:
-        Window() = default;
-        Window(int64_t width, int64_t height, const std::string&amp; title, int64_t x = 100, int64_t y = 100);
-        ~Window(); 
-
-        bool Create(int64_t width, int64_t height, const std::string&amp; title, int64_t x = 100, int64_t y = 100);
-
-        void Update();
-
-        bool IsRunning();
-
-        NativeWindowHandle&amp; GetNativeWindowHandle(); 
-
-        WindowSize GetWindowSize();
-        WindowPos GetWindowPosition();
-
-        void SetWindowSize(int64_t width, int64_t height);
-        void SetWindowPosiiton(int64_t x, int64_t y);
-
-        bool IsKeyDown(Key key);
-        template&lt;typename... Args&gt;
-        bool IsKeyDown(Key key, Args... args) { return IsKeyDown(key) &amp;&amp; IsKeyDown(args...); }
-
-        bool IsKeyUp(Key key);
-        template&lt;typename... Args&gt;
-        bool IsKeyUp(Key key, Args... args) { return IsKeyUp(key) &amp;&amp; IsKeyUp(args...); }
-
-        void SetUserPointer(void* ptr);
-        void* GetUserPointer();
-
-        void SetPosCallback(WindowPosCallback callback);
-        void SetSizeCallback(WindowSizeCallback callback);
-        void SetKeyCallback(KeyCallback callback);
-
-        NativeGLDeviceContext&amp; GetNativeGLDeviceContext();
-        
-        void operator=(Window&amp;) = delete;
-        Window(Window&amp;) = delete;
-    };
-}
-</code></pre>
-<p>Its a lot to take in right even though this is only the public stuff. Dont worry we will be going through everything in the window class.</p>
-<h2 id="main-functions"><a class="header" href="#main-functions">Main Functions</a></h2>
-<p><code>bool Create(int64_t width, int64_t height, const std::string&amp; title, int64_t x = 100, int64_t y = 100)</code> creates the window you could use the constructor (which takes in the same args) but <code>Create</code> returns a <code>false</code> if something fails. </p>
-<p>Example:</p>
-<pre><code class="language-cpp">    IWindow::Window window{};
-    if (!window.Create(...)) return -1;
-    
-    // Or
-
-    // Doesn't return bool if fails
-    window = IWindow::Window(...);
-</code></pre>
-<p><code>bool IsRunning()</code> checks if the window is still up and running. <code>IsRunning</code> with return <code>false</code> if a window is not running (e.g. when a user clicks the x in the top of the window isRunning will return <code>false</code>).</p>
-<p>Example:</p>
-<pre><code class="language-cpp">while (window.IsRunning()) {
-    // do stuff
-}
-</code></pre>
-<p><code>void Update()</code> checks for events like input or if the window moved and should be called every frame.</p>
-<p>Example:</p>
-<pre><code class="language-cpp">    while(window.isRunning()) {
-        // do stuff
-        
-        window.Update();
-    }
-</code></pre>
-<h2 id="getters-and-setters"><a class="header" href="#getters-and-setters">Getters And Setters</a></h2>
-<p><code>WindowSize GetWindowSize()</code> returns a <code>WindowSize</code> which is</p>
-<pre><code class="language-cpp">    struct WindowSize {
-        int64_t width, height;
-    };
-</code></pre>
-<p><code>void SetWindowSize(int64_t width, int64_t height)</code> takes in 2 <code>int64_t</code> (64 bit integer) width, height.</p>
-<p>The <code>void SetPosCallback</code>, <code>void SetKeyCallback</code>, etc. are called when an action like moving the window or a key is pressed happens.</p>
-<p>An example of a <code>WindowPosCallback</code> is</p>
-<pre><code class="language-cpp">#include &lt;iostream&gt; // For std::cout
-
-void WindowPosCallback(IWindow::Window&amp; window, int64_t x, int64_t y) {
-    std::cout &lt;&lt; &quot;Window position: &quot; &lt;&lt; x &lt;&lt; &quot;, &quot; &lt;&lt; y &lt;&lt; '\n';
-}
-</code></pre>
-<p><code>x</code> and <code>y</code> are the <code>x</code> and <code>y</code> coordinates of the window.</p>
-<p>The <code>bool IsKeyDown(Key key)</code> and <code>IsKeyUp(Key key)</code> functions check if a key is pressed or is released. A key callback could be used to handle this. It takes in a Key look at <a href="./InputEnums.html">Input Enums</a>.</p>
-<p><code>void SetUserPointer(void* ptr)</code> sets an internal pointer that can be retreived in a callback or some where else.</p>
-<p><code>void* GetUserPointer()</code> gets the pointer set from <code>SetUserPointer</code>. <code>nullptr</code> if no pointer is set</p>
-<p>Example:</p>
-<pre><code class="language-cpp">#include &lt;iostream&gt; // For std::cout
-
-void WindowPosCallback(IWindow::Window&amp; window, int64_t x, int64_t y) {
-    int* example = (int*)window.GetUserPointer();
-    std::cout &lt;&lt; &quot;User Pointer: &quot; &lt;&lt; example &lt;&lt; '\n'; // Output: 10
-    std::cout &lt;&lt; &quot;Window position: &quot; &lt;&lt; x &lt;&lt; &quot;, &quot; &lt;&lt; y &lt;&lt; '\n';
-}
-
-int main() {
-    ...
-
-    int example = 10;
-    window.SetUserPointer(&amp;example);
-    window.SetPosCallback(WindowPosCallback);
-    ...
-}
-
-</code></pre>
-<h2 id="advanced-functions"><a class="header" href="#advanced-functions">Advanced Functions</a></h2>
-<p><code>NativeWindowHandle&amp; GetNativeWindowHandle()</code> gets the internal windowing api's window handle (e.g. Win32: <code>HWND</code>, X11: <code>Window</code>).</p>
-<p><code>NativeGLDeviceContext&amp; GetNativeGLDeviceContext()</code> gets the internal windowing api's graphics/device context (e.g. Win32: <code>HDC</code>, X11: <code>GC</code>).</p>
+                        <h1 id="what-is-iwindow"><a class="header" href="#what-is-iwindow">What is IWindow</a></h1>
+<p>IWindow is a windowing library that is meant to be used with Vulkan or OpenGL. </p>
+<p>The goal of IWindow is:</p>
+<ul>
+<li>IWindow should be cross-platform and work with Win32 (Windows) and X11 (Linux) windowing apis but currently there is only a Win32 version.</li>
+</ul>
+<h1 id="how-can-i-build-iwindow"><a class="header" href="#how-can-i-build-iwindow">How can I build IWindow?</a></h1>
+<p>IWindow uses the <a href="https://premake.github.io/">premake5</a> build system.</p>
+<p>IWindow comes with premade premake projects to build easily to a static library. These projects are <code>IWindowWin32GL</code> and <code>IWindowWin32Vk</code>. As the name suggests GL is for OpenGL projects and Vk is for Vulkan. There is also a <code>IWindowWin32All</code> project for OpenGL and Vulkan. </p>
+<h1 id="important-stuff-you-should-know-about"><a class="header" href="#important-stuff-you-should-know-about">Important Stuff You Should Know About</a></h1>
+<p>All functions/classes are in the <code>IWindow</code> namespace but the definitions dont include <code>IWindow</code> in the names.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="WhatAndHow.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                                <i class="fa fa-angle-left"></i>
-                            </a>
-                            <a rel="next" href="InputEnums.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="WindowClass.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -264,30 +159,13 @@ int main() {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="WhatAndHow.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
-                        <i class="fa fa-angle-left"></i>
-                    </a>
-                    <a rel="next" href="InputEnums.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="WindowClass.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            var socket = new WebSocket("ws://localhost:3000/__livereload");
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>What is IWindow And How Can I Build It - IWindow Docs</title>
+        <title>Input Enums - IWindow Docs</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html" class="active">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,23 +134,142 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="what-is-iwindow"><a class="header" href="#what-is-iwindow">What is IWindow</a></h1>
-<p>IWindow is a windowing library that is meant to be used with Vulkan or OpenGL. </p>
-<p>The goal of IWindow is:</p>
-<ul>
-<li>IWindow should be cross-platform and work with Win32 (Windows) and X11 (Linux) windowing apis but currently there is only a Win32 version.</li>
-</ul>
-<h1 id="how-can-i-build-iwindow"><a class="header" href="#how-can-i-build-iwindow">How can I build IWindow?</a></h1>
-<p>IWindow uses the <a href="https://premake.github.io/">premake5</a> build system.</p>
-<p>IWindow comes with premade premake projects to build easily to a static library. These projects are <code>IWindowWin32GL</code> and <code>IWindowWin32Vk</code>. As the name suggests GL is for OpenGL projects and Vk is for Vulkan. There is also a <code>IWindowWin32All</code> project for OpenGL and Vulkan. </p>
-<h1 id="important-stuff-you-should-know-about"><a class="header" href="#important-stuff-you-should-know-about">Important Stuff You Should Know About</a></h1>
-<p>All functions/classes are in the <code>IWindow</code> namespace but the definitions dont include <code>IWindow</code> in the names.</p>
+                        <h1 id="input-enums"><a class="header" href="#input-enums">Input Enums</a></h1>
+<pre><code class="language-cpp">
+ // All of these are in IWindowCodes.h
+namespace IWindow {
+    enum struct Key {
+        // Numbers dont have virtual key codes
+        N0 = 48,
+        N1 = 49,
+        N2 = 50,
+        N3 = 51,
+        N4 = 52,
+        N5 = 53,
+        N6 = 54,
+        N7 = 55,
+        N8 = 56,
+        N9 = 57,
+
+        // Alphabet dont have virtual key codes
+        A = 65,
+        B = 66,
+        C = 67,
+        D = 68,
+        E = 69,
+        F = 70,
+        G = 71,
+        H = 72,
+        I = 73,
+        J = 74,
+        K = 75,
+        L = 76,
+        M = 77,
+        N = 78,
+        O = 79,
+        P = 80,
+        Q = 81,
+        R = 82,
+        S = 83,
+        T = 84,
+        U = 85,
+        V = 86,
+        W = 87,
+        X = 88,
+        Y = 89,
+        Z = 90,
+
+        Back = VK_BACK,
+        Tab = VK_TAB,
+        Clear = VK_CLEAR,
+        Enter = VK_RETURN,
+        Shift = VK_SHIFT,
+        Control = VK_CONTROL,
+        Alt = VK_MENU,
+        Pause = VK_PAUSE,
+        CapsLock = VK_CAPITAL,
+        Escape = VK_ESCAPE,
+        Space = VK_SPACE,
+        PageUp = VK_PRIOR,
+        PageDown = VK_NEXT,
+        End = VK_END,
+        Home = VK_HOME,
+        ArrowLeft = VK_LEFT,
+        ArrowUp = VK_UP,
+        ArrowRight = VK_RIGHT,
+        ArrowDown = VK_DOWN,
+        Select = VK_SELECT,
+        Print = VK_PRINT,
+        Execute = VK_EXECUTE,
+        PrintScreen = VK_SNAPSHOT,
+        Insert = VK_INSERT,
+        Delete = VK_DELETE,
+        Help = VK_HELP,
+        LeftSuper = VK_LWIN,
+        RightSuper = VK_RWIN,
+        Sleep = VK_SLEEP,
+        Multiply = VK_MULTIPLY,
+        Add = VK_ADD,
+        Subtract = VK_SUBTRACT,
+        Decimal = VK_DECIMAL,
+        Divide = VK_DIVIDE,
+        ScrollLock = VK_SCROLL,
+        NumLock = VK_NUMLOCK,
+        LShift = VK_LSHIFT,
+        RShift = VK_RSHIFT,
+        LControl = VK_LCONTROL,
+        RControl = VK_RCONTROL,
+        LMenu = VK_LMENU,
+        RMenu = VK_RMENU,
+
+
+        Np0 = VK_NUMPAD0,
+        Np1 = VK_NUMPAD1,
+        Np2 = VK_NUMPAD2,
+        Np3 = VK_NUMPAD3,
+        Np4 = VK_NUMPAD4,
+        Np5 = VK_NUMPAD5,
+        Np6 = VK_NUMPAD6,
+        Np7 = VK_NUMPAD7,
+        Np8 = VK_NUMPAD8,
+        Np9 = VK_NUMPAD9,
+
+        F1 = VK_F1,
+        F2 = VK_F2,
+        F3 = VK_F3,
+        F4 = VK_F4,
+        F5 = VK_F5,
+        F6 = VK_F6,
+        F7 = VK_F7,
+        F8 = VK_F8,
+        F9 = VK_F9,
+        F10 = VK_F10,
+        F11 = VK_F11,
+        F12 = VK_F12,
+
+        Max = 1000
+    };
+}
+</code></pre>
+<p>The <code>Key</code> enum struct is pretty self explanitory.</p>
+<pre><code class="language-cpp">namespace IWindow {
+    enum struct InputState {
+        Down,
+        Up,
+        Max
+    };
+}
+</code></pre>
+<p><code>InputState</code> is used in the key callback which just says if a key was pressed (Down) or released (Up). </p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="next" href="WindowClass.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="prev" href="WindowClass.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="Vulkan.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -159,27 +278,16 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="next" href="WindowClass.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="prev" href="WindowClass.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="Vulkan.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            var socket = new WebSocket("ws://localhost:3000/__livereload");
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

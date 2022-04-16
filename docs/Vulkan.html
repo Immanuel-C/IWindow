@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title></title>
-        <base href="/">
+        <title>Vulkan - IWindow Docs</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -76,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html" class="active">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -135,37 +134,54 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="document-not-found-404"><a class="header" href="#document-not-found-404">Document not found (404)</a></h1>
-<p>This URL is invalid, sorry. Please use the navigation bar or search to continue.</p>
+                        <h1 id="vulkan-with-iwindow"><a class="header" href="#vulkan-with-iwindow">Vulkan with IWindow</a></h1>
+<p>IWindow needs some isntance extensions to create a <code>VkSurfaceKHR</code>. On Win32 the extensions are <code>VK_KHR_WIN32_SURFACE_EXTENSION_NAME</code> and <code>VK_KHR_SURFACE_EXTENSION_NAME</code>. On X11 the extensions are <code>VK_KHR_XLIB_SURFACE_EXTENSION_NAME</code> and <code>VK_KHR_SURFACE_EXTENSION_NAME</code>.</p>
+<p>To get the required extensions IWindow has a function in <code>IWindowVK.h</code>.</p>
+<p><code>Vk::GetRequiredInstanceExtensions(std::vector&lt;const char*&gt;&amp; extentionNames)</code></p>
+<p>Example:</p>
+<pre><code class="language-cpp">    ...
+
+    std::vector&lt;const char*&gt; iWindowExtensionNames;
+    IWindow::Vk::GetRequiredInstanceExtensions(iWindowExtensionNames);
+
+    VkInstanceCreateInfo instanceInfo{};
+    instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instanceInfo.pApplicationInfo = &amp;appInfo;
+    instanceInfo.enabledExtensionCount = (uint32_t)iWindowExtensionNames.size();
+    instanceInfo.ppEnabledExtensionNames = iWindowExtensionNames.data();
+
+    ...
+</code></pre>
+<p>IWindow will create a <code>VkSurfaceKHR</code> for you since its platform dependent.</p>
+<p><code>VkResult CreateSurface(VkInstance instance, VkSurfaceKHR&amp; surface, Window&amp; window)</code>.</p>
+<p>This is pretty self explanitory. The function takes in an instance, a surface that will be modified and a <code>Window&amp;</code>. The function will return the output of the vk create function.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="InputEnums.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="OpenGL.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
                         <div style="clear: both"></div>
                     </nav>
                 </div>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="InputEnums.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="OpenGL.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            var socket = new WebSocket("ws://localhost:3000/__livereload");
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>
