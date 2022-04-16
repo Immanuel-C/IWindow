@@ -5,6 +5,8 @@
 #include <windows.h>
 
 typedef HWND NativeWindowHandle; 
+typedef HDC NativeGLDeviceContext;
+typedef HGLRC NativeGLRendereringContext;
 
 #endif
 

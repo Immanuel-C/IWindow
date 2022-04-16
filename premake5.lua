@@ -41,8 +41,23 @@ workspace "IWindow"
 
         includedirs { "src" }
 
-
         links {"User32"}
+
+        defaultBuildLocation()
+
+        defaultBuildCfg()
+        
+    project "TestWindowGL"
+        location "test/TestWindowGL"
+        kind "ConsoleApp"
+        language "C++"
+        cppdialect "C++17"
+
+        files {"%{prj.location}/WindowWin32GL.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32GL.cpp"}
+
+        includedirs { "src" }
+
+        links {"User32", "OpenGL32.lib"}
 
         defaultBuildLocation()
 

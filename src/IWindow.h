@@ -61,6 +61,9 @@ namespace IWindow {
 
         void SetPosCallback(WindowPosCallback callback);
         void SetSizeCallback(WindowSizeCallback callback);
+
+
+        NativeGLDeviceContext& GetNativeGLDeviceContext();
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -79,6 +82,8 @@ namespace IWindow {
 
         WindowPosCallback m_posCallback = nullptr;
         WindowSizeCallback m_sizeCallback = nullptr;
+
+        NativeGLDeviceContext m_deviceContext;
 
         void* m_userPtr = nullptr;
     };

@@ -34,7 +34,7 @@ namespace IWindow {
         }
 
         m_window = 
-        ::CreateWindowExW
+        ::CreateWindowEx
         (
             WS_EX_APPWINDOW,                       // Window Type?
             TEXT("IWindow::Window"),               // Class Name
@@ -64,6 +64,8 @@ namespace IWindow {
 
         ::ShowWindow(m_window, SW_SHOW);
 
+        m_deviceContext = GetDC(m_window);
+
         return true;
     }
 
@@ -71,7 +73,7 @@ namespace IWindow {
         MSG msg;
 
         // Get all messages
-        while (::PeekMessageA(&msg, m_window, 0, 0, PM_REMOVE)) {
+        while (::PeekMessage(&msg, m_window, 0, 0, PM_REMOVE)) {
             // ?
             ::TranslateMessage(&msg);
             ::DispatchMessage(&msg);
@@ -88,9 +90,7 @@ namespace IWindow {
 
         if (!iWindow) {
             iWindow = (Window*)GetWindowLongPtr(window, GWLP_USERDATA);
-            if (::IsWindowUnicode(window))
-                return ::DefWindowProcW(window, msg, wparam, lparam);
-            return ::DefWindowProcA(window, msg, wparam, lparam);
+            return ::DefWindowProc(window, msg, wparam, lparam);
         }
 
         return iWindow->WindowCallback(window, msg, wparam, lparam);
@@ -131,10 +131,7 @@ namespace IWindow {
             break;
         }
 
-        if (::IsWindowUnicode(window))
-            return ::DefWindowProcW(window, msg, wparam, lparam);
-        
-        return ::DefWindowProcA(window, msg, wparam, lparam);
+        return ::DefWindowProc(window, msg, wparam, lparam);
     }
 
     WindowSize Window::GetWindowSize() {
@@ -163,7 +160,6 @@ namespace IWindow {
     bool Window::IsKeyUp(Key key) { return !IsKeyDown(key); }
 
 
-
     WindowPos Window::GetWindowPosition() {
         WINDOWPLACEMENT windowPlacement{};
         
@@ -172,7 +168,6 @@ namespace IWindow {
         return WindowPos{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
     }
 
-
     void Window::SetUserPointer(void* ptr) { m_userPtr = ptr; }
 
     void* Window::GetUserPointer() { return m_userPtr; }
@@ -180,4 +175,7 @@ namespace IWindow {
     void Window::SetPosCallback(WindowPosCallback callback) { m_posCallback = callback; }
 
     void Window::SetSizeCallback(WindowSizeCallback callback) { m_sizeCallback = callback; }
+
+
+    NativeGLDeviceContext& Window::GetNativeGLDeviceContext() { return m_deviceContext; }
 }
