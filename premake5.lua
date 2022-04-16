@@ -2,14 +2,11 @@ workspace "IWindow"
     configurations {"Debug", "Release"}
     architecture "x86_64"
 
-    useVulkan = true
-    vulkanSdk = ""
 
-    if useVulkan then
-        vulkanSdk = os.getenv("VULKAN_SDK");
-        if vulkanSdk == nil then
-            error "The vulkan sdk path is not set!"
-        end
+    vulkanSdk = os.getenv("VULKAN_SDK");
+    if vulkanSdk == nil then
+        error "The vulkan sdk path is not set!"
+        exit(-1)
     end
 
     function defaultBuildCfg()
@@ -75,6 +72,54 @@ workspace "IWindow"
 
         libdirs { vulkanSdk .. "/Lib" }
         links {"User32", "vulkan-1"}
+
+        defaultBuildLocation()
+
+        defaultBuildCfg()
+
+    project "IWindowWin32GL"
+        location "src"
+        kind "StaticLib"
+        language "C++"
+        cppdialect "C++17"
+
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32GL.cpp"}
+
+        links {"User32", "OpenGL32"}
+
+        defaultBuildLocation()
+
+        defaultBuildCfg()
+
+    project "IWindowWin32Vk"
+        location "src"
+        kind "StaticLib"
+        language "C++"
+        cppdialect "C++17"
+
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp"}
+
+        includedirs { vulkanSdk .. "/Include", "src" }
+
+        libdirs { vulkanSdk .. "/Lib" }
+        links {"User32", "vulkan-1"}
+
+        defaultBuildLocation()
+
+        defaultBuildCfg()
+
+    project "IWindowWin32All"
+        location "src"
+        kind "StaticLib"
+        language "C++"
+        cppdialect "C++17"
+
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp", "%{prj.location}/IWindowWin32GL.cpp"}
+
+        includedirs { vulkanSdk .. "/Include", "src" }
+
+        libdirs { vulkanSdk .. "/Lib" }
+        links {"User32", "vulkan-1", "OpenGL32"}
 
         defaultBuildLocation()
 

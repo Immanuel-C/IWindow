@@ -20,11 +20,11 @@ namespace IWindow {
 
             void SwapBuffers();
 
-            Window* m_window;
-            NativeGLRendereringContext m_rendereringContext;
-
             void operator=(Context&) = delete;
             Context(Context&) = delete;
+        private:
+            Window* m_window;
+            NativeGLRendereringContext m_rendereringContext;
         };
 
         void* LoadOpenGLFunction(const char* name);

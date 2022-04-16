@@ -15,13 +15,10 @@ int main() {
     IWindow::Window window{};
     IWindow::GL::Context glcontext{};
 
-    if (!window.Create(WINDOW_WIDTH, WINDOW_HEIGHT, "Hello IWindow")) {
-        MessageBoxA(nullptr, "Failed to create a IWindow window!", "Error", MB_ICONEXCLAMATION | MB_OK);
-        return EXIT_FAILURE;
-    }
+    if (!window.Create(WINDOW_WIDTH, WINDOW_HEIGHT, "Hello IWindow")) return EXIT_FAILURE;
 
     if (!glcontext.Create(window, GL_VERSION_MAJOR, GL_VERSION_MINOR)) { 
-        MessageBoxA(nullptr, "Failed to create a IWindow context!\nThis is probably because your computor doesn't support the required version of opengl", "Error", MB_ICONEXCLAMATION | MB_OK);
+        MessageBoxA(nullptr, "Failed to create a IWindow context!\nThis is probably because your computor doesn't support the required version of OpenGL", "Error", MB_ICONEXCLAMATION | MB_OK);
         return EXIT_FAILURE;
     }
     

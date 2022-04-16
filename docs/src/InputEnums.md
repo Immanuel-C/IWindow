@@ -1,11 +1,10 @@
-#pragma once
+# Input Enums
 
-#if defined (_WIN32)
-    #include <WinUser.h> // For virtual key codes
+```cpp
 
+ // All of these are in IWindowCodes.h
 namespace IWindow {
     enum struct Key {
-
         // Numbers dont have virtual key codes
         N0 = 48,
         N1 = 49,
@@ -116,17 +115,19 @@ namespace IWindow {
 
         Max = 1000
     };
+}
+```
 
+The `Key` enum struct is pretty self explanitory.
 
-    enum struct MouseButton {
-
-    };
-
+```cpp
+namespace IWindow {
     enum struct InputState {
         Down,
         Up,
         Max
     };
 }
+```
 
-#endif // _WIN32
+`InputState` is used in the key callback which just says if a key was pressed (Down) or released (Up). 
