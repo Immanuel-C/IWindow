@@ -26,6 +26,7 @@ namespace IWindow {
 
     class Window {
     private:
+        typedef std::function<void(Window&, Key, InputState)> KeyCallback;
         typedef std::function<void(Window&, int64_t, int64_t)> WindowPosCallback;
         typedef WindowPosCallback WindowSizeCallback;
     public:
@@ -60,6 +61,7 @@ namespace IWindow {
 
         void SetPosCallback(WindowPosCallback callback);
         void SetSizeCallback(WindowSizeCallback callback);
+        void SetKeyCallback(KeyCallback callback);
 
         NativeGLDeviceContext& GetNativeGLDeviceContext();
         
@@ -76,13 +78,15 @@ namespace IWindow {
 
         bool m_running = true;
 
-        static void DefaultWindowPosCallback(Window& window, int64_t x, int64_t y) {}
-        static void DefaultWindowSizeCallback(Window& window, int64_t width, int64_t height) {}
+        static void DefaultWindowPosCallback(Window&, int64_t, int64_t) {}
+        static void DefaultWindowSizeCallback(Window&, int64_t, int64_t) {}
+        static void DefaultKeyCallback(Window&, Key, InputState) {}
 
         std::array<bool, (int)Key::Max> m_keys{false};
 
         WindowPosCallback m_posCallback = nullptr;
         WindowSizeCallback m_sizeCallback = nullptr;
+        KeyCallback m_keyCallback = nullptr;
 
         NativeGLDeviceContext m_deviceContext;
 

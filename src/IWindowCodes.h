@@ -1,7 +1,6 @@
 #pragma once
 
 
-enum struct Key;
 
 #if defined (_WIN32)
     #include <WinUser.h> // For virtual key codes
@@ -123,6 +122,12 @@ namespace IWindow {
 
     enum struct MouseButton {
 
+    };
+
+    enum struct InputState {
+        Down,
+        Up,
+        Max
     };
 }
 

@@ -20,6 +20,7 @@ namespace IWindow {
         
         m_posCallback = DefaultWindowPosCallback;
         m_sizeCallback = DefaultWindowSizeCallback;
+        m_keyCallback = DefaultKeyCallback;
 
         
         HINSTANCE instance = GetModuleHandle(nullptr);
@@ -121,15 +122,19 @@ namespace IWindow {
         }
         case WM_KEYDOWN: 
             m_keys[wparam] = true;
+            m_keyCallback(*this, (Key)wparam, InputState::Down);
             break;
         case WM_KEYUP: 
             m_keys[wparam] = false;
+            m_keyCallback(*this, (Key)wparam, InputState::Up);
             break;
         case WM_SYSKEYDOWN:
             m_keys[wparam] = true;
+            m_keyCallback(*this, (Key)wparam, InputState::Down);
             break;
         case WM_SYSKEYUP:
             m_keys[wparam] = false;
+            m_keyCallback(*this, (Key)wparam, InputState::Up);
             break;
         default:
             break;
@@ -179,6 +184,8 @@ namespace IWindow {
     void Window::SetPosCallback(WindowPosCallback callback) { m_posCallback = callback; }
 
     void Window::SetSizeCallback(WindowSizeCallback callback) { m_sizeCallback = callback; }
+
+    void Window::SetKeyCallback(KeyCallback callback) { m_keyCallback = callback; }
 
 
     NativeGLDeviceContext& Window::GetNativeGLDeviceContext() { return m_deviceContext; }
