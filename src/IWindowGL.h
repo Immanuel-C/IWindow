@@ -1,6 +1,5 @@
 #pragma once
 
-// TODO(IC): Implemented this
 #include "IWindow.h"
 #include "IWindowPlatform.h"
 

@@ -1,7 +1,9 @@
 #pragma once
 
 #if defined (_WIN32)
-    #include <WinUser.h> // For virtual key codes
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h> // For virtual key codes 
+    #include <Xinput.h> // xinput codes
 
 namespace IWindow {
     enum struct Key {
@@ -126,6 +128,28 @@ namespace IWindow {
         Down,
         Up,
         Max
+    };
+
+    enum struct GamepadButton {
+        A = XINPUT_GAMEPAD_A,
+        B = XINPUT_GAMEPAD_B,
+        X = XINPUT_GAMEPAD_X,
+        Y = XINPUT_GAMEPAD_Y,
+
+        DpadUp = XINPUT_GAMEPAD_DPAD_UP,
+        DpadDown = XINPUT_GAMEPAD_DPAD_DOWN,
+        DpadRight = XINPUT_GAMEPAD_DPAD_RIGHT,
+        DpadLeft = XINPUT_GAMEPAD_DPAD_LEFT,
+
+        LeftShoulder = XINPUT_GAMEPAD_LEFT_SHOULDER,
+        RightShoulder = XINPUT_GAMEPAD_RIGHT_SHOULDER,
+        
+        LeftStick = XINPUT_GAMEPAD_LEFT_THUMB,
+        RightStick = XINPUT_GAMEPAD_RIGHT_THUMB,
+
+        Start = XINPUT_GAMEPAD_START,
+        Back = XINPUT_GAMEPAD_BACK,
+
     };
 }
 

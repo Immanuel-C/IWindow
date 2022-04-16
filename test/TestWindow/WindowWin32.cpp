@@ -1,4 +1,5 @@
 #include "IWindow.h"
+#include "IWindowGamepad.h"
 
 #include <iostream>
 
@@ -34,6 +35,9 @@ int main() {
     IWindow::Window window{};
     if (!window.Create(1280, 720, "Hello IWindow")) return EXIT_FAILURE;
 
+    // 0 is the index
+    IWindow::Gamepad gp{0};
+
     int userPtrExample = 10;
 
     window.SetPosCallback(Example::WindowPosCallback);
@@ -46,6 +50,11 @@ int main() {
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
             std::cout << "Key A and W were pressed without Alt being pressed\n";
 
+        if (gp.IsButtonDown(IWindow::GamepadButton::A))
+            std::cout << "A was pressed!\n";
+
+
+        gp.Update();
         window.Update();
     }
 }
