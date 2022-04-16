@@ -54,7 +54,7 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/WindowWin32Vk.cpp", "src/IWindowWin32.cpp", "src/IWindowVk.cpp"}
+        files {"%{prj.location}/WindowWin32Vk.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32Vk.cpp"}
 
         includedirs { vulkanSdk .. "/Include", "src" }
 

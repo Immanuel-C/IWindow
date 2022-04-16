@@ -3,10 +3,8 @@
 
 void IWindow::Vk::GetRequiredInstanceExtensions(std::vector<const char*>& extensionNames)
 {
-#if defined(_WIN32) 
     extensionNames.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
     extensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-#endif
 }
 
 VkResult IWindow::Vk::CreateSurface(VkInstance instance, VkSurfaceKHR& surface, Window& window)

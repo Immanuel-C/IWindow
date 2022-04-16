@@ -30,35 +30,37 @@ namespace IWindow {
         typedef std::function<void(Window&, int64_t, int64_t)> WindowPosCallback;
         typedef WindowPosCallback WindowSizeCallback;
     public:
-            Window() {}
-            Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
+        Window() = default;
+        Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
+        ~Window(); 
 
-            bool Create(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
+        bool Create(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
 
-            void Update();
+        void Update();
 
-            bool IsRunning();
+        bool IsRunning();
 
-            NativeWindowHandle& GetNativeWindowHandle(); 
+        NativeWindowHandle& GetNativeWindowHandle(); 
 
-            WindowSize GetWindowSize();
-            WindowPos GetWindowPosition();
+        WindowSize GetWindowSize();
+        WindowPos GetWindowPosition();
 
-            void SetWindowSize(int64_t width, int64_t height);
-            void SetWindowPosiiton(int64_t x, int64_t y);
+        void SetWindowSize(int64_t width, int64_t height);
+        void SetWindowPosiiton(int64_t x, int64_t y);
 
-            bool IsKeyDown(Key key);
-            template<typename... Args>
-            bool IsKeyDown(Key key, Args... args) { return IsKeyDown(key) && IsKeyDown(args...); }
+        bool IsKeyDown(Key key);
+        template<typename... Args>
+        bool IsKeyDown(Key key, Args... args) { return IsKeyDown(key) && IsKeyDown(args...); }
 
-            bool IsKeyUp(Key key);
-            template<typename... Args>
-            bool IsKeyUp(Key key, Args... args) { return IsKeyUp(key) && IsKeyUp(args...); }
+        bool IsKeyUp(Key key);
+        template<typename... Args>
+        bool IsKeyUp(Key key, Args... args) { return IsKeyUp(key) && IsKeyUp(args...); }
 
-            ~Window(); 
+        void SetUserPointer(void* ptr);
+        void* GetUserPointer();
 
-            void SetPosCallback(WindowPosCallback callback);
-            void SetSizeCallback(WindowSizeCallback callback);
+        void SetPosCallback(WindowPosCallback callback);
+        void SetSizeCallback(WindowSizeCallback callback);
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -75,9 +77,9 @@ namespace IWindow {
 
         std::array<bool, (int)Key::Max> m_keys{false};
 
+        WindowPosCallback m_posCallback = nullptr;
+        WindowSizeCallback m_sizeCallback = nullptr;
 
-        WindowPosCallback m_posCallback;
-        WindowSizeCallback m_sizeCallback;
-
+        void* m_userPtr = nullptr;
     };
 }

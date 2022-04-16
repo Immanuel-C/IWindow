@@ -24,6 +24,8 @@ namespace IWindow {
         wc.lpfnWndProc = s_WindowCallback;
         wc.hInstance = instance;
         wc.lpszClassName = TEXT("IWindow::Window");
+        wc.style = CS_OWNDC;
+        wc.hbrBackground = (HBRUSH)(COLOR_ACTIVEBORDER);
 
 
         if (!::RegisterClass(&wc)) {
@@ -170,6 +172,10 @@ namespace IWindow {
         return WindowPos{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
     }
 
+
+    void Window::SetUserPointer(void* ptr) { m_userPtr = ptr; }
+
+    void* Window::GetUserPointer() { return m_userPtr; }
 
     void Window::SetPosCallback(WindowPosCallback callback) { m_posCallback = callback; }
 

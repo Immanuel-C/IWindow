@@ -2,26 +2,35 @@
 
 #include <iostream>
 
-void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-    std::cout << "Window position: " << x << ", " << y << '\n';
+    
+
+namespace Example {
+    void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
+        std::cout << "Window position: " << x << ", " << y << '\n';
+    }
 }
 
 
 void WindowSizeCallback(IWindow::Window& window, int64_t width, int64_t height) {
+    int* userPtr = (int*)window.GetUserPointer();
+    if (userPtr) std::cout << "User Pointer: " << *userPtr << '\n';
     std::cout << "Window Size: " << width << ", " << height << '\n';
 }
 
 int main() {
     IWindow::Window window{};
-    if (!window.Create(1280, 720, u8"Hello IWindow")) return EXIT_FAILURE;
+    if (!window.Create(1280, 720, "Hello IWindow")) return EXIT_FAILURE;
 
-    window.SetPosCallback(WindowPosCallback);
+    int userPtrExample = 10;
+
+    window.SetPosCallback(Example::WindowPosCallback);
     window.SetSizeCallback(WindowSizeCallback);
+    window.SetUserPointer(&userPtrExample);
     
     while (window.IsRunning()) {
 
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
-            std::cout << "Key A and W were pressed!\n";
+            std::cout << "Key A and W were pressed without Alt being pressed\n";
 
         window.Update();
     }
