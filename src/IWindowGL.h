@@ -16,6 +16,7 @@ namespace IWindow {
             bool Create(Window& window, uint16_t majorVersion, uint16_t minorVersion);
 
             void MakeContextNotCurrent();
+            void MakeContextCurrent();
 
             void SwapBuffers();
 

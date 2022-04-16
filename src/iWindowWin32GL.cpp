@@ -111,7 +111,7 @@ namespace IWindow {
             if (!CreateDummyAndLoadFunctions()) return false;
 
             // Now we can choose a pixel format the modern way, using wglChoosePixelFormatARB.
-            int pixelFormatAttribs[] = {
+            std::array<int, 17> pixelFormatAttribs = {
                 WGL_DRAW_TO_WINDOW_ARB,     true,
                 WGL_SUPPORT_OPENGL_ARB,     true,
                 WGL_DOUBLE_BUFFER_ARB,      true,
@@ -125,7 +125,7 @@ namespace IWindow {
 
             int pixelFormat;
             uint32_t numFormats;
-            wglChoosePixelFormatARB(window.GetNativeGLDeviceContext(), pixelFormatAttribs, nullptr, 1, &pixelFormat, &numFormats);
+            wglChoosePixelFormatARB(window.GetNativeGLDeviceContext(), pixelFormatAttribs.data(), nullptr, 1, &pixelFormat, &numFormats);
 
             if (!numFormats) return false;
 
@@ -133,14 +133,14 @@ namespace IWindow {
             DescribePixelFormat(window.GetNativeGLDeviceContext(), pixelFormat, sizeof(pfd), &pfd);
             if (!SetPixelFormat(window.GetNativeGLDeviceContext(), pixelFormat, &pfd)) return false;
 
-            int rendereringContextAttribs[] = {
+            std::array<int, 7>rendereringContextAttribs = {
                 WGL_CONTEXT_MAJOR_VERSION_ARB, majorVersion,
                 WGL_CONTEXT_MINOR_VERSION_ARB, minorVersion,
                 WGL_CONTEXT_PROFILE_MASK_ARB,  WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-                0,
+                0, // end of array
             };
 
-            m_rendereringContext = wglCreateContextAttribsARB(window.GetNativeGLDeviceContext(), nullptr, rendereringContextAttribs);
+            m_rendereringContext = wglCreateContextAttribsARB(window.GetNativeGLDeviceContext(), nullptr, rendereringContextAttribs.data());
 
             if (!m_rendereringContext) return false;
 
@@ -158,6 +158,11 @@ namespace IWindow {
             wglMakeCurrent(m_window->GetNativeGLDeviceContext(), nullptr);
         }
 
+        void Context::MakeContextCurrent()
+        {
+            wglMakeCurrent(m_window->GetNativeGLDeviceContext(), m_rendereringContext);
+        }
+
         void* LoadOpenGLFunction(const char* name) {
             // For opengl functions from version 1.2 to 4.6 (current)
             void* fun = (void*)wglGetProcAddress(name); 
@@ -168,6 +173,11 @@ namespace IWindow {
             {
                 // Old opengl functions opengl 1.1 and below
                 HMODULE module = ::LoadLibrary(TEXT("opengl32.dll"));
+                if (!module) {
+                    MessageBoxA(nullptr, "OpenGL32.dll could not be loaded!", "Error", MB_ICONEXCLAMATION | MB_OK);
+                    return nullptr;
+                }
+
                 fun = (void*)::GetProcAddress(module, name);
             }
 
