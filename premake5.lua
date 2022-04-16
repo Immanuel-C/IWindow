@@ -79,7 +79,3 @@ workspace "IWindow"
         defaultBuildLocation()
 
         defaultBuildCfg()
-    
-        
-
-    

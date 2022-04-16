@@ -5,7 +5,11 @@
 
 namespace IWindow {
     Window::Window(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) { Create(width, height, title, x, y); }
-    Window::~Window() { ::DestroyWindow(m_window); }
+    Window::~Window() { 
+        ::ReleaseDC(m_window, m_deviceContext);
+        ::UnregisterClassW(TEXT("IWindow::Window"), GetModuleHandle(nullptr));
+        ::DestroyWindow(m_window); 
+    }
 
     bool Window::Create(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) {
         m_width = width;
@@ -18,7 +22,7 @@ namespace IWindow {
         m_sizeCallback = DefaultWindowSizeCallback;
 
         
-        HINSTANCE instance = GetModuleHandleA(0);
+        HINSTANCE instance = GetModuleHandle(nullptr);
 
         WNDCLASS wc{};
         wc.lpfnWndProc = s_WindowCallback;
@@ -36,23 +40,23 @@ namespace IWindow {
         m_window = 
         ::CreateWindowEx
         (
-            WS_EX_APPWINDOW,                       // Window Type?
-            TEXT("IWindow::Window"),               // Class Name
+            WS_EX_APPWINDOW,                                            // Window Type?
+            TEXT("IWindow::Window"),                                    // Class Name
             std::wstring{title.begin(), title.end()}.c_str(),           // Window Name
             WS_OVERLAPPEDWINDOW |                 
             WS_CAPTION          | 
             WS_SYSMENU          | 
             WS_MINIMIZEBOX      | 
             WS_MAXIMIZEBOX      | 
-            WS_OVERLAPPED,                          // Styles
-            (int)x,                                 // PosX
-            (int)y,                                 // PosY
-            (int)width,                             // SizeX
-            (int)height,                            // SizeY
-            nullptr,                                // Parent Window
-            nullptr,                                // HMENU?
-            instance,                               // hinstance
-            nullptr                                 // lpParam LPVOID?
+            WS_OVERLAPPED,                                              // Styles
+            (int)x,                                                     // PosX
+            (int)y,                                                     // PosY
+            (int)width,                                                 // SizeX
+            (int)height,                                                // SizeY
+            nullptr,                                                    // Parent Window
+            nullptr,                                                    // HMENU?
+            instance,                                                   // hinstance
+            nullptr                                                     // lpParam LPVOID?
         );
 
         if (!m_window) {

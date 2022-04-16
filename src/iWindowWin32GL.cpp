@@ -33,7 +33,7 @@ namespace IWindow {
         FNP_wwglChoosePixelFormatARB* wglChoosePixelFormatARB;
 
         // We need to create a dummy context because wgl requires a context before loading
-      // any wgl functions
+        // any modern wgl functions
         bool CreateDummyAndLoadFunctions() {
             WNDCLASS wc{};
             wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -88,6 +88,8 @@ namespace IWindow {
             wglCreateContextAttribsARB = (FNP_wglCreateContextAttribsARB*)LoadOpenGLFunction("wglCreateContextAttribsARB");
             wglChoosePixelFormatARB = (FNP_wwglChoosePixelFormatARB*)LoadOpenGLFunction("wglChoosePixelFormatARB");
 
+            if (!wglCreateContextAttribsARB || !wglChoosePixelFormatARB) return false;
+
             wglMakeCurrent(dummyDeviceContext, nullptr);
             wglDeleteContext(dummyRendereringContext);
             ::ReleaseDC(dummyWindow, dummyDeviceContext);
@@ -97,6 +99,11 @@ namespace IWindow {
         }
 
         Context::Context(Window& window, uint16_t majorVersion, uint16_t minorVersion) : m_window { &window } { Create(window, majorVersion, minorVersion); }
+
+        Context::~Context() { 
+            MakeContextNotCurrent();
+            wglDeleteContext(m_rendereringContext);
+        }
 
         bool Context::Create(Window& window, uint16_t majorVersion, uint16_t minorVersion) {
             m_window = &window;
@@ -141,7 +148,6 @@ namespace IWindow {
 
             return true;
         }
-
       
 
         void Context::SwapBuffers() { 

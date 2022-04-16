@@ -24,7 +24,6 @@ namespace IWindow {
     };
 
 
-
     class Window {
     private:
         typedef std::function<void(Window&, int64_t, int64_t)> WindowPosCallback;
@@ -62,8 +61,10 @@ namespace IWindow {
         void SetPosCallback(WindowPosCallback callback);
         void SetSizeCallback(WindowSizeCallback callback);
 
-
         NativeGLDeviceContext& GetNativeGLDeviceContext();
+        
+        void operator=(Window&) = delete;
+        Window(Window&) = delete;
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);

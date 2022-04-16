@@ -119,6 +119,11 @@ namespace IWindow {
 
         Max = 1000
     };
+
+
+    enum struct MouseButton {
+
+    };
 }
 
 #endif // _WIN32
