@@ -27,7 +27,7 @@ void KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::InputState 
     }
 
 
-    std::cout << "Key: " << (int)key << "was just " << sState << '\n';
+    std::cout << "Key: " << (int)key << "is being/was just " << sState << '\n';
 }
 
 int main() {

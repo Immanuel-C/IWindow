@@ -53,9 +53,9 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/WindowWin32GL.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32GL.cpp"}
+        files {"%{prj.location}/WindowWin32GL.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32GL.cpp", "%{prj.location}/glad.cpp"}
 
-        includedirs { "src" }
+        includedirs { "src", "%{prj.location}/deps/glad/include" }
 
         links {"User32", "OpenGL32.lib"}
 
