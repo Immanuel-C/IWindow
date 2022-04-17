@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html" class="active">Window Class</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html" class="active">Window Class</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -213,7 +213,7 @@
     };
 </code></pre>
 <p><code>void SetWindowSize(int64_t width, int64_t height)</code> takes in 2 <code>int64_t</code> (64 bit integer) width, height.</p>
-<p>The <code>void SetPosCallback</code>, <code>void SetKeyCallback</code>, etc. are called when an action like moving the window or a key is pressed happens.</p>
+<p>The <code>void SetPosCallback</code>, <code>void SetKeyCallback</code>, etc. are called when an action like moving the window or a key is pressed happens. For more info goto the <a href="./Callbacks.html">Callbacks section</a>.</p>
 <p>An example of a <code>WindowPosCallback</code> is</p>
 <pre><code class="language-cpp">#include &lt;iostream&gt; // For std::cout
 
@@ -255,7 +255,7 @@ int main() {
                             <a rel="prev" href="WhatAndHow.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="InputEnums.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="Callbacks.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -267,7 +267,7 @@ int main() {
                     <a rel="prev" href="WhatAndHow.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="InputEnums.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="Callbacks.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

@@ -64,7 +64,7 @@ int main() {
     if (!window.Create(1280, 720, "Hello IWindow")) return EXIT_FAILURE;
 
     // 0 is the index/ID of the gamepad
-    IWindow::Gamepad gp{ 0 };
+    IWindow::Gamepad gp{ IWindow::GamepadID::GP1 };
 
     int windowUserPtrExample = 10;
     uint32_t gamePadsConnected = 0;
@@ -77,7 +77,7 @@ int main() {
     for (uint32_t i = 0; i < (int)IWindow::GamepadID::Max; i++) 
         IWindow::Gamepad::SetUserPointer((IWindow::GamepadID)i, &gamePadsConnected);
 
-    IWindow::Gamepad::SetGamepadConnectedCallback(GamepadConnectedCallback);
+    IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
     
 
     while (window.IsRunning()) {
@@ -91,6 +91,8 @@ int main() {
             std::cout << "A was pressed!\n";
             gp.Rumble(0.25, 0.35);
         }
+
+        std::cout << "Left Stick X: " << gp.RightTrigger() << '\n';
 
         //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
 

@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>OpenGL - IWindow Docs</title>
+        <title>Gamepad Input - IWindow Docs</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html" class="active">OpenGL</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="InputEnums.html">Input Enums</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html" class="active">Gamepad Input</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,72 +134,77 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="opengl-with-iwindow"><a class="header" href="#opengl-with-iwindow">OpenGL with IWindow</a></h1>
-<p>IWindow will handle creating the OpenGL context with the <code>GL::Context</code> class and <code>LoadOpenGLFunction(const char* name)</code>.</p>
-<pre><code class="language-cpp">// in IWindowGL.h
-namespace IWindow {
-    namespace GL {
-        class Context {
-        public:
-            Context() = default;
-            Context(Window&amp; window, uint16_t majorVersion, uint16_t minorVersion);
-            ~Context();
-            
-            bool Create(Window&amp; window, uint16_t majorVersion, uint16_t minorVersion);
+                        <h1 id="gamepad-input-in-iwindow"><a class="header" href="#gamepad-input-in-iwindow">Gamepad Input In IWindow</a></h1>
+<p>Gamepad input is pretty simple in IWindow. </p>
+<p>There is a seperate class for gamepad input instead of being in the window class.</p>
+<p>IWindow can only have upto 4 gamepads connected to the whole application.</p>
+<p>The class is <code>IWindow::Gamepad</code>.</p>
+<pre><code class="language-cpp">namespace IWindow {
+    class Gamepad {
+    public:
+        Gamepad() = default;
+        Gamepad(GamepadID gamepadIndex);
 
-            void MakeContextNotCurrent();
-            void MakeContextCurrent();
+        bool IsLeftStickInDeadzone();
+        bool IsRightStickInDeadzone();
 
-            void SwapBuffers();
+        float LeftStickX();
+        float LeftStickY();
+        float RightStickX();
+        float RightStickY();
 
-            void operator=(Context&amp;) = delete;
-            Context(Context&amp;) = delete;
-        };
+        float LeftTrigger(); 
+        float RightTrigger();
 
-        void* LoadOpenGLFunction(const char* name);
-    }
+        bool IsButtonDown(GamepadButton button);
+        template &lt;typename ... Args&gt;
+        bool IsButtonDown(GamepadButton button, Args... args) { return IsButtonDown(button) &amp;&amp; IsButtonDown(args...); }
+
+        bool IsButtonUp(GamepadButton button);
+        template &lt;typename ... Args&gt;
+        bool IsButtonUp(GamepadButton button, Args... args) { return IsButtonUp(button) &amp;&amp; IsButtonUp(args...); }
+
+        GamepadState GetState();
+        GamepadID GetID();
+        bool IsConnected();
+
+        static void SetConnectedCallback(GamepadConnectedCallback callback);
+
+        static void SetUserPointer(GamepadID gid, void* ptr);
+        static void* GetUserPointer(GamepadID gid);
+
+        // 0.0f = cancel, 1.0f max speed
+        void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f);
+
+        void Update();
+    };
 }
+
 </code></pre>
-<p>The context class is less complecated than than the window class.</p>
 <h2 id="main-functions"><a class="header" href="#main-functions">Main Functions</a></h2>
-<p>like the window class the Context class has two ways you can create it with and the same rules that applied to the window class applies here.</p>
-<p>Example:</p>
-<pre><code class="language-cpp">    ...
-    IWindow::GL::Context glContext;
-
-    if (!glContext.Create(...)) HandleError();
-
-    ...
-
-    while(window.IsRunning()) {
-        ...
-        window.Update();
-    }
-
-    ...
-</code></pre>
-<p><code>void MakeContextCurrent()</code> tells opengl to render to the window passed into the <code>Create</code> function or the constructor. This function is called in the <code>Create</code> function/the constructor. </p>
-<p><code>void SwapBuffers()</code> Swaps the front and back framebuffers should be called every frame.</p>
-<p>Example:</p>
-<pre><code class="language-cpp">    ...
-    while(window.IsRunning()) {
-        window.Update();
-        glContext.SwapBuffers();
-    }
-    ...
-</code></pre>
+<p><code>Gamepad(int gamepadIndex)</code> takes in 1 argument, <code>GamepadID gamepadIndex</code>. Game index is one of the 4 available controller slots.</p>
+<p><code>void Update()</code> updates the gamepad state. call this every frame.</p>
+<p><code>bool IsLeftStickInDeadzone()</code> and <code>bool IsRightStickInDeadzone()</code> checks if the controller is in the dead zone of the left/right stick.</p>
+<p><code>float LeftStickX()</code> and <code>float RightStickX()</code> gets the value of how far is the sticks x axis is to the left (-1) or right (0) on the left/right stick.</p>
+<p><code>float LeftStickY()</code> and <code>float RightStickY()</code> gets the value of how far is the sticks y axis is to the bottom (-1) or top (1) on the left/right stick.</p>
+<p><code>float LeftTrigger()</code> and <code>float RightTrigger()</code> gets the value of how much the left/right trigger is down. The functions return 0 if the left/right trigger completly up or it will return 1 if the left/right trigger completly down.</p>
+<p><code>bool IsButtonDown(GamepadButton button)</code> checks if argument <code>button</code> is being pressed. An example of a <code>GamepadButton</code> is <code>GamepadButton::A</code>  and <code>GamepadButton::B</code>.</p>
+<p><code>bool IsButtonUp(GamepadButton button)</code> checks if argument <code>button</code> is not being pressed.</p>
+<p><code>GamepadID GetID()</code> gets the id return the ID that was passed to the constructor. </p>
+<p><code>bool IsConnected()</code> checks if the a controller with the ID of the value passed into the constructor is connected.</p>
+<p><code>static void SetConnectedCallback(GamepadConnectedCallback callback)</code> sets the connected callback. Check out <a href="./Callbacks.html">Callbacks</a> for more info.</p>
+<p><code>static void SetUserPointer(GamepadID gid, void* ptr)</code> sets a pointer that is associated to the GamepadID.
+<code>static void* GetUserPointer(GamepadID gid)</code> gets the pointer associated with the GamepadID. nullptr if no pointer is set.</p>
+<p><code>void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f)</code> vibrates the gamepads motors. leftMotor controlles the left motor on the gamepad and the rightMotor controlles the right motor on the gamepad. Setting the a value to 0 will stop vibrations and setting it to 1 will set the motors to the max speed.</p>
 <h2 id="advanced-functions"><a class="header" href="#advanced-functions">Advanced Functions</a></h2>
-<p><code>void* LoadOpenGLFunction(const char* name)</code> loads a function from opengl the dlls.</p>
+<p><code>GamepadState GetState()</code> get the native gamepad api's state (e.g. XInput: <code>XINPUT_STATE</code>).</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="Vulkan.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="InputEnums.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
-                            </a>
-                            <a rel="next" href="InputEnums.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -207,11 +212,8 @@ namespace IWindow {
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="Vulkan.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="InputEnums.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
-                    </a>
-                    <a rel="next" href="InputEnums.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 

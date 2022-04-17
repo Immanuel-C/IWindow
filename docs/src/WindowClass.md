@@ -98,7 +98,7 @@ Example:
 `void SetWindowSize(int64_t width, int64_t height)` takes in 2 `int64_t` (64 bit integer) width, height.
 
 
-The `void SetPosCallback`, `void SetKeyCallback`, etc. are called when an action like moving the window or a key is pressed happens.
+The `void SetPosCallback`, `void SetKeyCallback`, etc. are called when an action like moving the window or a key is pressed happens. For more info goto the [Callbacks section](./Callbacks.md).
 
 An example of a `WindowPosCallback` is
 ```cpp

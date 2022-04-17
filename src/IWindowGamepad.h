@@ -12,15 +12,15 @@ namespace IWindow {
         typedef std::function<void(GamepadID, bool)> GamepadConnectedCallback;
     public:
         Gamepad() = default;
-        Gamepad(int gamepadIndex);
+        Gamepad(GamepadID gamepadIndex);
 
         bool IsLeftStickInDeadzone();
         bool IsRightStickInDeadzone();
 
-        short LeftStickX();
-        short LeftStickY();
-        short RightStickX();
-        short RightStickY();
+        float LeftStickX();
+        float LeftStickY();
+        float RightStickX();
+        float RightStickY();
 
         float LeftTrigger(); 
         float RightTrigger();
@@ -34,10 +34,10 @@ namespace IWindow {
         bool IsButtonUp(GamepadButton button, Args... args) { return IsButtonUp(button) && IsButtonUp(args...); }
 
         GamepadState GetState();
-        int GetIndex();
+        GamepadID GetID();
         bool IsConnected();
 
-        static void SetGamepadConnectedCallback(GamepadConnectedCallback callback);
+        static void SetConnectedCallback(GamepadConnectedCallback callback);
 
         static void SetUserPointer(GamepadID gid, void* ptr);
         static void* GetUserPointer(GamepadID gid);

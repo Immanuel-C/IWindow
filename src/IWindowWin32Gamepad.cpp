@@ -7,8 +7,8 @@ namespace IWindow {
 
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{nullptr};
 
-    Gamepad::Gamepad(int gamepadIndex) 
-    : m_gamepadIndex { gamepadIndex }
+    Gamepad::Gamepad(GamepadID gamepadIndex) 
+    : m_gamepadIndex { (int)gamepadIndex }
     {
         if (!m_connectedCallback)
             m_connectedCallback = DefaultGamepadConnectedCallback;
@@ -24,7 +24,7 @@ namespace IWindow {
         return state;
     }
 
-    int Gamepad::GetIndex() { return m_gamepadIndex; }
+    GamepadID Gamepad::GetID() { return (GamepadID)m_gamepadIndex; }
 
     bool Gamepad::IsConnected() {
         ::ZeroMemory(&m_state, sizeof(XINPUT_STATE));
@@ -62,10 +62,15 @@ namespace IWindow {
         return true;
     }
 
-    short Gamepad::LeftStickX() { return m_state.Gamepad.sThumbLX; }
-    short Gamepad::LeftStickY() { return m_state.Gamepad.sThumbLY; }
-    short Gamepad::RightStickX() { return m_state.Gamepad.sThumbRX; }
-    short Gamepad::RightStickY() { return m_state.Gamepad.sThumbRY; }
+    float Gamepad::LeftStickX() { 
+        // sThumbLX is a short and the value goes from -SHORT_MAX - SHORT_MAX
+        // but we want a value between -1 and 1 with decimals 
+        return m_state.Gamepad.sThumbLX / 32767.0f; 
+    }
+
+    float Gamepad::LeftStickY() { return m_state.Gamepad.sThumbLY  / 32767.0f; }
+    float Gamepad::RightStickX() { return m_state.Gamepad.sThumbRX / 32767.0f; }
+    float Gamepad::RightStickY() { return m_state.Gamepad.sThumbRY / 32767.0f; }
 
     float Gamepad::LeftTrigger() {
         BYTE trigger = m_state.Gamepad.bLeftTrigger;
@@ -108,7 +113,7 @@ namespace IWindow {
     bool Gamepad::IsButtonDown(GamepadButton button) { return m_state.Gamepad.wButtons & (int)button; }
     bool Gamepad::IsButtonUp(GamepadButton button) { return !IsButtonDown(button); }
 
-    void Gamepad::SetGamepadConnectedCallback(GamepadConnectedCallback callback) { m_connectedCallback = callback; }
+    void Gamepad::SetConnectedCallback(GamepadConnectedCallback callback) { m_connectedCallback = callback; }
 
     void Gamepad::SetUserPointer(GamepadID gid, void* ptr) { m_userPtrs[(int)gid] = ptr; }
 
