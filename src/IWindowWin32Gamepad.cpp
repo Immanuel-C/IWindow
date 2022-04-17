@@ -1,29 +1,34 @@
 #include "IWindowGamepad.h"
 
 namespace IWindow {
-    Gamepad::Gamepad(int gamepadIndex) : m_gamepadIndex { gamepadIndex } {
+    Gamepad::GamepadConnectedCallback Gamepad::m_connectedCallback = nullptr;
+
+    std::array<bool, (int)GamepadID::GP4> Gamepad::m_connectedGamepads{false};
+
+    std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{nullptr};
+
+    Gamepad::Gamepad(int gamepadIndex) 
+    : m_gamepadIndex { gamepadIndex }
+    {
+        if (!m_connectedCallback)
+            m_connectedCallback = DefaultGamepadConnectedCallback;
     }
 
     XINPUT_STATE Gamepad::GetState() {
         XINPUT_STATE state{};
 
-        ::ZeroMemory(&state, sizeof(XINPUT_STATE));
+        // ::ZeroMemory(&state, sizeof(XINPUT_STATE));
 
         XInputGetState(m_gamepadIndex, &state);
 
         return state;
     }
 
-    int Gamepad::GetIndex() {
-        return m_gamepadIndex;
-    }
+    int Gamepad::GetIndex() { return m_gamepadIndex; }
 
     bool Gamepad::IsConnected() {
         ::ZeroMemory(&m_state, sizeof(XINPUT_STATE));
-
         DWORD result = XInputGetState(m_gamepadIndex, &m_state);
-
-
         return result == ERROR_SUCCESS;
     }
 
@@ -65,7 +70,7 @@ namespace IWindow {
     float Gamepad::LeftTrigger() {
         BYTE trigger = m_state.Gamepad.bLeftTrigger;
 
-        if (trigger >XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+        if (trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
             return trigger;
 
         return 0.0f;
@@ -75,6 +80,8 @@ namespace IWindow {
         BYTE trigger = m_state.Gamepad.bRightTrigger;
 
         if (trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+            // Range is usually 0 - 255 but I want 0, 0.1, 0.2, ... 1
+            // so dividing by 255 gets me this
             return trigger / 255.0f;
 
         return 0.0f;
@@ -83,8 +90,9 @@ namespace IWindow {
     void Gamepad::Rumble(float leftMotor, float rightMotor) {
         XINPUT_VIBRATION vibrationState{};
 
-        ::ZeroMemory(&vibrationState, sizeof(XINPUT_VIBRATION));
+        // ::ZeroMemory(&vibrationState, sizeof(XINPUT_VIBRATION));
 
+        // calculate real XInput rumble values
         int iLeftMotor = int(leftMotor * 65535.0f);
         int iRightMotor = int(rightMotor * 65535.0f);
 
@@ -100,8 +108,30 @@ namespace IWindow {
     bool Gamepad::IsButtonDown(GamepadButton button) { return m_state.Gamepad.wButtons & (int)button; }
     bool Gamepad::IsButtonUp(GamepadButton button) { return !IsButtonDown(button); }
 
-    void Gamepad::Update() {
-        m_state = GetState();
-    }
+    void Gamepad::SetGamepadConnectedCallback(GamepadConnectedCallback callback) { m_connectedCallback = callback; }
 
+    void Gamepad::SetUserPointer(GamepadID gid, void* ptr) { m_userPtrs[(int)gid] = ptr; }
+
+    void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int)gid]; }
+
+    void Gamepad::Update() { 
+        ::ZeroMemory(&m_state, sizeof(XINPUT_STATE));
+
+        for (uint32_t i = 0; i < (uint32_t)GamepadID::Max; i++) {
+            DWORD result = XInputGetState(i, &m_state);
+            // Connected
+            if (result == ERROR_SUCCESS && !m_connectedGamepads[i]) {
+                m_connectedCallback((GamepadID)i, true);
+                m_connectedGamepads[i] = true;
+            } 
+            // Disconnected
+            else if (result != ERROR_SUCCESS && m_connectedGamepads[i]) {
+                m_connectedCallback((GamepadID)i, false);
+                m_connectedGamepads[i] = false;
+            }
+
+        }
+
+        m_state = GetState(); 
+    }
 }

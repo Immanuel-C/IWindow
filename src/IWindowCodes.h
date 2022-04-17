@@ -149,7 +149,14 @@ namespace IWindow {
 
         Start = XINPUT_GAMEPAD_START,
         Back = XINPUT_GAMEPAD_BACK,
+    };
 
+    enum struct GamepadID {
+        GP1,
+        GP2,
+        GP3,
+        GP4,
+        Max = GP4,
     };
 }
 
