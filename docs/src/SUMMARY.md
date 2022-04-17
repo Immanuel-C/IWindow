@@ -5,5 +5,4 @@
 [Callbacks](./Callbacks.md)
 [Vulkan](./Vulkan.md)
 [OpenGL](./OpenGL.md)
-[Input Enums](./InputEnums.md)
 [Gamepad Input](./GamepadInput.md)
