@@ -368,8 +368,7 @@ namespace IWindow {
 
         ::SetWindowPos(m_window, nullptr,
             (int)monitor.position.x, (int)monitor.position.y,
-            (int)monitor.size.x,
-            (int)monitor.size.y,
+            (int)monitor.size.x, (int)monitor.size.y,
             SWP_NOOWNERZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
     }
 

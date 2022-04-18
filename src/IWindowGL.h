@@ -16,7 +16,7 @@ namespace IWindow {
 
             void MakeContextNotCurrent();
             void MakeContextCurrent();
-
+             
             void SwapBuffers();
 
             void operator=(Context&) = delete;

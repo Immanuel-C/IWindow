@@ -166,9 +166,9 @@ int main() {
 
     // Set fullscreen on the primary monitor then wait 1 second then set to no fullscreen
     // on the primary monitor
-    window.Fullscreen(true, window.GetPrimaryMonitor());
-    std::this_thread::sleep_for(std::chrono::seconds{ 1 });
-    window.Fullscreen(false, window.GetPrimaryMonitor());
+    // window.Fullscreen(true, window.GetPrimaryMonitor());
+    // std::this_thread::sleep_for(std::chrono::seconds{ 1 });
+    // window.Fullscreen(false, window.GetPrimaryMonitor());
 
     // Gets all available monitors
     std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
@@ -184,7 +184,6 @@ int main() {
 
 
     while (window.IsRunning()) {
-
         gp.Rumble();
 
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
@@ -210,6 +209,4 @@ int main() {
         gp.Update();
         window.Update();
     }
-
-
 }
