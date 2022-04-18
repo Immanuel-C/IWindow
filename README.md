@@ -1,5 +1,5 @@
 # IWindow
- A simple windowing library ment to be used with Vulkan, OpenGL or DirectX.
+ A simple windowing library ment to be used with Vulkan, OpenGL or Direct3D.
  
  Currently IWindow only supports windows.
  
