@@ -1,13 +1,15 @@
-#include "IWindow.h"
+﻿#include "IWindow.h"
 #include "IWindowGamepad.h"
+#include "stbi.h"
 
 #include <iostream>
 #include <chrono>
 #include <future>
 
+
 namespace Example {
     void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-        // std::cout << "Window position: " << x << ", " << y << '\n';
+        std::cout << "Window position: " << x << ", " << y << '\n';
     }
 }
 
@@ -48,8 +50,6 @@ void GamepadConnectedCallback(IWindow::GamepadID gid, bool isConnected) {
         sConnected = "disconnected";
         if (gamePadsConnected)
             (*gamePadsConnected)--;
-        break;
-    default:
         break;
     }
 
@@ -117,14 +117,35 @@ void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, I
 }
 
 void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
-    // std::cout << "Mouse Moved: " << x << ", " << y << '\n';
+    //std::cout << "Mouse Moved: " << x << ", " << y << '\n';
 }
 
 
 
 int main() {
     IWindow::Window window{};
-    if (!window.Create(1280, 720, "Hello IWindow")) return EXIT_FAILURE;
+    if (!window.Create(1280, 720, u8"Dobrodošli u IWindow!")) return EXIT_FAILURE;
+
+    // window.SetCursor(IWindow::NativeCursorID::Hand); // Using internal windowing apis cursors
+    // window.SetIcon(IWindow::NativeIconID::Default); // Using internal windowing apis icons
+
+    int width = 0, height = 0, ch = 0;
+
+    uint8_t* data = stbi_load("assets/icon.png", &width, &height, &ch, 4);
+
+    IWindow::Image image{};
+    image.width = width;
+    image.height = height;
+    image.data = data;
+
+    window.SetIcon(image);
+    // 0, 0 is top left of cursor
+    // width, height is bottom right of cursor
+    // width / 2, height / 2 is middle of cursor
+    window.SetCursor(image, image.width / 2, image.height / 2);
+
+    stbi_image_free(data); // || delete data
+
 
     // 0 is the index/ID of the gamepad
     IWindow::Gamepad gp{ IWindow::GamepadID::GP1 };
@@ -144,8 +165,9 @@ int main() {
 
     IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
 
-    window.Fullscreen(true);
+    //window.Fullscreen(true);
 
+    
     while (window.IsRunning()) {
 
         gp.Rumble();
@@ -155,7 +177,7 @@ int main() {
 
         if (gp.IsButtonDown(IWindow::GamepadButton::A)) {
             std::cout << "A was pressed!\n";
-            gp.Rumble(0.25, 0.35);
+            gp.Rumble(0.25f, 0.35f);
         }
 
         if (window.IsMouseButtonDoubleClicked(IWindow::MouseButton::Left)) {
@@ -169,9 +191,10 @@ int main() {
         //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
 
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        //std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        window.Fullscreen(false);
+
+        //window.Fullscreen(false);
 
         gp.Update();
         window.Update();

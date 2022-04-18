@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Callbacks</title>
+        <title>Enum Structs</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html" class="active">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Image</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html" class="active">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Image</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,142 +134,20 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="callbacks-in-iwindow"><a class="header" href="#callbacks-in-iwindow">Callbacks In IWindow</a></h1>
-<p>A callback is a function that is called during a certain event.</p>
-<h2 id="window-callbacks"><a class="header" href="#window-callbacks">Window Callbacks</a></h2>
-<h4 id="window-position-callback"><a class="header" href="#window-position-callback">Window Position Callback</a></h4>
-<p>The window position callback is called when the window is being moved;</p>
-<ul>
-<li>The <code>IWindow::Window&amp;</code> argument is the window that called the callback. </li>
-<li>The first <code>int64_t</code> argument is the new x position of the window.</li>
-<li>The second <code>int64_t</code> argument is the new y position of the window.</li>
-</ul>
-<p>The internal x and y position will be automatically updated. So there is no need to call <code>window.SetPosition</code> on the window.</p>
-<p>To register a window position callback, call <code>window.SetPosCallback(callback)</code>. Where window is a IWindow::Window.</p>
-<p>An example of a window position callback is:</p>
-<pre><code class="language-cpp">void WindowPosCallback(IWindow::Window&amp; window, int64_t x, int64_t y) {
-    std::cout &lt;&lt; &quot;Window position: &quot; &lt;&lt; x &lt;&lt; &quot;, &quot; &lt;&lt; y &lt;&lt; '\n';
-}
-
-...
-
-// IWindow::Window
-window.SetPosCallback(WindowPosCallback);
-</code></pre>
-<h4 id="window-size-callback"><a class="header" href="#window-size-callback">Window Size Callback</a></h4>
-<p>The window size callback is called when the window is being resized;</p>
-<ul>
-<li>The <code>IWindow::Window&amp;</code> argument is the window that called the callback. </li>
-<li>The first <code>int64_t</code> argument is the new width position of the window.</li>
-<li>The second <code>int64_t</code> argument is the new height position of the window.</li>
-</ul>
-<p>The internal width and height position will be automatically updated. So there is no need to call <code>window.SetSize</code> on the window.</p>
-<p>To register a window size callback, call <code>window.SetSizeCallback(callback)</code>. Where window is a IWindow::Window.</p>
-<p>An example of a window size callback is:</p>
-<pre><code class="language-cpp">void WindowSizeCallback(IWindow::Window&amp; window, int64_t width, int64_t height) {
-    std::cout &lt;&lt; &quot;Window size: &quot; &lt;&lt; width &lt;&lt; &quot;, &quot; &lt;&lt; height &lt;&lt; '\n';
-}
-
-...
-
-// window is a IWindow::Window
-window.SetSizeCallback(WindowPosCallback);
-</code></pre>
-<h2 id="input-callbacks"><a class="header" href="#input-callbacks">Input Callbacks</a></h2>
-<h4 id="key-callback"><a class="header" href="#key-callback">Key Callback</a></h4>
-<p>The key callback is called when a key is pressed on the key board.</p>
-<ul>
-<li>The <code>IWindow::Window&amp;</code> argument is the window that called the callback. </li>
-<li>The <code>IWindow::Key</code> argument is the key that was pressed (e.g. <code>Key::A</code>, <code>Key::B</code>, etc.)</li>
-<li>The <code>IWindow::InputState</code> argument says if the key was pressed or released.</li>
-</ul>
-<p>to register a key callback, call <code>window.SetKeyCallback()</code>. Where window is a IWindow::Window.</p>
-<p>An example of a key callback is:</p>
-<pre><code class="language-cpp">void KeyCallback(IWindow::Window&amp; window, IWindow::Key key, IWindow::InputState state) {
-    std::cout &lt;&lt; &quot;Key &quot; &lt;&lt; key &lt;&lt; &quot; was just &quot; &lt;&lt; state &lt;&lt; '\n';
-}
-
-...
-
-window.SetKeyCallback(KeyCallback);
-</code></pre>
-<h4 id="mouse-button-callback"><a class="header" href="#mouse-button-callback">Mouse Button Callback</a></h4>
-<p>The mouse button is called when a mouse button is pressed.</p>
-<ul>
-<li>The <code>IWindow::Window&amp;</code> is the window that called the callback.</li>
-<li>The <code>IWindow::MouseButton</code> is what button was pressed.</li>
-<li>The <code>IWindow::InputState</code> is what input state (e.g. Down, Up) the button is in.</li>
-<li>The <code>IWindow::ClickState</code> is what click state the button is in (e.g. single clicked, double clicked).</li>
-</ul>
-<p>to register a mouse button callback, call <code>window.SetMouseButtonCallback()</code>. Where window is a <code>IWindow::Window</code>.</p>
-<p>An example of a mouse button callback is:</p>
-<pre><code class="language-cpp">void MouseButtonCallback(IWindow::Window&amp; window, IWindow::MouseButton button, IWindow::InputState iState, IWindow::ClickState cState) {
-
-}
-
-...
-
-window.SetMouseButtonCallback(MouseButtonCallback);
-
-</code></pre>
-<h4 id="mouse-move-callback"><a class="header" href="#mouse-move-callback">Mouse Move Callback</a></h4>
-<p>The mouse move callback is called when the cursor moves.</p>
-<ul>
-<li>The <code>IWindow::Window&amp;</code> argument is the window that called the callback.</li>
-<li>The first <code>int64_t</code> argument is the cursors x position.</li>
-<li>The second <code>int64_t</code> argument is the cursors y position.</li>
-</ul>
-<p>to register a mouse move callback for callback, call <code>window.SetMouseMoveCallback()</code>. Where window is a <code>IWindow::Window</code>.</p>
-<p>An example of a mouse move callback is:</p>
-<pre><code class="language-cpp">void MouseMoveCallback(IWindow::Window&amp; window, int64_t x, int64_t y) {
-    std::cout &lt;&lt; &quot;Mouse Moved: &quot; &lt;&lt; x &lt;&lt; &quot;, &quot; &lt;&lt; y &lt;&lt; '\n';
-}
-
-...
-
-// window = IWindow::Window
-window.SetMouseMoveCallback(MouseMoveCallback);
-
-</code></pre>
-<h4 id="gamepad-connected-callback"><a class="header" href="#gamepad-connected-callback">Gamepad Connected Callback</a></h4>
-<p>The gamepad connected callback is called when a gamepad is connected. </p>
-<ul>
-<li>The <code>IWindow::GamepadID</code> argument is the ID of the gamepad that was connected/disconnected.</li>
-<li>The <code>bool</code> argument is if the gamepad was connected/disconnected. Connected if true and disconnected if false.</li>
-</ul>
-<p>to register a gamepad connected callback, call <code>IWindow::Gamepad::SetConnectedCallback()</code>. The callback will be set for every gamepad thats why its static.</p>
-<p>An example of a gamepad connected callback is:</p>
-<pre><code class="language-cpp">void GamepadConnectedCallback(IWindow::GamepadID gid, bool isConnected) {
-    const char* sConnected = &quot;&quot;;
-
-    switch (isConnected)
-    {
-    case true:
-        sConnected = &quot;connected&quot;;
-        break;
-    case false:
-        sConnected = &quot;disconnected&quot;;
-    default:
-        break;
-    }
-
-
-    std::cout &lt;&lt; &quot;Gamepad &quot; &lt;&lt; (int)gid &lt;&lt; &quot; was &quot; &lt;&lt; sConnected &lt;&lt; &quot;!\n&quot;;
-}
-
-...
-
-IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
-</code></pre>
+                        <h1 id="enum-structs"><a class="header" href="#enum-structs">Enum structs</a></h1>
+<h3 id="iwindownativeiconid"><a class="header" href="#iwindownativeiconid"><code>IWindow::NativeIconID</code></a></h3>
+<p>This is an enum struct that contains all default window icons (for platforms that support it).</p>
+<h3 id="iwindownativecursorid"><a class="header" href="#iwindownativecursorid"><code>IWindow::NativeCursorID</code></a></h3>
+<p>This enum struct contains all default cursors images.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="GamepadInput.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="OpenGL.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="Vulkan.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="ImageStruct.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -278,10 +156,10 @@ IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="GamepadInput.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="OpenGL.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="Vulkan.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="ImageStruct.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>

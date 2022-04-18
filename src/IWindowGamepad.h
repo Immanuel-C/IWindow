@@ -33,7 +33,7 @@ namespace IWindow {
         template <typename ... Args>
         bool IsButtonUp(GamepadButton button, Args... args) { return IsButtonUp(button) && IsButtonUp(args...); }
 
-        GamepadState GetState();
+        NativeGamepadState GetState();
         GamepadID GetID();
         bool IsConnected();
 
@@ -48,7 +48,7 @@ namespace IWindow {
         void Update();
 
     private:
-        GamepadState m_state;
+        NativeGamepadState m_state;
         int m_gamepadIndex;
 
         static void DefaultGamepadConnectedCallback(GamepadID, bool) {}

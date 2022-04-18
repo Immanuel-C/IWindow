@@ -5,12 +5,27 @@
 #include <windows.h>
 #include <Xinput.h> // xinput codes
 
+namespace IWindow {
+    typedef HWND NativeWindowHandle; 
+    typedef HDC NativeGLDeviceContext;
+    typedef HGLRC NativeGLRendereringContext;
+    typedef HCURSOR NativeCursor;
+    typedef HICON NativeIcon; 
 
-typedef HWND NativeWindowHandle; 
-typedef HDC NativeGLDeviceContext;
-typedef HGLRC NativeGLRendereringContext;
-typedef XINPUT_STATE GamepadState;
+    enum struct NativeCursorID {
+        Arrow = (int64_t)IDC_ARROW,
+        Hand = (int64_t)IDC_HAND,
+        Max
+    };
 
+    enum struct NativeIconID {
+        Default = (int64_t)IDI_APPLICATION,
+        Max
+    };
+
+    // Gamepad
+    typedef XINPUT_STATE NativeGamepadState;
+}
 #endif
 
 

@@ -5,6 +5,8 @@
 namespace IWindow {
     Window::Window(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) { Create(width, height, title, x, y); }
     Window::~Window() { 
+        ::DestroyIcon(m_icon);
+        ::DestroyCursor(m_cursor);
         ::ReleaseDC(m_window, m_deviceContext);
         ::UnregisterClassW(TEXT("IWindow::Window"), GetModuleHandle(nullptr));
         ::DestroyWindow(m_window); 
@@ -13,14 +15,15 @@ namespace IWindow {
     bool Window::Create(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) {
         m_width = width;
         m_height = height;
-        m_oldWidth = width;
+        m_oldWidth = m_width;
         m_oldHeight = m_height;
         m_x = x;
         m_y = y;
         m_title = title;
-        
-        HINSTANCE instance = GetModuleHandle(nullptr);
+        m_icon = LoadIcon(nullptr, IDI_APPLICATION);
+        m_cursor = LoadCursor(nullptr, IDC_ARROW);
 
+        HINSTANCE instance = GetModuleHandle(nullptr);
 
         WNDCLASS wc{};
         wc.lpfnWndProc = s_WindowCallback;
@@ -28,8 +31,9 @@ namespace IWindow {
         wc.lpszClassName = TEXT("IWindow::Window");
         wc.style = CS_OWNDC | CS_DBLCLKS ;
         wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
-        wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-
+        wc.hCursor = m_cursor;
+        wc.hIcon = m_icon;
+        
 
         if (!::RegisterClass(&wc)) {
             ::MessageBoxA(nullptr, "Failed to register window class!", "Error", MB_ICONEXCLAMATION | MB_OK);
@@ -108,8 +112,8 @@ namespace IWindow {
             break;
         case WM_MOVE: {
             // if lparam is less than zero than it will act like a uint
-            m_x = LOWORD(lparam) >= 65000 ? 0 : LOWORD(lparam);
-            m_y = HIWORD(lparam) >= 65000  ? 0 : HIWORD(lparam);
+            m_x = GET_X_LPARAM(lparam);
+            m_y = GET_Y_LPARAM(lparam);
             m_posCallback(*this, m_x, m_y);
             break;
         }
@@ -207,6 +211,12 @@ namespace IWindow {
             m_mouseButtonCallback(*this, sideBtn, InputState::Down, ClickState::Double);
             break;
         }
+
+        case WM_SETCURSOR: {
+            ::SetCursor(m_cursor);
+            return true; // we have to return true
+            break;
+        }
         default:
             break;
         }
@@ -214,11 +224,11 @@ namespace IWindow {
         return ::DefWindowProc(window, msg, wparam, lparam);
     }
 
-    Vector2 Window::GetWindowSize() {
+    IVector2 Window::GetWindowSize() {
         RECT rect;
         ::GetClientRect(m_window, &rect);
 
-        return Vector2{(int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top};
+        return IVector2{(int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top};
     }
 
     void Window::SetWindowSize(int64_t width, int64_t height) {
@@ -244,12 +254,12 @@ namespace IWindow {
     bool Window::IsMouseButtonUp(MouseButton button) { return !IsMouseButtonDown(button) || IsMouseButtonDoubleClicked(button); }
 
 
-    Vector2 Window::GetWindowPosition() {
+    IVector2 Window::GetWindowPosition() {
         WINDOWPLACEMENT windowPlacement{};
         
         ::GetWindowPlacement(m_window, &windowPlacement);
 
-        return Vector2{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
+        return IVector2{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
     }
 
     void Window::SetUserPointer(void* ptr) { m_userPtr = ptr; }
@@ -263,7 +273,7 @@ namespace IWindow {
     void Window::SetMouseButtonCallback(MouseButtonCallback callback) { m_mouseButtonCallback = callback; }
 
 
-    Vector2 Window::GetMousePosition() { return Vector2{ m_mouseX, m_mouseY }; }
+    IVector2 Window::GetMousePosition() { return IVector2{ m_mouseX, m_mouseY }; }
 
     void Window::Center() {
         MONITORINFO mi{};
@@ -307,6 +317,92 @@ namespace IWindow {
     }
 
     bool Window::IsFullscreen() { return m_fullscreen; }
+
+    // Orignally was glfw3's implementation reworked to work with IWindow
+    HANDLE CreateImage(Image image, uint32_t hotX, uint32_t hotY, bool isIcon) {
+        HANDLE imageHandle;
+        HBITMAP color, mask;
+        BITMAPV5HEADER bi;
+        ICONINFO ii;
+        unsigned char* target = NULL;
+        unsigned char* source = image.data;
+
+        ::ZeroMemory(&bi, sizeof(bi));
+        bi.bV5Size = sizeof(bi);
+        bi.bV5Width = image.width;
+        // Doing image.height will make the image upside down
+        bi.bV5Height = -image.height;
+        bi.bV5Planes = 1;
+        bi.bV5BitCount = 32;
+        bi.bV5Compression = BI_BITFIELDS;
+        bi.bV5RedMask = 0x00ff0000;
+        bi.bV5GreenMask = 0x0000ff00;
+        bi.bV5BlueMask = 0x000000ff;
+        bi.bV5AlphaMask = 0xff000000;
+
+        HDC deviceContext = ::GetDC(nullptr);
+
+        color = ::CreateDIBSection(deviceContext,
+            (BITMAPINFO*)&bi,
+            DIB_RGB_COLORS,
+            (void**)&target,
+            NULL,
+            (DWORD)0);
+
+
+        mask = ::CreateBitmap(image.width, image.height, 1, 1, NULL);
+
+        ::ReleaseDC(nullptr, deviceContext);
+
+
+        for (int32_t i = 0; i < image.width * image.height; i++)
+        {
+            target[0] = source[2];
+            target[1] = source[1];
+            target[2] = source[0];
+            target[3] = source[3];
+            target += 4;
+            source += 4;
+        }
+
+        ::ZeroMemory(&ii, sizeof(ii));
+        ii.fIcon = isIcon;
+        ii.xHotspot = hotX;
+        ii.yHotspot = hotY;
+        ii.hbmMask = mask;
+        ii.hbmColor = color;
+
+        imageHandle = ::CreateIconIndirect(&ii);
+
+        ::DeleteObject(color);
+        ::DeleteObject(mask);
+
+        return imageHandle;
+    }
+
+    // Implementation came from GLFW
+    void Window::SetIcon(Image image) {
+        m_icon = (NativeIcon)CreateImage(image, 0, 0, true);
+
+        ::SendMessage(m_window, WM_SETICON, ICON_SMALL, (LPARAM)m_icon);
+        ::SendMessage(m_window, WM_SETICON, ICON_BIG, (LPARAM)m_icon);
+    }
+
+    void Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY) {
+        m_cursor = (NativeCursor)CreateImage(image, hotX, hotY, false);
+        ::SendMessage(m_window, WM_SETCURSOR, (WPARAM)m_window, (LPARAM)0);
+    }
+
+    void Window::SetIcon(NativeIconID iconID) {
+        m_icon = ::LoadCursor(nullptr, MAKEINTRESOURCE(iconID));
+        ::SendMessage(m_window, WM_SETICON, ICON_SMALL, (LPARAM)m_icon);
+        ::SendMessage(m_window, WM_SETICON, ICON_BIG, (LPARAM)m_icon);
+    }
+
+    void Window::SetCursor(NativeCursorID cursorID) {
+        m_cursor = ::LoadCursor(nullptr, MAKEINTRESOURCE(cursorID));
+        ::SendMessage(m_window, WM_SETCURSOR, (WPARAM)m_window, (LPARAM)0);
+    }
 
     NativeGLDeviceContext& Window::GetNativeGLDeviceContext() { return m_deviceContext; }
 }

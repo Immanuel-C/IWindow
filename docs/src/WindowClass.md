@@ -22,10 +22,10 @@ namespace IWindow {
 
         NativeWindowHandle& GetNativeWindowHandle(); 
 
-        Vector2 GetWindowSize();
-        Vector2 GetWindowPosition();
+        IVector2 GetWindowSize();
+        IVector2 GetWindowPosition();
 
-        Vector2 GetMousePosition();
+        IVector2 GetMousePosition();
 
         void SetWindowSize(int64_t width, int64_t height);
         void SetWindowPosition(int64_t x, int64_t y);
@@ -62,6 +62,11 @@ namespace IWindow {
         void Center();
         void Fullscreen(bool fullscreen);
         bool IsFullscreen();
+
+        void SetIcon(Image image);
+        void SetCursor(Image image, uint32_t hotX, uint32_t hotY);
+        void SetIcon(NativeIconID iconID);
+        void SetCursor(NativeCursorID cursorID);
 
         NativeGLDeviceContext& GetNativeGLDeviceContext();
         
@@ -110,12 +115,7 @@ Example:
 
 
 ## Getters And Setters
-`Vector2 IWindow::Window::GetWindowSize()` returns a `IWindow::Vector2` which is
-```cpp
-    struct Vector2 {
-        int64_t y, x;
-    };
-```
+`IVector2 IWindow::Window::GetWindowSize()` returns a `IWindow::IVector2`. Where `x` is the width and `y` is the height. See [Vector](./Vector.md).
 
 where `x` and `y` are width and height of the window.
 
@@ -123,7 +123,7 @@ where `x` and `y` are width and height of the window.
 
 `void IWindow::Window::SetWindowPosition(int64_t x, int64_t x)` takes in 2 `int64_t` (64 bit integer) x, y. This function sets the window position.
 
-`Vector2 IWindow::Window::GetWindowPosition()` return a `IWindow::Vector2`. Where `x` and `y` are the window position.
+`IVector2 IWindow::Window::GetWindowPosition()` return a `IWindow::IVector2`. Where `x` and `y` are the window position. See [Vector](./Vector.md).
 
 The `void IWindow::Window::SetPosCallback`, `void IWindow::Window::SetKeyCallback`, etc. are called when an action like moving the window or a key is pressed happens. For more info goto the [Callbacks section](./Callbacks.md).
 
@@ -198,6 +198,13 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 `bool IWindow::Window::IsFullscreen()` return true if window is fullscreen and false if not.
 
+`void IWindow::Window::SetIcon(Image image)` sets the window icon to an image. The image has to have 4 channels, in order `RGBA`, 8 bits/1 byte per channel. The image has to starts at the top left corner.
+
+`void IWindow::Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY)`. sets the cursor to an image. The cursor has to be inside the window to show image. The image has to have 4 channels, in order `RGBA`, 8 bits/1 byte per channel, the image has to start at the top left corner. `hotX` is the location of the x location that effects cursor events. `hotY` is similer but it is the y location. Think of the 'Hot' location has the place cursor events take place (e.g. when you click it will be at the hot location).
+
+`void IWindow::Window::SetIcon(NativeIconID iconID)` sets the icon using a native icon id. See [Enum Structs](./EnumStructs.md).
+
+`void IWindow::Window::SetCursor(NativeCursorID cursorID)` sets the cursor using a native cursor id. See [Enum Structs](./EnumStructs.md).
 
 ## Advanced Functions
 

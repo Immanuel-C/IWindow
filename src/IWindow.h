@@ -17,8 +17,13 @@
 #include <functional>
 
 namespace IWindow {
-    struct Vector2 {
+    struct IVector2 {
         int64_t x, y;
+    };
+
+    struct Image {
+        int32_t width, height;
+        uint8_t* data;
     };
 
 
@@ -44,10 +49,10 @@ namespace IWindow {
 
         NativeWindowHandle& GetNativeWindowHandle(); 
 
-        Vector2 GetWindowSize();
-        Vector2 GetWindowPosition();
+        IVector2 GetWindowSize();
+        IVector2 GetWindowPosition();
 
-        Vector2 GetMousePosition();
+        IVector2 GetMousePosition();
 
         void SetWindowSize(int64_t width, int64_t height);
         void SetWindowPosition(int64_t x, int64_t y);
@@ -85,6 +90,11 @@ namespace IWindow {
         void Fullscreen(bool fullscreen);
         bool IsFullscreen();
 
+        void SetIcon(Image image);
+        void SetCursor(Image image, uint32_t hotX, uint32_t hotY);
+        void SetIcon(NativeIconID iconID);
+        void SetCursor(NativeCursorID cursorID);
+
         NativeGLDeviceContext& GetNativeGLDeviceContext();
         
         void operator=(Window&) = delete;
@@ -103,10 +113,9 @@ namespace IWindow {
 
         NativeWindowHandle m_window;
 
-
-        std::array<bool, (int)Key::Max> m_keys{false};
-        std::array<bool, (int)MouseButton::Max> m_mouseButtons{false};
-        std::array<bool, (int)MouseButton::Max> m_mouseButtonsDbl{false};
+        std::array<bool, (int32_t)Key::Max> m_keys{false};
+        std::array<bool, (int32_t)MouseButton::Max> m_mouseButtons{false};
+        std::array<bool, (int32_t)MouseButton::Max> m_mouseButtonsDbl{false};
 
         static void DefaultWindowPosCallback(Window&, int64_t, int64_t) {}
         static void DefaultWindowSizeCallback(Window&, int64_t, int64_t) {}
@@ -121,6 +130,9 @@ namespace IWindow {
         MouseButtonCallback m_mouseButtonCallback = DefaultMouseButtonCallback;
 
         NativeGLDeviceContext m_deviceContext;
+
+        NativeCursor m_cursor;
+        NativeIcon m_icon;
 
         void* m_userPtr = nullptr;
     };
