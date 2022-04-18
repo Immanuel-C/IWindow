@@ -3,6 +3,8 @@
  
  Currently IWindow only supports windows.
  
+ IWindow is written is C++ and uses C++17.
+ 
  No this isn't as good as GLFW yet...
 
 # How to build
