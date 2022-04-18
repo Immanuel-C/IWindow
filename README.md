@@ -2,6 +2,8 @@
  A simple windowing library ment to be used with Vulkan or OpenGL.
  
  Currently IWindow only supports windows.
+ 
+ No this isn't as good as GLFW yet...
 
 # How to build
 
