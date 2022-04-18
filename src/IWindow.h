@@ -143,7 +143,6 @@ namespace IWindow {
         static void DefaultMouseButtonCallback(Window&, MouseButton, InputState, ClickState) {}
         static void DefaultMouseScrollCallback(Window&, float, float) {}
 
-
         WindowPosCallback m_posCallback = DefaultWindowPosCallback;
         WindowSizeCallback m_sizeCallback = DefaultWindowSizeCallback;
         KeyCallback m_keyCallback = DefaultKeyCallback;

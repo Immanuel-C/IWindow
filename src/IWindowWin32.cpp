@@ -3,12 +3,13 @@
 #include <iostream>
 
 namespace IWindow {
+
     Window::Window(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) { Create(width, height, title, x, y); }
     Window::~Window() { 
         ::DestroyIcon(m_icon);
         ::DestroyCursor(m_cursor);
         ::ReleaseDC(m_window, m_deviceContext);
-        ::UnregisterClassW(TEXT("IWindow::Window"), GetModuleHandle(nullptr));
+        ::UnregisterClassW(L"IWindow::Window", GetModuleHandle(nullptr));
         ::DestroyWindow(m_window); 
     }
 
@@ -25,26 +26,34 @@ namespace IWindow {
 
         HINSTANCE instance = GetModuleHandle(nullptr);
 
+        // for multi-window support
+        static bool registered = false;
+
+        std::wstring classNane = L"IWindow::Window";
+
         WNDCLASS wc{};
         wc.lpfnWndProc = s_WindowCallback;
         wc.hInstance = instance;
-        wc.lpszClassName = TEXT("IWindow::Window");
+        wc.lpszClassName = classNane.c_str();
         wc.style = CS_OWNDC | CS_DBLCLKS ;
         wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
         wc.hCursor = m_cursor;
         wc.hIcon = m_icon;
         
+        // If already registered dont register again
+        if (!registered)
+            if (!::RegisterClass(&wc) ) {
+                ::MessageBoxA(nullptr, "Failed to register window class!", "Error", MB_ICONEXCLAMATION | MB_OK);
+                return false;
+            }
 
-        if (!::RegisterClass(&wc)) {
-            ::MessageBoxA(nullptr, "Failed to register window class!", "Error", MB_ICONEXCLAMATION | MB_OK);
-            return false;
-        }
+        registered = true;
 
         m_window = 
         ::CreateWindowEx
         (
             WS_EX_APPWINDOW,                                            // Window Type?
-            TEXT("IWindow::Window"),                                    // Class Name
+            classNane.c_str(),                                    // Class Name
             std::wstring{title.begin(), title.end()}.c_str(),           // Window Name
             WS_OVERLAPPEDWINDOW |                 
             WS_CAPTION          | 

@@ -46,7 +46,7 @@ namespace IWindow {
             HWND dummyWindow = ::CreateWindowEx(
                 0,
                 wc.lpszClassName,
-                TEXT("Dummy OpenGL Window"),
+                L"Dummy OpenGL Window",
                 0,
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
@@ -172,7 +172,7 @@ namespace IWindow {
             if(fun == nullptr || (fun == (void*)0x1) || (fun == (void*)0x2) || (fun == (void*)0x3) || (fun == (void*)-1) )
             {
                 // Old opengl functions opengl 1.1 and below
-                HMODULE module = ::LoadLibrary(TEXT("opengl32.dll"));
+                HMODULE module = ::LoadLibrary(L"opengl32.dll");
                 if (!module) {
                     MessageBoxA(nullptr, "OpenGL32.dll could not be loaded!", "Error", MB_ICONEXCLAMATION | MB_OK);
                     return nullptr;

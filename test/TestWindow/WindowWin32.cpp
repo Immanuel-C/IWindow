@@ -126,8 +126,9 @@ void MouseScrollCallback(IWindow::Window& window, float xOffset, float yOffset) 
 
 int main() {
     IWindow::Window window{};
+    IWindow::Window w2{};
     if (!window.Create(1280, 720, u8"Hello IWindow!")) return EXIT_FAILURE;
-
+    if (!w2.Create(1280, 720, u8"Test")) return EXIT_FAILURE;
     // window.SetCursor(IWindow::NativeCursorID::Hand); // Using internal windowing apis cursors
     // window.SetIcon(IWindow::NativeIconID::Default); // Using internal windowing apis icons
 
@@ -212,5 +213,6 @@ int main() {
 
         gp.Update();
         window.Update();
+        w2.Update();
     }
 }
