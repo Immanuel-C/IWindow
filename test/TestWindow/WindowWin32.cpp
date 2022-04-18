@@ -187,7 +187,6 @@ int main() {
             << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
 
 
-
     while (window.IsRunning()) {
         gp.Rumble();
 

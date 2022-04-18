@@ -4,6 +4,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Xinput.h>
+#include <windowsx.h>
+
 
 namespace IWindow {
     typedef HWND NativeWindowHandle; 
@@ -25,7 +27,10 @@ namespace IWindow {
 
     // Gamepad
     typedef XINPUT_STATE NativeGamepadState;
+
+    typedef void* X11Display;
 }
+
 #endif
 
 

@@ -4,13 +4,6 @@
 #include <array>
 #include <string>
 
-
-#if defined (_WIN32)
-#define WIN32_LEAN_AND_MEAN
-    #include <windows.h>
-    #include <windowsx.h>
-#endif
-
 #include "IWindowPlatform.h"
 #include "IWindowCodes.h"
 
@@ -112,6 +105,10 @@ namespace IWindow {
         void SetCursor(NativeCursorID cursorID);
 
         NativeDeviceContext& GetNativeDeviceContext();
+
+        // X11 (Linux) only
+        // On Windows this will return nullptr
+        X11Display GetX11Display();
         
         void operator=(Window&) = delete;
         Window(Window&) = delete;
@@ -131,6 +128,7 @@ namespace IWindow {
         bool m_running = true;
 
         NativeWindowHandle m_window;
+        X11Display m_display;
 
         std::array<bool, (int32_t)Key::Max> m_keys{false};
         std::array<bool, (int32_t)MouseButton::Max> m_mouseButtons{false};
