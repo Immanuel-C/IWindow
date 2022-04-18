@@ -28,7 +28,7 @@ namespace IWindow {
         Vector2 GetMousePosition();
 
         void SetWindowSize(int64_t width, int64_t height);
-        void SetWindowPosiiton(int64_t x, int64_t y);
+        void SetWindowPosition(int64_t x, int64_t y);
 
         bool IsKeyDown(Key key);
         template<typename... Args>
@@ -58,6 +58,10 @@ namespace IWindow {
         void SetKeyCallback(KeyCallback callback);
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
+
+        void Center();
+        void Fullscreen(bool fullscreen);
+        bool IsFullscreen();
 
         NativeGLDeviceContext& GetNativeGLDeviceContext();
         
@@ -147,7 +151,7 @@ void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
 
 `void IWindow::Window::SetUserPointer(void* ptr)` sets an internal pointer that can be retreived in a callback or some where else.
 
-```
+```cpp
 int main() {
     ...
 
@@ -187,6 +191,12 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 ...
 ```
+
+`void IWindow::Window::Center()` centers the window to the center of the screen.
+
+`void IWindow::Window::Fullscreen(bool fullscreen)` sets the window to fullscreen mode if true and if false centers the window and sets the windows width and height to the width and height of the window before fullscreen.
+
+`bool IWindow::Window::IsFullscreen()` return true if window is fullscreen and false if not.
 
 
 ## Advanced Functions

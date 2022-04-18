@@ -120,6 +120,8 @@ void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
     // std::cout << "Mouse Moved: " << x << ", " << y << '\n';
 }
 
+
+
 int main() {
     IWindow::Window window{};
     if (!window.Create(1280, 720, "Hello IWindow")) return EXIT_FAILURE;
@@ -141,7 +143,8 @@ int main() {
         IWindow::Gamepad::SetUserPointer((IWindow::GamepadID)i, &gamePadsConnected);
 
     IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
-    
+
+    window.Fullscreen(true);
 
     while (window.IsRunning()) {
 
@@ -164,6 +167,11 @@ int main() {
         // std::cout << "Left Stick X: " << gp.RightTrigger() << '\n';
 
         //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
+
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        window.Fullscreen(false);
 
         gp.Update();
         window.Update();

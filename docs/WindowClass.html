@@ -159,7 +159,7 @@
         Vector2 GetMousePosition();
 
         void SetWindowSize(int64_t width, int64_t height);
-        void SetWindowPosiiton(int64_t x, int64_t y);
+        void SetWindowPosition(int64_t x, int64_t y);
 
         bool IsKeyDown(Key key);
         template&lt;typename... Args&gt;
@@ -189,6 +189,10 @@
         void SetKeyCallback(KeyCallback callback);
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
+
+        void Center();
+        void Fullscreen(bool fullscreen);
+        bool IsFullscreen();
 
         NativeGLDeviceContext&amp; GetNativeGLDeviceContext();
         
@@ -253,7 +257,7 @@ void WindowPosCallback(IWindow::Window&amp; window, int64_t x, int64_t y) {
 </code></pre>
 <p><code>x</code> and <code>y</code> are the <code>x</code> and <code>y</code> coordinates of the window.</p>
 <p><code>void IWindow::Window::SetUserPointer(void* ptr)</code> sets an internal pointer that can be retreived in a callback or some where else.</p>
-<pre><code>int main() {
+<pre><code class="language-cpp">int main() {
     ...
 
     int example = 10;
@@ -280,6 +284,9 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 ...
 </code></pre>
+<p><code>void IWindow::Window::Center()</code> centers the window to the center of the screen.</p>
+<p><code>void IWindow::Window::Fullscreen(bool fullscreen)</code> sets the window to fullscreen mode if true and if false centers the window and sets the windows width and height to the width and height of the window before fullscreen.</p>
+<p><code>bool IWindow::Window::IsFullscreen()</code> return true if window is fullscreen and false if not.</p>
 <h2 id="advanced-functions"><a class="header" href="#advanced-functions">Advanced Functions</a></h2>
 <p><code>NativeWindowHandle&amp; IWindow::Window::GetNativeWindowHandle()</code> gets the internal windowing api's window handle (e.g. Win32: <code>HWND</code>, X11: <code>Window</code>).</p>
 <p><code>NativeGLDeviceContext&amp; IWindow::Window::GetNativeGLDeviceContext()</code> gets the internal windowing api's graphics/device context (e.g. Win32: <code>HDC</code>, X11: <code>GC</code>).</p>

@@ -13,18 +13,22 @@ namespace IWindow {
     bool Window::Create(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) {
         m_width = width;
         m_height = height;
+        m_oldWidth = width;
+        m_oldHeight = m_height;
         m_x = x;
         m_y = y;
         m_title = title;
         
         HINSTANCE instance = GetModuleHandle(nullptr);
 
+
         WNDCLASS wc{};
         wc.lpfnWndProc = s_WindowCallback;
         wc.hInstance = instance;
         wc.lpszClassName = TEXT("IWindow::Window");
         wc.style = CS_OWNDC | CS_DBLCLKS ;
-        wc.hbrBackground = (HBRUSH)(COLOR_ACTIVEBORDER);
+        wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
+        wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 
 
         if (!::RegisterClass(&wc)) {
@@ -224,7 +228,7 @@ namespace IWindow {
         ::SetWindowPos(m_window, nullptr, (int)m_x, (int)m_y, (int)m_width, (int)m_height, SWP_NOMOVE | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
 
-    void Window::SetWindowPosiiton(int64_t x, int64_t y) {
+    void Window::SetWindowPosition(int64_t x, int64_t y) {
         m_x = x;
         m_y = y;
 
@@ -261,6 +265,48 @@ namespace IWindow {
 
     Vector2 Window::GetMousePosition() { return Vector2{ m_mouseX, m_mouseY }; }
 
+    void Window::Center() {
+        MONITORINFO mi{};
+        mi.cbSize = sizeof(MONITORINFO);
+        
+        if (!::GetMonitorInfo(::MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST), &mi)) return;
+
+        SetWindowPosition( ( mi.rcMonitor.right - m_width ) / 2 , ( mi.rcMonitor.bottom - m_height ) / 2);
+    }
+
+    void Window::Fullscreen(bool fullscreen) {
+        if (m_fullscreen == fullscreen)
+            return;
+
+        m_fullscreen = fullscreen;
+
+        // No fullscreen
+        if (!m_fullscreen) {
+            SetWindowLongPtr(m_window, GWL_EXSTYLE, WS_EX_LEFT);
+            SetWindowLongPtr(m_window, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+            SetWindowSize(m_oldWidth, m_oldHeight);
+            Center();
+            return;
+        }
+
+        // Fullscreen
+        m_oldWidth = m_width;
+        m_oldHeight = m_height;
+
+        MONITORINFO mi = { sizeof(mi) };
+        if (!::GetMonitorInfo(MonitorFromWindow(m_window, MONITOR_DEFAULTTOPRIMARY), &mi)) return;
+
+        SetWindowLongPtr(m_window, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
+        SetWindowLongPtr(m_window, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+
+        ::SetWindowPos(m_window, nullptr,
+            mi.rcMonitor.left, mi.rcMonitor.top,
+            mi.rcMonitor.right - mi.rcMonitor.left,
+            mi.rcMonitor.bottom - mi.rcMonitor.top,
+            SWP_NOOWNERZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+    }
+
+    bool Window::IsFullscreen() { return m_fullscreen; }
 
     NativeGLDeviceContext& Window::GetNativeGLDeviceContext() { return m_deviceContext; }
 }

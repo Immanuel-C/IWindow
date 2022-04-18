@@ -50,7 +50,7 @@ namespace IWindow {
         Vector2 GetMousePosition();
 
         void SetWindowSize(int64_t width, int64_t height);
-        void SetWindowPosiiton(int64_t x, int64_t y);
+        void SetWindowPosition(int64_t x, int64_t y);
 
         bool IsKeyDown(Key key);
         template<typename... Args>
@@ -81,6 +81,10 @@ namespace IWindow {
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
 
+        void Center();
+        void Fullscreen(bool fullscreen);
+        bool IsFullscreen();
+
         NativeGLDeviceContext& GetNativeGLDeviceContext();
         
         void operator=(Window&) = delete;
@@ -89,13 +93,16 @@ namespace IWindow {
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
 
-        int64_t m_width = 0, m_height = 0, m_x = 0, m_y = 0;
+        int64_t m_width = 0, m_height = 0, m_oldWidth = 0, m_oldHeight = 0, m_x = 0, m_y = 0;
         int64_t m_mouseX = 0, m_mouseY = 0;
         std::string m_title = "";
 
-        NativeWindowHandle m_window;
+        bool m_fullscreen = false;
 
         bool m_running = true;
+
+        NativeWindowHandle m_window;
+
 
         std::array<bool, (int)Key::Max> m_keys{false};
         std::array<bool, (int)MouseButton::Max> m_mouseButtons{false};
