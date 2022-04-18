@@ -116,12 +116,17 @@ namespace IWindow {
         F11 = VK_F11,
         F12 = VK_F12,
 
-        Max = 1000
+        Max = 500
     };
 
 
     enum struct MouseButton {
-
+        Left,
+        Right,
+        Middle,
+        Side1,
+        Side2,
+        Max
     };
 
     enum struct InputState {
@@ -129,6 +134,14 @@ namespace IWindow {
         Up,
         Max
     };
+
+    enum struct ClickState {
+        Double,
+        Single,
+        Up,
+        Max
+    };
+
 
     enum struct GamepadButton {
         A = XINPUT_GAMEPAD_A,
@@ -149,6 +162,8 @@ namespace IWindow {
 
         Start = XINPUT_GAMEPAD_START,
         Back = XINPUT_GAMEPAD_BACK,
+
+        Max,
     };
 
     enum struct GamepadID {
@@ -156,7 +171,7 @@ namespace IWindow {
         GP2,
         GP3,
         GP4,
-        Max = GP4,
+        Max,
     };
 }
 

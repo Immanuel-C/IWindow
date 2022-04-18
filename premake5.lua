@@ -38,7 +38,7 @@ workspace "IWindow"
 
         includedirs { "src" }
 
-        links {"User32", "XInput.lib"}
+        links {"User32", "XInput"}
 
         defaultBuildLocation()
 
@@ -82,9 +82,9 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32GL.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp"}
 
-        links {"User32", "OpenGL32"}
+        links {"User32", "OpenGL32", "XInput"}
 
         defaultBuildLocation()
 
@@ -96,12 +96,12 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp", "src/IWindowWin32Gamepad.cpp"}
 
         includedirs { vulkanSdk .. "/Include", "src" }
 
         libdirs { vulkanSdk .. "/Lib" }
-        links {"User32", "vulkan-1"}
+        links {"User32", "vulkan-1", "XInput"}
 
         defaultBuildLocation()
 
@@ -113,12 +113,12 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp", "%{prj.location}/IWindowWin32GL.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "src/IWindowWin32Vk.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp"}
 
         includedirs { vulkanSdk .. "/Include", "src" }
 
         libdirs { vulkanSdk .. "/Lib" }
-        links {"User32", "vulkan-1", "OpenGL32"}
+        links {"User32", "vulkan-1", "OpenGL32", "XInput"}
 
         defaultBuildLocation()
 

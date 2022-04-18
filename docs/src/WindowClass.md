@@ -2,7 +2,7 @@
 
 The window class is where the magic happens. The window class as the name suggests is the class that is reponsible for creating the window on your screen.
 
-This is what the window class .h file looks like
+This is what the window class .h file looks like (with some stuff taken out).
 
 ```cpp
 namespace IWindow {
@@ -20,8 +20,10 @@ namespace IWindow {
 
         NativeWindowHandle& GetNativeWindowHandle(); 
 
-        WindowSize GetWindowSize();
-        WindowPos GetWindowPosition();
+        Vector2 GetWindowSize();
+        Vector2 GetWindowPosition();
+
+        Vector2 GetMousePosition();
 
         void SetWindowSize(int64_t width, int64_t height);
         void SetWindowPosiiton(int64_t x, int64_t y);
@@ -34,12 +36,26 @@ namespace IWindow {
         template<typename... Args>
         bool IsKeyUp(Key key, Args... args) { return IsKeyUp(key) && IsKeyUp(args...); }
 
+        bool IsMouseButtonDown(MouseButton button);
+        template<typename... Args>
+        bool IsMouseButtonDown(MouseButton button, Args... args) { return IsMouseButtonDown(button) && IsMouseButtonDown(args...); }
+
+        bool IsMouseButtonDoubleClicked(MouseButton button);
+        template<typename... Args>
+        bool IsMouseButtonDoubleClicked(MouseButton button, Args... args) { return IsMouseButtonDoubleClicked(button) && IsMouseButtonDoubleClicked(args...); }
+
+        bool IsMouseButtonUp(MouseButton button);
+        template<typename... Args>
+        bool IsMouseButtonUp(MouseButton button, Args... args) { return IsMouseButtonUp(button) && IsMouseButtonUp(args...); }
+
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
         void SetPosCallback(WindowPosCallback callback);
         void SetSizeCallback(WindowSizeCallback callback);
         void SetKeyCallback(KeyCallback callback);
+        void SetMouseMoveCallback(MouseMoveCallback callback);
+        void SetMouseButtonCallback(MouseButtonCallback callback);
 
         NativeGLDeviceContext& GetNativeGLDeviceContext();
         
@@ -53,7 +69,7 @@ Its a lot to take in right even though this is only the public stuff. Dont worry
 
 ## Main Functions
 
-`bool Create(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100)` creates the window you could use the constructor (which takes in the same args) but `Create` returns a `false` if something fails. 
+`bool IWindow::Window::Create(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100)` creates the window you could use the constructor (which takes in the same args) but `Create` returns a `false` if something fails. 
 
 Example:
 ```cpp
@@ -66,7 +82,7 @@ Example:
     window = IWindow::Window(...);
 ```
 
-`bool IsRunning()` checks if the window is still up and running. `IsRunning` with return `false` if a window is not running (e.g. when a user clicks the x in the top of the window isRunning will return `false`).
+`bool IWindow::Window::IsRunning()` checks if the window is still up and running. `IsRunning` with return `false` if a window is not running (e.g. when a user clicks the x in the top of the window isRunning will return `false`).
 
 Example:
 ```cpp
@@ -75,7 +91,7 @@ while (window.IsRunning()) {
 }
 ```
 
-`void Update()` checks for events like input or if the window moved and should be called every frame.
+`void IWindow::Window::Update()` checks for events like input or if the window moved and should be called every frame.
 
 Example:
 ```cpp
@@ -88,17 +104,33 @@ Example:
 
 
 ## Getters And Setters
-`WindowSize GetWindowSize()` returns a `WindowSize` which is
+`Vector2 IWindow::Window::GetWindowSize()` returns a `IWindow::Vector2` which is
 ```cpp
-    struct WindowSize {
-        int64_t width, height;
+    struct Vector2 {
+        int64_t y, x;
     };
 ```
 
-`void SetWindowSize(int64_t width, int64_t height)` takes in 2 `int64_t` (64 bit integer) width, height.
+where `x` and `y` are width and height of the window.
+
+`void IWindow::Window::SetWindowSize(int64_t width, int64_t height)` takes in 2 `int64_t` (64 bit integer) width, height. This function sets the width and height of the window.
+
+`void IWindow::Window::SetWindowPosition(int64_t x, int64_t x)` takes in 2 `int64_t` (64 bit integer) x, y. This function sets the window position.
+
+`Vector2 IWindow::Window::GetWindowPosition()` return a `IWindow::Vector2`. Where `x` and `y` are the window position.
+
+The `void IWindow::Window::SetPosCallback`, `void IWindow::Window::SetKeyCallback`, etc. are called when an action like moving the window or a key is pressed happens. For more info goto the [Callbacks section](./Callbacks.md).
 
 
-The `void SetPosCallback`, `void SetKeyCallback`, etc. are called when an action like moving the window or a key is pressed happens. For more info goto the [Callbacks section](./Callbacks.md).
+Example:
+```cpp
+#include <iostream> // For std::cout
+
+void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
+    int* example = (int*)window.GetUserPointer();
+    std::cout << "User Pointer: " << example << '\n'; // Output: 10
+    std::cout << "Window position: " << x << ", " << y << '\n';
+}
 
 An example of a `WindowPosCallback` is
 ```cpp
@@ -111,28 +143,14 @@ void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
 
 `x` and `y` are the `x` and `y` coordinates of the window.
 
-[//]: <> (Add more to input)
+`void IWindow::Window::SetUserPointer(void* ptr)` sets an internal pointer that can be retreived in a callback or some where else.
 
-The `bool IsKeyDown(Key key)` and `IsKeyUp(Key key)` functions check if a key is pressed or is released. A key callback could be used to handle this. It takes in a Key look at [Input Enums](./InputEnums.md).
-
-`void SetUserPointer(void* ptr)` sets an internal pointer that can be retreived in a callback or some where else.
-
-`void* GetUserPointer()` gets the pointer set from `SetUserPointer`. `nullptr` if no pointer is set
-
-Example:
-```cpp
-#include <iostream> // For std::cout
-
-void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-    int* example = (int*)window.GetUserPointer();
-    std::cout << "User Pointer: " << example << '\n'; // Output: 10
-    std::cout << "Window position: " << x << ", " << y << '\n';
-}
-
+```
 int main() {
     ...
 
     int example = 10;
+    // window = IWindow::Window
     window.SetUserPointer(&example);
     window.SetPosCallback(WindowPosCallback);
     ...
@@ -140,8 +158,37 @@ int main() {
 
 ```
 
+`void* IWindow::Window::GetUserPointer()` gets the pointer set from `IWindow::Window::SetUserPointer`. `nullptr` if no pointer is set
+
+[//]: <> (Add more to input)
+
+## Input Functions
+
+The `bool IWindow::Window::IsKeyDown(IWindow::Window::Key key)` and `IWindow::Window::IsKeyUp(IWindow::Window::Key key)` functions check if a key is pressed or is released. A key callback could be used to handle this.
+
+
+`bool IWindow::Window::IsMouseButtonDown(IWindow::MouseButton button)` and `bool IWindow::Window::IsMouseButtonUp(IWindow::MouseButton button)` functions check if a argument `button` is pressed or released. 
+
+`bool IWindow::Window::IsMouseButtonDoubleClicked(IWindow::MouseButton button)` checks if a argument `button` was pressed 2 in quick succesion.
+
+The templated input functions allow you to pass in multiple buttons/keys and the function checks if all the buttons/keys are pressed/released.
+
+Example:
+
+```cpp
+...
+// statment will be true if the left and right buttons are pressed
+// window = IWindow::Window
+if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::Right)) {
+    ...
+}
+
+...
+```
+
+
 ## Advanced Functions
 
-`NativeWindowHandle& GetNativeWindowHandle()` gets the internal windowing api's window handle (e.g. Win32: `HWND`, X11: `Window`).
+`NativeWindowHandle& IWindow::Window::GetNativeWindowHandle()` gets the internal windowing api's window handle (e.g. Win32: `HWND`, X11: `Window`).
 
-`NativeGLDeviceContext& GetNativeGLDeviceContext()` gets the internal windowing api's graphics/device context (e.g. Win32: `HDC`, X11: `GC`).
+`NativeGLDeviceContext& IWindow::Window::GetNativeGLDeviceContext()` gets the internal windowing api's graphics/device context (e.g. Win32: `HDC`, X11: `GC`).

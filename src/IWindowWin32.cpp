@@ -1,6 +1,5 @@
 #include "IWindow.h"
 
-
 #include <iostream>
 
 namespace IWindow {
@@ -18,18 +17,13 @@ namespace IWindow {
         m_y = y;
         m_title = title;
         
-        m_posCallback = DefaultWindowPosCallback;
-        m_sizeCallback = DefaultWindowSizeCallback;
-        m_keyCallback = DefaultKeyCallback;
-
-        
         HINSTANCE instance = GetModuleHandle(nullptr);
 
         WNDCLASS wc{};
         wc.lpfnWndProc = s_WindowCallback;
         wc.hInstance = instance;
         wc.lpszClassName = TEXT("IWindow::Window");
-        wc.style = CS_OWNDC;
+        wc.style = CS_OWNDC | CS_DBLCLKS ;
         wc.hbrBackground = (HBRUSH)(COLOR_ACTIVEBORDER);
 
 
@@ -136,6 +130,78 @@ namespace IWindow {
             m_keys[wparam] = false;
             m_keyCallback(*this, (Key)wparam, InputState::Up);
             break;
+        case WM_MOUSEMOVE:
+            m_mouseX =  GET_X_LPARAM(lparam);
+            m_mouseY =  GET_Y_LPARAM(lparam);
+            m_mouseMovecallback(*this, m_mouseX, m_mouseY);
+            break;
+
+
+        case WM_LBUTTONDOWN:
+            m_mouseButtons[(int)MouseButton::Left] = true;
+            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Down, ClickState::Single);
+            break;
+        case WM_LBUTTONUP:
+            m_mouseButtons[(int)MouseButton::Left] = false;
+            m_mouseButtonsDbl[(int)MouseButton::Left] = false;
+            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Up, ClickState::Up);
+            break;
+        case WM_LBUTTONDBLCLK:
+            m_mouseButtonsDbl[(int)MouseButton::Left] = true;
+            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Down, ClickState::Double);
+            break;
+
+        case WM_RBUTTONDOWN:
+            m_mouseButtons[(int)MouseButton::Right] = true;
+            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Down, ClickState::Single);
+            break;
+        case WM_RBUTTONUP:
+            m_mouseButtons[(int)MouseButton::Right] = false;
+            m_mouseButtonsDbl[(int)MouseButton::Right] = false;
+            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Up, ClickState::Up);
+            break;
+        case WM_RBUTTONDBLCLK:
+            m_mouseButtons[(int)MouseButton::Right] = true;
+            m_mouseButtonsDbl[(int)MouseButton::Right] = true;
+            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Down, ClickState::Double);
+            break;
+
+
+        case WM_MBUTTONDOWN:
+            m_mouseButtons[(int)MouseButton::Middle] = true;
+            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Down, ClickState::Single);
+            break;
+        case WM_MBUTTONUP:
+            m_mouseButtons[(int)MouseButton::Middle] = false;
+            m_mouseButtonsDbl[(int)MouseButton::Middle] = false;
+            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Up, ClickState::Up);
+            break;
+        case WM_MBUTTONDBLCLK:
+            m_mouseButtonsDbl[(int)MouseButton::Middle] = true;
+            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Down, ClickState::Double);
+            break;
+
+
+        case WM_XBUTTONDOWN: {
+            UINT button = GET_XBUTTON_WPARAM(wparam);
+            MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
+            m_mouseButtons[(int)sideBtn] = true;
+            m_mouseButtonCallback(*this, sideBtn, InputState::Down, ClickState::Single);
+        }
+        case WM_XBUTTONUP: {
+            UINT button = GET_XBUTTON_WPARAM(wparam);
+            MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
+            m_mouseButtons[(int)sideBtn] = false;
+            m_mouseButtonsDbl[(int)sideBtn] = false;
+            m_mouseButtonCallback(*this, sideBtn, InputState::Up, ClickState::Up);
+        }
+        case WM_XBUTTONDBLCLK: {
+            UINT button = GET_XBUTTON_WPARAM(wparam);
+            MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
+            m_mouseButtonsDbl[(int)sideBtn] = true;
+            m_mouseButtonCallback(*this, sideBtn, InputState::Down, ClickState::Double);
+            break;
+        }
         default:
             break;
         }
@@ -143,11 +209,11 @@ namespace IWindow {
         return ::DefWindowProc(window, msg, wparam, lparam);
     }
 
-    WindowSize Window::GetWindowSize() {
+    Vector2 Window::GetWindowSize() {
         RECT rect;
         ::GetClientRect(m_window, &rect);
 
-        return WindowSize{(int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top};
+        return Vector2{(int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top};
     }
 
     void Window::SetWindowSize(int64_t width, int64_t height) {
@@ -168,13 +234,17 @@ namespace IWindow {
 
     bool Window::IsKeyUp(Key key) { return !IsKeyDown(key); }
 
+    bool Window::IsMouseButtonDown(MouseButton button) { return m_mouseButtons[(int)button]; }
+    bool Window::IsMouseButtonDoubleClicked(MouseButton button) { return m_mouseButtonsDbl[(int)button]; }
+    bool Window::IsMouseButtonUp(MouseButton button) { return !IsMouseButtonDown(button) || IsMouseButtonDoubleClicked(button); }
 
-    WindowPos Window::GetWindowPosition() {
+
+    Vector2 Window::GetWindowPosition() {
         WINDOWPLACEMENT windowPlacement{};
         
         ::GetWindowPlacement(m_window, &windowPlacement);
 
-        return WindowPos{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
+        return Vector2{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
     }
 
     void Window::SetUserPointer(void* ptr) { m_userPtr = ptr; }
@@ -182,10 +252,13 @@ namespace IWindow {
     void* Window::GetUserPointer() { return m_userPtr; }
 
     void Window::SetPosCallback(WindowPosCallback callback) { m_posCallback = callback; }
-
     void Window::SetSizeCallback(WindowSizeCallback callback) { m_sizeCallback = callback; }
-
     void Window::SetKeyCallback(KeyCallback callback) { m_keyCallback = callback; }
+    void Window::SetMouseMoveCallback(MouseMoveCallback callback) { m_mouseMovecallback = callback; }
+    void Window::SetMouseButtonCallback(MouseButtonCallback callback) { m_mouseButtonCallback = callback; }
+
+
+    Vector2 Window::GetMousePosition() { return Vector2{ m_mouseX, m_mouseY }; }
 
 
     NativeGLDeviceContext& Window::GetNativeGLDeviceContext() { return m_deviceContext; }

@@ -4,7 +4,7 @@ IWindow needs some isntance extensions to create a `VkSurfaceKHR`. On Win32 the 
 
 To get the required extensions IWindow has a function in `IWindowVK.h`.
 
-`Vk::GetRequiredInstanceExtensions(std::vector<const char*>& extentionNames)`
+`void IWindow::Vk::GetRequiredInstanceExtensions(std::vector<const char*>& extentionNames)`
 
 Example:
 ```cpp
@@ -24,6 +24,6 @@ Example:
 
 IWindow will create a `VkSurfaceKHR` for you since its platform dependent.
 
-`VkResult CreateSurface(VkInstance instance, VkSurfaceKHR& surface, Window& window)`.
+`VkResult IWindow::Vk::CreateSurface(VkInstance instance, VkSurfaceKHR& surface, Window& window)`.
 
-This is pretty self explanitory. The function takes in an instance, a surface that will be modified and a `Window&`. The function will return the output of the vk create function.
+This is pretty self explanitory. The function takes in an instance, a surface that will be modified and a `IWindow::Window&`. The function will return the output of the vk create function.

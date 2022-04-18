@@ -144,7 +144,7 @@
 <p>IWindow uses the <a href="https://premake.github.io/">premake5</a> build system.</p>
 <p>IWindow comes with premade premake projects to build easily to a static library. These projects are <code>IWindowWin32GL</code> and <code>IWindowWin32Vk</code>. As the name suggests GL is for OpenGL projects and Vk is for Vulkan. There is also a <code>IWindowWin32All</code> project for OpenGL and Vulkan. </p>
 <h1 id="important-stuff-you-should-know-about"><a class="header" href="#important-stuff-you-should-know-about">Important Stuff You Should Know About</a></h1>
-<p>All functions/classes are in the <code>IWindow</code> namespace but the definitions dont include <code>IWindow</code> in the names.</p>
+<p>All functions/classes are in the <code>IWindow</code> namespace.</p>
 
                     </main>
 
@@ -166,6 +166,20 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3000/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

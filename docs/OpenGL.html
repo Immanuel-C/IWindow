@@ -135,7 +135,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="opengl-with-iwindow"><a class="header" href="#opengl-with-iwindow">OpenGL with IWindow</a></h1>
-<p>IWindow will handle creating the OpenGL context with the <code>GL::Context</code> class and <code>LoadOpenGLFunction(const char* name)</code>.</p>
+<p>IWindow will handle creating the OpenGL context with the <code>IWindow::GL::Context</code> class and <code>IWindow::GL::Context::LoadOpenGLFunction(const char* name)</code>.</p>
 <pre><code class="language-cpp">// in IWindowGL.h
 namespace IWindow {
     namespace GL {
@@ -162,7 +162,7 @@ namespace IWindow {
 </code></pre>
 <p>The context class is less complecated than than the window class.</p>
 <h2 id="main-functions"><a class="header" href="#main-functions">Main Functions</a></h2>
-<p>like the window class the Context class has two ways you can create it with and the same rules that applied to the window class applies here.</p>
+<p>like the window class the Context class has two ways you can create it with and the same rules that applied to the window class applies here. These two ways are the constructor and the <code>Create</code> function.</p>
 <p>Example:</p>
 <pre><code class="language-cpp">    ...
     IWindow::GL::Context glContext;
@@ -178,8 +178,8 @@ namespace IWindow {
 
     ...
 </code></pre>
-<p><code>void MakeContextCurrent()</code> tells opengl to render to the window passed into the <code>Create</code> function or the constructor. This function is called in the <code>Create</code> function/the constructor. </p>
-<p><code>void SwapBuffers()</code> Swaps the front and back framebuffers should be called every frame.</p>
+<p><code>void IWindow::GL::Context::MakeContextCurrent()</code> tells opengl to render to the window passed into the <code>Create</code> function or the constructor. This function is called in the <code>Create</code> function/the constructor. </p>
+<p><code>void IWindow::GL::Context::SwapBuffers()</code> Swaps the front and back framebuffers should be called every frame.</p>
 <p>Example:</p>
 <pre><code class="language-cpp">    ...
     while(window.IsRunning()) {
@@ -189,7 +189,7 @@ namespace IWindow {
     ...
 </code></pre>
 <h2 id="advanced-functions"><a class="header" href="#advanced-functions">Advanced Functions</a></h2>
-<p><code>void* LoadOpenGLFunction(const char* name)</code> loads a function from opengl the dlls.</p>
+<p><code>void* IWindow::GL::LoadOpenGLFunction(const char* name)</code> loads a function from opengl the dlls.</p>
 
                     </main>
 
@@ -217,6 +217,20 @@ namespace IWindow {
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3000/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

@@ -182,22 +182,22 @@
 
 </code></pre>
 <h2 id="main-functions"><a class="header" href="#main-functions">Main Functions</a></h2>
-<p><code>Gamepad(int gamepadIndex)</code> takes in 1 argument, <code>GamepadID gamepadIndex</code>. Game index is one of the 4 available controller slots.</p>
-<p><code>void Update()</code> updates the gamepad state. call this every frame.</p>
-<p><code>bool IsLeftStickInDeadzone()</code> and <code>bool IsRightStickInDeadzone()</code> checks if the controller is in the dead zone of the left/right stick.</p>
-<p><code>float LeftStickX()</code> and <code>float RightStickX()</code> gets the value of how far is the sticks x axis is to the left (-1) or right (0) on the left/right stick.</p>
-<p><code>float LeftStickY()</code> and <code>float RightStickY()</code> gets the value of how far is the sticks y axis is to the bottom (-1) or top (1) on the left/right stick.</p>
-<p><code>float LeftTrigger()</code> and <code>float RightTrigger()</code> gets the value of how much the left/right trigger is down. The functions return 0 if the left/right trigger completly up or it will return 1 if the left/right trigger completly down.</p>
-<p><code>bool IsButtonDown(GamepadButton button)</code> checks if argument <code>button</code> is being pressed. An example of a <code>GamepadButton</code> is <code>GamepadButton::A</code>  and <code>GamepadButton::B</code>.</p>
-<p><code>bool IsButtonUp(GamepadButton button)</code> checks if argument <code>button</code> is not being pressed.</p>
-<p><code>GamepadID GetID()</code> gets the id return the ID that was passed to the constructor. </p>
-<p><code>bool IsConnected()</code> checks if the a controller with the ID of the value passed into the constructor is connected.</p>
-<p><code>static void SetConnectedCallback(GamepadConnectedCallback callback)</code> sets the connected callback. Check out <a href="./Callbacks.html">Callbacks</a> for more info.</p>
-<p><code>static void SetUserPointer(GamepadID gid, void* ptr)</code> sets a pointer that is associated to the GamepadID.
-<code>static void* GetUserPointer(GamepadID gid)</code> gets the pointer associated with the GamepadID. nullptr if no pointer is set.</p>
-<p><code>void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f)</code> vibrates the gamepads motors. leftMotor controlles the left motor on the gamepad and the rightMotor controlles the right motor on the gamepad. Setting the a value to 0 will stop vibrations and setting it to 1 will set the motors to the max speed.</p>
+<p><code>IWindow::Gamepad::Gamepad(IWindow::GamepadID gamepadIndex)</code> takes in 1 argument, <code>IWindow::GamepadID gamepadIndex</code>. Game index is one of the 4 available controller slots.</p>
+<p><code>void IWindow::Gamepad::Update()</code> updates the gamepad state. call this every frame.</p>
+<p><code>bool IWindow::Gamepad::IsLeftStickInDeadzone()</code> and <code>bool IsRightStickInDeadzone()</code> checks if the controller is in the dead zone of the left/right stick.</p>
+<p><code>float IWindow::Gamepad::LeftStickX()</code> and <code>float IWindow::Gamepad::RightStickX()</code> gets the value of how far is the sticks x axis is to the left (-1) or right (0) on the left/right stick.</p>
+<p><code>float IWindow::Gamepad::LeftStickY()</code> and <code>float IWindow::Gamepad::RightStickY()</code> gets the value of how far is the sticks y axis is to the bottom (-1) or top (1) on the left/right stick.</p>
+<p><code>float IWindow::Gamepad::LeftTrigger()</code> and <code>float IWindow::Gamepad::RightTrigger()</code> gets the value of how much the left/right trigger is down. The functions return 0 if the left/right trigger completly up or it will return 1 if the left/right trigger completly down.</p>
+<p><code>bool IWindow::Gamepad::IsButtonDown(GamepadButton button)</code> checks if argument <code>button</code> is being pressed. An example of a <code>GamepadButton</code> is <code>GamepadButton::A</code>  and <code>GamepadButton::B</code>.</p>
+<p><code>bool IWindow::Gamepad::IsButtonUp(GamepadButton button)</code> checks if argument <code>button</code> is not being pressed.</p>
+<p><code>IWindow::GamepadID IWindow::Gamepad::GetID()</code> gets the id return the ID that was passed to the constructor. </p>
+<p><code>bool IWindow::Gamepad::IsConnected()</code> checks if the a controller with the ID of the value passed into the constructor is connected.</p>
+<p><code>static void IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback callback)</code> sets the connected callback. Check out <a href="./Callbacks.html">Callbacks</a> for more info.</p>
+<p><code>static void IWindow::Gamepad::SetUserPointer(IWindow::GamepadID gid, void* ptr)</code> sets a pointer that is associated to the GamepadID.
+<code>static void* IWindow::Gamepad::GetUserPointer(IWindow::GamepadID gid)</code> gets the pointer associated with the GamepadID. nullptr if no pointer is set.</p>
+<p><code>void IWindow::Gamepad::Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f)</code> vibrates the gamepads motors. leftMotor controlles the left motor on the gamepad and the rightMotor controlles the right motor on the gamepad. Setting the a value to 0 will stop vibrations and setting it to 1 will set the motors to the max speed.</p>
 <h2 id="advanced-functions"><a class="header" href="#advanced-functions">Advanced Functions</a></h2>
-<p><code>GamepadState GetState()</code> get the native gamepad api's state (e.g. XInput: <code>XINPUT_STATE</code>).</p>
+<p><code>GamepadState IWindow::Gamepad::GetState()</code> get the native gamepad api's state (e.g. XInput: <code>XINPUT_STATE</code>).</p>
 
                     </main>
 
@@ -219,6 +219,20 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3000/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

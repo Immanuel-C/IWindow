@@ -54,35 +54,35 @@ namespace IWindow {
 
 ## Main Functions
 
-`Gamepad(int gamepadIndex)` takes in 1 argument, `GamepadID gamepadIndex`. Game index is one of the 4 available controller slots.
+`IWindow::Gamepad::Gamepad(IWindow::GamepadID gamepadIndex)` takes in 1 argument, `IWindow::GamepadID gamepadIndex`. Game index is one of the 4 available controller slots.
 
-`void Update()` updates the gamepad state. call this every frame.
+`void IWindow::Gamepad::Update()` updates the gamepad state. call this every frame.
 
-`bool IsLeftStickInDeadzone()` and `bool IsRightStickInDeadzone()` checks if the controller is in the dead zone of the left/right stick.
+`bool IWindow::Gamepad::IsLeftStickInDeadzone()` and `bool IsRightStickInDeadzone()` checks if the controller is in the dead zone of the left/right stick.
 
-`float LeftStickX()` and `float RightStickX()` gets the value of how far is the sticks x axis is to the left (-1) or right (0) on the left/right stick.
+`float IWindow::Gamepad::LeftStickX()` and `float IWindow::Gamepad::RightStickX()` gets the value of how far is the sticks x axis is to the left (-1) or right (0) on the left/right stick.
 
-`float LeftStickY()` and `float RightStickY()` gets the value of how far is the sticks y axis is to the bottom (-1) or top (1) on the left/right stick.
+`float IWindow::Gamepad::LeftStickY()` and `float IWindow::Gamepad::RightStickY()` gets the value of how far is the sticks y axis is to the bottom (-1) or top (1) on the left/right stick.
 
-`float LeftTrigger()` and `float RightTrigger()` gets the value of how much the left/right trigger is down. The functions return 0 if the left/right trigger completly up or it will return 1 if the left/right trigger completly down.
+`float IWindow::Gamepad::LeftTrigger()` and `float IWindow::Gamepad::RightTrigger()` gets the value of how much the left/right trigger is down. The functions return 0 if the left/right trigger completly up or it will return 1 if the left/right trigger completly down.
 
-`bool IsButtonDown(GamepadButton button)` checks if argument `button` is being pressed. An example of a `GamepadButton` is `GamepadButton::A`  and `GamepadButton::B`.
+`bool IWindow::Gamepad::IsButtonDown(GamepadButton button)` checks if argument `button` is being pressed. An example of a `GamepadButton` is `GamepadButton::A`  and `GamepadButton::B`.
 
-`bool IsButtonUp(GamepadButton button)` checks if argument `button` is not being pressed.
+`bool IWindow::Gamepad::IsButtonUp(GamepadButton button)` checks if argument `button` is not being pressed.
 
-`GamepadID GetID()` gets the id return the ID that was passed to the constructor. 
+`IWindow::GamepadID IWindow::Gamepad::GetID()` gets the id return the ID that was passed to the constructor. 
 
-`bool IsConnected()` checks if the a controller with the ID of the value passed into the constructor is connected.
+`bool IWindow::Gamepad::IsConnected()` checks if the a controller with the ID of the value passed into the constructor is connected.
 
-`static void SetConnectedCallback(GamepadConnectedCallback callback)` sets the connected callback. Check out [Callbacks](./Callbacks.md) for more info.
+`static void IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback callback)` sets the connected callback. Check out [Callbacks](./Callbacks.md) for more info.
 
 
-`static void SetUserPointer(GamepadID gid, void* ptr)` sets a pointer that is associated to the GamepadID.
-`static void* GetUserPointer(GamepadID gid)` gets the pointer associated with the GamepadID. nullptr if no pointer is set.
+`static void IWindow::Gamepad::SetUserPointer(IWindow::GamepadID gid, void* ptr)` sets a pointer that is associated to the GamepadID.
+`static void* IWindow::Gamepad::GetUserPointer(IWindow::GamepadID gid)` gets the pointer associated with the GamepadID. nullptr if no pointer is set.
 
-`void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f)` vibrates the gamepads motors. leftMotor controlles the left motor on the gamepad and the rightMotor controlles the right motor on the gamepad. Setting the a value to 0 will stop vibrations and setting it to 1 will set the motors to the max speed.
+`void IWindow::Gamepad::Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f)` vibrates the gamepads motors. leftMotor controlles the left motor on the gamepad and the rightMotor controlles the right motor on the gamepad. Setting the a value to 0 will stop vibrations and setting it to 1 will set the motors to the max speed.
 
 
 ## Advanced Functions
 
-`GamepadState GetState()` get the native gamepad api's state (e.g. XInput: `XINPUT_STATE`).
+`GamepadState IWindow::Gamepad::GetState()` get the native gamepad api's state (e.g. XInput: `XINPUT_STATE`).

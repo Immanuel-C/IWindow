@@ -7,7 +7,7 @@
 
 namespace Example {
     void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-        std::cout << "Window position: " << x << ", " << y << '\n';
+        // std::cout << "Window position: " << x << ", " << y << '\n';
     }
 }
 
@@ -59,6 +59,67 @@ void GamepadConnectedCallback(IWindow::GamepadID gid, bool isConnected) {
     std::cout << "Gamepad " << (int)gid << " was " << sConnected << "!\n";
 }
 
+void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState iState, IWindow::ClickState cState) {
+    const char* sButton = "";
+    const char* sIState = "";
+    const char* sCState = "";
+
+    using namespace IWindow;
+
+    switch (button) {
+    case MouseButton::Left:
+        sButton = "Left";
+        break;
+    case MouseButton::Right:
+        sButton = "Right";
+        break;
+    case MouseButton::Middle:
+        sButton = "Middle";
+        break;
+    case MouseButton::Side1:
+        sButton = "Side1";
+        break;
+    case MouseButton::Side2:
+        sButton = "Side2";
+        break;
+    }
+
+
+    switch (iState)
+    {
+    case IWindow::InputState::Down:
+        sIState = "pressed";
+        break;
+    case IWindow::InputState::Up:
+        sIState = "released";
+        break;
+    default:
+        break;
+    }
+
+    switch (cState)
+    {
+    case IWindow::ClickState::Double:
+        sCState = "2";
+        break;
+    case IWindow::ClickState::Single:
+        sCState = "1";
+        break;
+    case IWindow::ClickState::Up:
+        sCState = "up";
+        break;
+    default:
+        break;
+    }
+
+
+    std::cout << "Mouse button " << sButton << " was clicked times " << sCState << " and was " << sIState << '\n';
+}
+
+void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
+    // std::cout << "Mouse Moved: " << x << ", " << y << '\n';
+}
+
 int main() {
     IWindow::Window window{};
     if (!window.Create(1280, 720, "Hello IWindow")) return EXIT_FAILURE;
@@ -69,10 +130,12 @@ int main() {
     int windowUserPtrExample = 10;
     uint32_t gamePadsConnected = 0;
 
+    window.SetUserPointer(&windowUserPtrExample);
     window.SetPosCallback(Example::WindowPosCallback);
     window.SetSizeCallback(WindowSizeCallback);
     window.SetKeyCallback(KeyCallback);
-    window.SetUserPointer(&windowUserPtrExample);
+    window.SetMouseButtonCallback(MouseButtonCallback);
+    window.SetMouseMoveCallback(MouseMoveCallback);
 
     for (uint32_t i = 0; i < (int)IWindow::GamepadID::Max; i++) 
         IWindow::Gamepad::SetUserPointer((IWindow::GamepadID)i, &gamePadsConnected);
@@ -92,7 +155,13 @@ int main() {
             gp.Rumble(0.25, 0.35);
         }
 
-        std::cout << "Left Stick X: " << gp.RightTrigger() << '\n';
+        if (window.IsMouseButtonDoubleClicked(IWindow::MouseButton::Left)) {
+            std::cout << "Double clicked the left mouse button!\n";
+        }
+
+        // std::cout << window.GetMousePosition().x << ", " << window.GetMousePosition().y << '\n';
+
+        // std::cout << "Left Stick X: " << gp.RightTrigger() << '\n';
 
         //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
 

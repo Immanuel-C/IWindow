@@ -8,6 +8,7 @@
 #if defined (_WIN32)
 #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
+    #include <windowsx.h>
 #endif
 
 #include "IWindowPlatform.h"
@@ -16,18 +17,19 @@
 #include <functional>
 
 namespace IWindow {
-    struct WindowSize {
-        int64_t width, height;
-    };
-    struct WindowPos {
+    struct Vector2 {
         int64_t x, y;
     };
 
 
     class Window {
     private:
+        // Input callbacks
         typedef std::function<void(Window&, Key, InputState)> KeyCallback;
-        typedef std::function<void(Window&, int64_t, int64_t)> WindowPosCallback;
+        typedef std::function<void(Window&, int64_t, int64_t)> MouseMoveCallback;
+        typedef std::function<void(Window&, MouseButton, InputState, ClickState)> MouseButtonCallback;
+
+        typedef MouseMoveCallback WindowPosCallback;
         typedef WindowPosCallback WindowSizeCallback;
     public:
         Window() = default;
@@ -42,8 +44,10 @@ namespace IWindow {
 
         NativeWindowHandle& GetNativeWindowHandle(); 
 
-        WindowSize GetWindowSize();
-        WindowPos GetWindowPosition();
+        Vector2 GetWindowSize();
+        Vector2 GetWindowPosition();
+
+        Vector2 GetMousePosition();
 
         void SetWindowSize(int64_t width, int64_t height);
         void SetWindowPosiiton(int64_t x, int64_t y);
@@ -56,12 +60,26 @@ namespace IWindow {
         template<typename... Args>
         bool IsKeyUp(Key key, Args... args) { return IsKeyUp(key) && IsKeyUp(args...); }
 
+        bool IsMouseButtonDown(MouseButton button);
+        template<typename... Args>
+        bool IsMouseButtonDown(MouseButton button, Args... args) { return IsMouseButtonDown(button) && IsMouseButtonDown(args...); }
+
+        bool IsMouseButtonDoubleClicked(MouseButton button);
+        template<typename... Args>
+        bool IsMouseButtonDoubleClicked(MouseButton button, Args... args) { return IsMouseButtonDoubleClicked(button) && IsMouseButtonDoubleClicked(args...); }
+
+        bool IsMouseButtonUp(MouseButton button);
+        template<typename... Args>
+        bool IsMouseButtonUp(MouseButton button, Args... args) { return IsMouseButtonUp(button) && IsMouseButtonUp(args...); }
+
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
         void SetPosCallback(WindowPosCallback callback);
         void SetSizeCallback(WindowSizeCallback callback);
         void SetKeyCallback(KeyCallback callback);
+        void SetMouseMoveCallback(MouseMoveCallback callback);
+        void SetMouseButtonCallback(MouseButtonCallback callback);
 
         NativeGLDeviceContext& GetNativeGLDeviceContext();
         
@@ -72,21 +90,28 @@ namespace IWindow {
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
 
         int64_t m_width = 0, m_height = 0, m_x = 0, m_y = 0;
+        int64_t m_mouseX = 0, m_mouseY = 0;
         std::string m_title = "";
 
         NativeWindowHandle m_window;
 
         bool m_running = true;
 
+        std::array<bool, (int)Key::Max> m_keys{false};
+        std::array<bool, (int)MouseButton::Max> m_mouseButtons{false};
+        std::array<bool, (int)MouseButton::Max> m_mouseButtonsDbl{false};
+
         static void DefaultWindowPosCallback(Window&, int64_t, int64_t) {}
         static void DefaultWindowSizeCallback(Window&, int64_t, int64_t) {}
         static void DefaultKeyCallback(Window&, Key, InputState) {}
+        static void DefaultMouseMoveCallback(Window&, int64_t, int64_t) {}
+        static void DefaultMouseButtonCallback(Window&, MouseButton, InputState, ClickState) {}
 
-        std::array<bool, (int)Key::Max> m_keys{false};
-
-        WindowPosCallback m_posCallback = nullptr;
-        WindowSizeCallback m_sizeCallback = nullptr;
-        KeyCallback m_keyCallback = nullptr;
+        WindowPosCallback m_posCallback = DefaultWindowPosCallback;
+        WindowSizeCallback m_sizeCallback = DefaultWindowSizeCallback;
+        KeyCallback m_keyCallback = DefaultKeyCallback;
+        MouseMoveCallback m_mouseMovecallback = DefaultMouseMoveCallback;
+        MouseButtonCallback m_mouseButtonCallback = DefaultMouseButtonCallback;
 
         NativeGLDeviceContext m_deviceContext;
 

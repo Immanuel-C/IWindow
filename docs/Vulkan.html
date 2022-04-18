@@ -137,7 +137,7 @@
                         <h1 id="vulkan-with-iwindow"><a class="header" href="#vulkan-with-iwindow">Vulkan with IWindow</a></h1>
 <p>IWindow needs some isntance extensions to create a <code>VkSurfaceKHR</code>. On Win32 the extensions are <code>VK_KHR_WIN32_SURFACE_EXTENSION_NAME</code> and <code>VK_KHR_SURFACE_EXTENSION_NAME</code>. On X11 the extensions are <code>VK_KHR_XLIB_SURFACE_EXTENSION_NAME</code> and <code>VK_KHR_SURFACE_EXTENSION_NAME</code>.</p>
 <p>To get the required extensions IWindow has a function in <code>IWindowVK.h</code>.</p>
-<p><code>Vk::GetRequiredInstanceExtensions(std::vector&lt;const char*&gt;&amp; extentionNames)</code></p>
+<p><code>void IWindow::Vk::GetRequiredInstanceExtensions(std::vector&lt;const char*&gt;&amp; extentionNames)</code></p>
 <p>Example:</p>
 <pre><code class="language-cpp">    ...
 
@@ -153,8 +153,8 @@
     ...
 </code></pre>
 <p>IWindow will create a <code>VkSurfaceKHR</code> for you since its platform dependent.</p>
-<p><code>VkResult CreateSurface(VkInstance instance, VkSurfaceKHR&amp; surface, Window&amp; window)</code>.</p>
-<p>This is pretty self explanitory. The function takes in an instance, a surface that will be modified and a <code>Window&amp;</code>. The function will return the output of the vk create function.</p>
+<p><code>VkResult IWindow::Vk::CreateSurface(VkInstance instance, VkSurfaceKHR&amp; surface, Window&amp; window)</code>.</p>
+<p>This is pretty self explanitory. The function takes in an instance, a surface that will be modified and a <code>IWindow::Window&amp;</code>. The function will return the output of the vk create function.</p>
 
                     </main>
 
@@ -182,6 +182,20 @@
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3000/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

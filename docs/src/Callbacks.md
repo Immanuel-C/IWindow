@@ -78,6 +78,54 @@ void KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::InputState 
 window.SetKeyCallback(KeyCallback);
 ```
 
+#### Mouse Button Callback
+
+The mouse button is called when a mouse button is pressed.
+
+- The `IWindow::Window&` is the window that called the callback.
+- The `IWindow::MouseButton` is what button was pressed.
+- The `IWindow::InputState` is what input state (e.g. Down, Up) the button is in.
+- The `IWindow::ClickState` is what click state the button is in (e.g. single clicked, double clicked).
+
+to register a mouse button callback, call `window.SetMouseButtonCallback()`. Where window is a `IWindow::Window`.
+
+An example of a mouse button callback is:
+
+```cpp
+void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState iState, IWindow::ClickState cState) {
+
+}
+
+...
+
+window.SetMouseButtonCallback(MouseButtonCallback);
+
+```
+
+#### Mouse Move Callback
+
+The mouse move callback is called when the cursor moves.
+
+- The `IWindow::Window&` argument is the window that called the callback.
+- The first `int64_t` argument is the cursors x position.
+- The second `int64_t` argument is the cursors y position.
+
+to register a mouse move callback for callback, call `window.SetMouseMoveCallback()`. Where window is a `IWindow::Window`.
+
+An example of a mouse move callback is:
+
+```cpp
+void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
+    std::cout << "Mouse Moved: " << x << ", " << y << '\n';
+}
+
+...
+
+// window = IWindow::Window
+window.SetMouseMoveCallback(MouseMoveCallback);
+
+```
+
 #### Gamepad Connected Callback
 
 The gamepad connected callback is called when a gamepad is connected. 

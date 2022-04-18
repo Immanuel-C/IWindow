@@ -193,6 +193,44 @@ window.SetSizeCallback(WindowPosCallback);
 
 window.SetKeyCallback(KeyCallback);
 </code></pre>
+<h4 id="mouse-button-callback"><a class="header" href="#mouse-button-callback">Mouse Button Callback</a></h4>
+<p>The mouse button is called when a mouse button is pressed.</p>
+<ul>
+<li>The <code>IWindow::Window&amp;</code> is the window that called the callback.</li>
+<li>The <code>IWindow::MouseButton</code> is what button was pressed.</li>
+<li>The <code>IWindow::InputState</code> is what input state (e.g. Down, Up) the button is in.</li>
+<li>The <code>IWindow::ClickState</code> is what click state the button is in (e.g. single clicked, double clicked).</li>
+</ul>
+<p>to register a mouse button callback, call <code>window.SetMouseButtonCallback()</code>. Where window is a <code>IWindow::Window</code>.</p>
+<p>An example of a mouse button callback is:</p>
+<pre><code class="language-cpp">void MouseButtonCallback(IWindow::Window&amp; window, IWindow::MouseButton button, IWindow::InputState iState, IWindow::ClickState cState) {
+
+}
+
+...
+
+window.SetMouseButtonCallback(MouseButtonCallback);
+
+</code></pre>
+<h4 id="mouse-move-callback"><a class="header" href="#mouse-move-callback">Mouse Move Callback</a></h4>
+<p>The mouse move callback is called when the cursor moves.</p>
+<ul>
+<li>The <code>IWindow::Window&amp;</code> argument is the window that called the callback.</li>
+<li>The first <code>int64_t</code> argument is the cursors x position.</li>
+<li>The second <code>int64_t</code> argument is the cursors y position.</li>
+</ul>
+<p>to register a mouse move callback for callback, call <code>window.SetMouseMoveCallback()</code>. Where window is a <code>IWindow::Window</code>.</p>
+<p>An example of a mouse move callback is:</p>
+<pre><code class="language-cpp">void MouseMoveCallback(IWindow::Window&amp; window, int64_t x, int64_t y) {
+    std::cout &lt;&lt; &quot;Mouse Moved: &quot; &lt;&lt; x &lt;&lt; &quot;, &quot; &lt;&lt; y &lt;&lt; '\n';
+}
+
+...
+
+// window = IWindow::Window
+window.SetMouseMoveCallback(MouseMoveCallback);
+
+</code></pre>
 <h4 id="gamepad-connected-callback"><a class="header" href="#gamepad-connected-callback">Gamepad Connected Callback</a></h4>
 <p>The gamepad connected callback is called when a gamepad is connected. </p>
 <ul>
@@ -250,6 +288,20 @@ IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
 
         </div>
 
+        <!-- Livereload script (if served using the cli tool) -->
+        <script type="text/javascript">
+            var socket = new WebSocket("ws://localhost:3000/__livereload");
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

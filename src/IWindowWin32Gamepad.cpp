@@ -3,7 +3,7 @@
 namespace IWindow {
     Gamepad::GamepadConnectedCallback Gamepad::m_connectedCallback = nullptr;
 
-    std::array<bool, (int)GamepadID::GP4> Gamepad::m_connectedGamepads{false};
+    std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{false};
 
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{nullptr};
 
@@ -63,7 +63,7 @@ namespace IWindow {
     }
 
     float Gamepad::LeftStickX() { 
-        // sThumbLX is a short and the value goes from -SHORT_MAX - SHORT_MAX
+        // sThumb_X_X is a short and the value goes from -SHORT_MAX -> SHORT_MAX
         // but we want a value between -1 and 1 with decimals 
         return m_state.Gamepad.sThumbLX / 32767.0f; 
     }
@@ -120,8 +120,6 @@ namespace IWindow {
     void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int)gid]; }
 
     void Gamepad::Update() { 
-        ::ZeroMemory(&m_state, sizeof(XINPUT_STATE));
-
         for (uint32_t i = 0; i < (uint32_t)GamepadID::Max; i++) {
             DWORD result = XInputGetState(i, &m_state);
             // Connected
@@ -136,6 +134,8 @@ namespace IWindow {
             }
 
         }
+
+        ::ZeroMemory(&m_state, sizeof(XINPUT_STATE));
 
         m_state = GetState(); 
     }
