@@ -143,7 +143,7 @@ int main() {
     // width / 2, height / 2 is middle of cursor
     window.SetCursor(image, 0, 0);
 
-    stbi_image_free(data); // || delete data
+    stbi_image_free(data); // || delete data;
 
 
     IWindow::Gamepad gp{ IWindow::GamepadID::GP1 };
@@ -173,13 +173,13 @@ int main() {
     // Gets all available monitors
     std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
 
+
     // Print monitor properties
-    for (IWindow::Monitor& monitor : monitors) {
+    for (IWindow::Monitor& monitor : monitors) 
         // monitor.name is a std::wstring
         std::wcout << "Monitor Name: " << monitor.name << '\n'
             << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n'
             << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
-    }
 
 
 
@@ -203,8 +203,6 @@ int main() {
         // std::cout << "Left Stick X: " << gp.RightTrigger() << '\n';
 
         //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
-
-
 
         gp.Update();
         window.Update();

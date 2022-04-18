@@ -328,15 +328,6 @@ namespace IWindow {
     std::vector<Monitor> Window::GetAllMonitors() {
         std::vector<Monitor> monitors;
         ::EnumDisplayMonitors(nullptr, nullptr, MonitorCallback, (LPARAM)&monitors);
-        Monitor monitor{};
-
-        monitor.size.x = 0;
-        monitor.size.y = 0;
-        monitor.position.x = 0;
-        monitor.position.y = 0;
-        monitor.name = L"//./DISPLAY2";
-
-        monitors.emplace_back(std::move(monitor));
         return monitors;
     }
 
