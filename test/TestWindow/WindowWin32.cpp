@@ -176,7 +176,7 @@ int main() {
 
     // Print monitor properties
     for (IWindow::Monitor& monitor : monitors) {
-        // name is a std::wstring
+        // monitor.name is a std::wstring
         std::wcout << "Monitor Name: " << monitor.name << '\n';
         std::cout << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n';
         std::cout << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';

@@ -107,6 +107,7 @@ namespace IWindow {
         
         void operator=(Window&) = delete;
         Window(Window&) = delete;
+        Window(Window&&) = delete;
     private:
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);

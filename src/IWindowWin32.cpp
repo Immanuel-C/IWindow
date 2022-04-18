@@ -195,6 +195,7 @@ namespace IWindow {
             MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
             m_mouseButtons[(int)sideBtn] = true;
             m_mouseButtonCallback(*this, sideBtn, InputState::Down, ClickState::Single);
+            break;
         }
         case WM_XBUTTONUP: {
             UINT button = GET_XBUTTON_WPARAM(wparam);
@@ -202,6 +203,7 @@ namespace IWindow {
             m_mouseButtons[(int)sideBtn] = false;
             m_mouseButtonsDbl[(int)sideBtn] = false;
             m_mouseButtonCallback(*this, sideBtn, InputState::Up, ClickState::Up);
+            break;
         }
         case WM_XBUTTONDBLCLK: {
             UINT button = GET_XBUTTON_WPARAM(wparam);
@@ -317,6 +319,7 @@ namespace IWindow {
         monitor.position.y = (int64_t)monitorInfo.rcMonitor.top;
         monitor.name = monitorInfo.szDevice;
 
+
         monitorsVec->emplace_back(std::move(monitor));
 
         return true;
@@ -325,6 +328,15 @@ namespace IWindow {
     std::vector<Monitor> Window::GetAllMonitors() {
         std::vector<Monitor> monitors;
         ::EnumDisplayMonitors(nullptr, nullptr, MonitorCallback, (LPARAM)&monitors);
+        Monitor monitor{};
+
+        monitor.size.x = (int64_t)'w';
+        monitor.size.y = 0;
+        monitor.position.x = 0;
+        monitor.position.y = 0;
+        monitor.name = L"//./DISPLAY2";
+
+        monitors.emplace_back(std::move(monitor));
         return monitors;
     }
 
@@ -369,8 +381,8 @@ namespace IWindow {
         HBITMAP color, mask;
         BITMAPV5HEADER bi;
         ICONINFO ii;
-        unsigned char* target = NULL;
-        unsigned char* source = image.data;
+        uint8_t* target = NULL;
+        uint8_t* source = image.data;
 
         ::ZeroMemory(&bi, sizeof(bi));
         bi.bV5Size = sizeof(bi);
@@ -417,9 +429,10 @@ namespace IWindow {
         ii.hbmColor = color;
 
         imageHandle = ::CreateIconIndirect(&ii);
-
-        ::DeleteObject(color);
-        ::DeleteObject(mask);
+        if (color)
+            ::DeleteObject(color);
+        if (mask)
+            ::DeleteObject(mask);
 
         return imageHandle;
     }

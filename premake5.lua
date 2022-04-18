@@ -28,13 +28,15 @@ workspace "IWindow"
         objdir ("bin-int/%{prj.name}/%{cfg.buildcfg}")
     end
 
+    startproject "TestWindow"
+
     project "TestWindow"
         location "test/TestWindow"
         kind "ConsoleApp"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/WindowWin32.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
+        files {"%{prj.location}/WindowWin32.cpp", "%{prj.location}/stb.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
 
         includedirs { "src" }
 
