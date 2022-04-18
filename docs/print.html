@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Images</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Images</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li><li class="chapter-item expanded affix "><a href="Monitor.html">Monitors</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -202,8 +202,11 @@
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
 
-        void Center();
-        void Fullscreen(bool fullscreen);
+        Monitor GetPrimaryMonitor();
+        std::vector&lt;Monitor&gt; GetAllMonitors();
+
+        void Center(Monitor monitor);
+        void Fullscreen(bool fullscreen, Monitor monitor);
         bool IsFullscreen();
 
         void SetIcon(Image image);
@@ -211,10 +214,9 @@
         void SetIcon(NativeIconID iconID);
         void SetCursor(NativeCursorID cursorID);
 
-        NativeGLDeviceContext&amp; GetNativeGLDeviceContext();
-        
-        void operator=(Window&amp;) = delete;
-        Window(Window&amp;) = delete;
+        NativeDeviceContext&amp; GetNativeDeviceContext();
+    private:
+        ...
     };
 }
 </code></pre>
@@ -297,16 +299,19 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 ...
 </code></pre>
-<p><code>void IWindow::Window::Center()</code> centers the window to the center of the screen.</p>
-<p><code>void IWindow::Window::Fullscreen(bool fullscreen)</code> sets the window to fullscreen mode if true and if false centers the window and sets the windows width and height to the width and height of the window before fullscreen.</p>
+<h2 id="monitors-related-functions"><a class="header" href="#monitors-related-functions">Monitors Related Functions</a></h2>
+<p><code>IWindow::Monitor IWindow::Window::GetPrimaryMonitor()</code> gets the primary monitor on your computor. See <a href="./Monitor.html">Monitors</a>.</p>
+<p><code>std::vector&lt;IWindow::Monitor&gt; IWindow::Window::GetAllMonitors()</code> gets all the available monitors. See <a href="./Monitor.html">Monitors</a>.</p>
+<p><code>void IWindow::Window::Center(IWindow::Monitor monitor)</code> centers the window to the center of the monitor provided. See <a href="./Monitor.html">Monitors</a>.</p>
+<p><code>void IWindow::Window::Fullscreen(bool fullscreen, IWindow::Monitor monitor)</code> sets the window to fullscreen mode on the monitor provided if true and if false centers the window on the monitor provided and sets the windows width and height to the width and height of the window before fullscreen. See <a href="./Monitor.html">Monitors</a>.</p>
 <p><code>bool IWindow::Window::IsFullscreen()</code> return true if window is fullscreen and false if not.</p>
 <p><code>void IWindow::Window::SetIcon(Image image)</code> sets the window icon to an image. The image has to have 4 channels, in order <code>RGBA</code>, 8 bits/1 byte per channel. The image has to starts at the top left corner.</p>
 <p><code>void IWindow::Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY)</code>. sets the cursor to an image. The cursor has to be inside the window to show image. The image has to have 4 channels, in order <code>RGBA</code>, 8 bits/1 byte per channel, the image has to start at the top left corner. <code>hotX</code> is the location of the x location that effects cursor events. <code>hotY</code> is similer but it is the y location. Think of the 'Hot' location has the place cursor events take place (e.g. when you click it will be at the hot location).</p>
 <p><code>void IWindow::Window::SetIcon(NativeIconID iconID)</code> sets the icon using a native icon id. See <a href="./EnumStructs.html">Enum Structs</a>.</p>
 <p><code>void IWindow::Window::SetCursor(NativeCursorID cursorID)</code> sets the cursor using a native cursor id. See <a href="./EnumStructs.html">Enum Structs</a>.</p>
 <h2 id="advanced-functions"><a class="header" href="#advanced-functions">Advanced Functions</a></h2>
-<p><code>NativeWindowHandle&amp; IWindow::Window::GetNativeWindowHandle()</code> gets the internal windowing api's window handle (e.g. Win32: <code>HWND</code>, X11: <code>Window</code>).</p>
-<p><code>NativeGLDeviceContext&amp; IWindow::Window::GetNativeGLDeviceContext()</code> gets the internal windowing api's graphics/device context (e.g. Win32: <code>HDC</code>, X11: <code>GC</code>).</p>
+<p><code>IWindow::Window::NativeWindowHandle&amp; IWindow::Window::GetNativeWindowHandle()</code> gets the internal windowing api's window handle (e.g. Win32: <code>HWND</code>, X11: <code>Window</code>).</p>
+<p><code>IWindow::Window::NativeDeviceContext&amp; IWindow::Window::GetNativeDeviceContext()</code> gets the internal windowing api's graphics/device context (e.g. Win32: <code>HDC</code>, X11: <code>GC</code>).</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="gamepad-input-in-iwindow"><a class="header" href="#gamepad-input-in-iwindow">Gamepad Input In IWindow</a></h1>
 <p>Gamepad input is pretty simple in IWindow. </p>
 <p>There is a seperate class for gamepad input instead of being in the window class.</p>
@@ -596,6 +601,13 @@ namespace IWindow {
 <ul>
 <li><code>int64_t x</code> is the x coordinate in the vector. </li>
 <li><code>int64_t y</code> is the y coordinate in the vector.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="monitors"><a class="header" href="#monitors">Monitors</a></h1>
+<p>An <code>IWindow::Monitor</code> is a struct that represents a real monitor.</p>
+<ul>
+<li><code>IWindow::IVector2 size</code> is the size in pixels of the monitor.</li>
+<li><code>IWindow::IVector2 position</code> is the position in pixels of the monitor. The top left of the monitor is the position (e.g. on the primary monitor, the position of the top left corner is <code>0, 0</code>).</li>
+<li><code>std::wstring name</code> is a name the operating system gave the monitor.</li>
 </ul>
 
                     </main>

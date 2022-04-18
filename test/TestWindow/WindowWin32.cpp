@@ -121,7 +121,6 @@ void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
 }
 
 
-
 int main() {
     IWindow::Window window{};
     if (!window.Create(1280, 720, u8"Hello IWindow!")) return EXIT_FAILURE;
@@ -177,10 +176,12 @@ int main() {
     // Print monitor properties
     for (IWindow::Monitor& monitor : monitors) {
         // monitor.name is a std::wstring
-        std::wcout << "Monitor Name: " << monitor.name << '\n';
-        std::cout << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n';
-        std::cout << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
+        std::wcout << "Monitor Name: " << monitor.name << '\n'
+            << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n'
+            << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
     }
+
+
 
     while (window.IsRunning()) {
 

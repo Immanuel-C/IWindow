@@ -330,7 +330,7 @@ namespace IWindow {
         ::EnumDisplayMonitors(nullptr, nullptr, MonitorCallback, (LPARAM)&monitors);
         Monitor monitor{};
 
-        monitor.size.x = (int64_t)'w';
+        monitor.size.x = 0;
         monitor.size.y = 0;
         monitor.position.x = 0;
         monitor.position.y = 0;
@@ -378,7 +378,7 @@ namespace IWindow {
     // Orignally was glfw3's implementation reworked to work with IWindow
     HANDLE CreateImage(Image image, uint32_t hotX, uint32_t hotY, bool isIcon) {
         HANDLE imageHandle;
-        HBITMAP color, mask;
+        HBITMAP colour, mask;
         BITMAPV5HEADER bi;
         ICONINFO ii;
         uint8_t* target = NULL;
@@ -399,7 +399,7 @@ namespace IWindow {
 
         HDC deviceContext = ::GetDC(nullptr);
 
-        color = ::CreateDIBSection(deviceContext,
+        colour = ::CreateDIBSection(deviceContext,
             (BITMAPINFO*)&bi,
             DIB_RGB_COLORS,
             (void**)&target,
@@ -426,18 +426,17 @@ namespace IWindow {
         ii.xHotspot = hotX;
         ii.yHotspot = hotY;
         ii.hbmMask = mask;
-        ii.hbmColor = color;
+        ii.hbmColor = colour;
 
         imageHandle = ::CreateIconIndirect(&ii);
-        if (color)
-            ::DeleteObject(color);
+        if (colour)
+            ::DeleteObject(colour);
         if (mask)
             ::DeleteObject(mask);
 
         return imageHandle;
     }
 
-    // Implementation came from GLFW
     void Window::SetIcon(Image image) {
         m_icon = (NativeIcon)CreateImage(image, 0, 0, true);
 

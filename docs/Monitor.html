@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>What is IWindow And How Can I Build It</title>
+        <title>Monitors</title>
         <!-- Custom HTML head -->
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Images</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li><li class="chapter-item expanded affix "><a href="Monitor.html">Monitors</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Images</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li><li class="chapter-item expanded affix "><a href="Monitor.html" class="active">Monitors</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -134,24 +134,20 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="what-is-iwindow"><a class="header" href="#what-is-iwindow">What is IWindow</a></h1>
-<p>IWindow is a windowing library that is meant to be used with Vulkan or OpenGL. </p>
-<p>The goal of IWindow is:</p>
+                        <h1 id="monitors"><a class="header" href="#monitors">Monitors</a></h1>
+<p>An <code>IWindow::Monitor</code> is a struct that represents a real monitor.</p>
 <ul>
-<li>IWindow should be cross-platform and work with Win32 (Windows) and X11 (Linux) windowing apis but currently there is only a Win32 version.</li>
+<li><code>IWindow::IVector2 size</code> is the size in pixels of the monitor.</li>
+<li><code>IWindow::IVector2 position</code> is the position in pixels of the monitor. The top left of the monitor is the position (e.g. on the primary monitor, the position of the top left corner is <code>0, 0</code>).</li>
+<li><code>std::wstring name</code> is a name the operating system gave the monitor.</li>
 </ul>
-<h1 id="how-can-i-build-iwindow"><a class="header" href="#how-can-i-build-iwindow">How can I build IWindow?</a></h1>
-<p>IWindow uses the <a href="https://premake.github.io/">premake5</a> build system.</p>
-<p>IWindow comes with premade premake projects to build easily to a static library. These projects are <code>IWindowWin32GL</code> and <code>IWindowWin32Vk</code>. As the name suggests GL is for OpenGL projects and Vk is for Vulkan. There is also a <code>IWindowWin32All</code> project for OpenGL and Vulkan. </p>
-<h1 id="important-stuff-you-should-know-about"><a class="header" href="#important-stuff-you-should-know-about">Important Stuff You Should Know About</a></h1>
-<p><strong>All</strong> functions/classes are in the <code>IWindow</code> namespace.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="next" href="WindowClass.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                                <i class="fa fa-angle-right"></i>
+                            <a rel="prev" href="Vector.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -159,8 +155,8 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="next" href="WindowClass.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
-                        <i class="fa fa-angle-right"></i>
+                    <a rel="prev" href="Vector.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
                     </a>
             </nav>
 

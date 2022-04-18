@@ -59,8 +59,11 @@ namespace IWindow {
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
 
-        void Center();
-        void Fullscreen(bool fullscreen);
+        Monitor GetPrimaryMonitor();
+        std::vector<Monitor> GetAllMonitors();
+
+        void Center(Monitor monitor);
+        void Fullscreen(bool fullscreen, Monitor monitor);
         bool IsFullscreen();
 
         void SetIcon(Image image);
@@ -68,10 +71,9 @@ namespace IWindow {
         void SetIcon(NativeIconID iconID);
         void SetCursor(NativeCursorID cursorID);
 
-        NativeGLDeviceContext& GetNativeGLDeviceContext();
-        
-        void operator=(Window&) = delete;
-        Window(Window&) = delete;
+        NativeDeviceContext& GetNativeDeviceContext();
+    private:
+        ...
     };
 }
 ```
@@ -192,9 +194,15 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 ...
 ```
 
-`void IWindow::Window::Center()` centers the window to the center of the screen.
+## Monitors Related Functions
 
-`void IWindow::Window::Fullscreen(bool fullscreen)` sets the window to fullscreen mode if true and if false centers the window and sets the windows width and height to the width and height of the window before fullscreen.
+`IWindow::Monitor IWindow::Window::GetPrimaryMonitor()` gets the primary monitor on your computor. See [Monitors](./Monitor.md).
+
+`std::vector<IWindow::Monitor> IWindow::Window::GetAllMonitors()` gets all the available monitors. See [Monitors](./Monitor.md).
+
+`void IWindow::Window::Center(IWindow::Monitor monitor)` centers the window to the center of the monitor provided. See [Monitors](./Monitor.md).
+
+`void IWindow::Window::Fullscreen(bool fullscreen, IWindow::Monitor monitor)` sets the window to fullscreen mode on the monitor provided if true and if false centers the window on the monitor provided and sets the windows width and height to the width and height of the window before fullscreen. See [Monitors](./Monitor.md).
 
 `bool IWindow::Window::IsFullscreen()` return true if window is fullscreen and false if not.
 
@@ -208,6 +216,6 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 ## Advanced Functions
 
-`NativeWindowHandle& IWindow::Window::GetNativeWindowHandle()` gets the internal windowing api's window handle (e.g. Win32: `HWND`, X11: `Window`).
+`IWindow::Window::NativeWindowHandle& IWindow::Window::GetNativeWindowHandle()` gets the internal windowing api's window handle (e.g. Win32: `HWND`, X11: `Window`).
 
-`NativeGLDeviceContext& IWindow::Window::GetNativeGLDeviceContext()` gets the internal windowing api's graphics/device context (e.g. Win32: `HDC`, X11: `GC`).
+`IWindow::Window::NativeDeviceContext& IWindow::Window::GetNativeDeviceContext()` gets the internal windowing api's graphics/device context (e.g. Win32: `HDC`, X11: `GC`).

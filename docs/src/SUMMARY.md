@@ -9,3 +9,4 @@
 [Enum Structs](./EnumStructs.md)
 [Images](./ImageStruct.md)
 [Vectors](./Vector.md)
+[Monitors](./Monitor.md)

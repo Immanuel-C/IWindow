@@ -21,6 +21,7 @@ namespace IWindow {
 
             void operator=(Context&) = delete;
             Context(Context&) = delete;
+            Context(Context&&) = delete;
         private:
             Window* m_window;
             NativeGLRendereringContext m_rendereringContext;
