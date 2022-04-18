@@ -9,7 +9,7 @@
 
 namespace Example {
     void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-        std::cout << "Window position: " << x << ", " << y << '\n';
+        //std::cout << "Window position: " << x << ", " << y << '\n';
     }
 }
 
@@ -124,7 +124,7 @@ void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
 
 int main() {
     IWindow::Window window{};
-    if (!window.Create(1280, 720, u8"Dobrodošli u IWindow!")) return EXIT_FAILURE;
+    if (!window.Create(1280, 720, u8"Hello IWindow!")) return EXIT_FAILURE;
 
     // window.SetCursor(IWindow::NativeCursorID::Hand); // Using internal windowing apis cursors
     // window.SetIcon(IWindow::NativeIconID::Default); // Using internal windowing apis icons
@@ -142,17 +142,17 @@ int main() {
     // 0, 0 is top left of cursor
     // width, height is bottom right of cursor
     // width / 2, height / 2 is middle of cursor
-    window.SetCursor(image, image.width / 2, image.height / 2);
+    window.SetCursor(image, 0, 0);
 
     stbi_image_free(data); // || delete data
 
 
-    // 0 is the index/ID of the gamepad
     IWindow::Gamepad gp{ IWindow::GamepadID::GP1 };
 
     int windowUserPtrExample = 10;
     uint32_t gamePadsConnected = 0;
 
+    // Register callbacks
     window.SetUserPointer(&windowUserPtrExample);
     window.SetPosCallback(Example::WindowPosCallback);
     window.SetSizeCallback(WindowSizeCallback);
@@ -165,9 +165,23 @@ int main() {
 
     IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
 
-    //window.Fullscreen(true);
+    // Set fullscreen on the primary monitor then wait 1 second then set to no fullscreen
+    // on the primary monitor
+    window.Fullscreen(true, window.GetPrimaryMonitor());
+    std::this_thread::sleep_for(std::chrono::seconds{ 1 });
+    window.Fullscreen(false, window.GetPrimaryMonitor());
 
-    
+    // Gets all available monitors
+    std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
+
+    // Print monitor properties
+    for (IWindow::Monitor& monitor : monitors) {
+        // name is a std::wstring
+        std::wcout << "Monitor Name: " << monitor.name << '\n';
+        std::cout << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n';
+        std::cout << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
+    }
+
     while (window.IsRunning()) {
 
         gp.Rumble();
@@ -191,12 +205,10 @@ int main() {
         //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
 
 
-        //std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-
-        //window.Fullscreen(false);
 
         gp.Update();
         window.Update();
     }
+
+
 }

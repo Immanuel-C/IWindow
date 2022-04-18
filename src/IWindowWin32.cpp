@@ -93,12 +93,11 @@ namespace IWindow {
 
 
     LRESULT CALLBACK Window::s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam) {
-        static Window* iWindow = (Window*)GetWindowLongPtr(window, GWLP_USERDATA);
+        Window* iWindow = (Window*)GetWindowLongPtr(window, GWLP_USERDATA);
 
-        if (!iWindow) {
-            iWindow = (Window*)GetWindowLongPtr(window, GWLP_USERDATA);
+        if (!iWindow) 
             return ::DefWindowProc(window, msg, wparam, lparam);
-        }
+        
 
         return iWindow->WindowCallback(window, msg, wparam, lparam);
     }
@@ -275,16 +274,65 @@ namespace IWindow {
 
     IVector2 Window::GetMousePosition() { return IVector2{ m_mouseX, m_mouseY }; }
 
-    void Window::Center() {
-        MONITORINFO mi{};
-        mi.cbSize = sizeof(MONITORINFO);
-        
-        if (!::GetMonitorInfo(::MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST), &mi)) return;
+    Monitor Window::GetPrimaryMonitor() {
+        // The primary montitors top left corner is always 0, 0
+        const POINT p = {0, 0};
+        HMONITOR hmonitor = ::MonitorFromPoint(p, MONITOR_DEFAULTTOPRIMARY);
 
-        SetWindowPosition( ( mi.rcMonitor.right - m_width ) / 2 , ( mi.rcMonitor.bottom - m_height ) / 2);
+        MONITORINFOEX monitorInfo{}; // EX has the monitor name
+        monitorInfo.cbSize = sizeof(MONITORINFOEX);
+        if (!::GetMonitorInfo(hmonitor, &monitorInfo)) { 
+            MessageBox(nullptr, L"Failed to get primary monitor!", L"Error", MB_ICONEXCLAMATION | MB_OK);
+            return Monitor{}; 
+        }
+
+        Monitor monitor{};
+
+        monitor.size.x = (int64_t)monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left; 
+        monitor.size.y = (int64_t)monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
+        monitor.position.x = (int64_t)monitorInfo.rcMonitor.left;
+        monitor.position.y = (int64_t)monitorInfo.rcMonitor.top;
+        monitor.name = monitorInfo.szDevice;
+
+        return monitor;
     }
 
-    void Window::Fullscreen(bool fullscreen) {
+
+
+    BOOL CALLBACK MonitorCallback(HMONITOR hmonitor, HDC, LPRECT rc, LPARAM lparam) {
+        std::vector<Monitor>* monitorsVec = (std::vector<Monitor>*)lparam;
+
+        MONITORINFOEX monitorInfo{}; // EX has the monitor name
+        monitorInfo.cbSize = sizeof(MONITORINFOEX);
+        if (!::GetMonitorInfo(hmonitor, &monitorInfo)) {
+            MessageBox(nullptr, L"Failed to get monitors!", L"Error", MB_ICONEXCLAMATION | MB_OK);
+            return false;
+        }
+
+        Monitor monitor{};
+
+        monitor.size.x = (int64_t)monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left;
+        monitor.size.y = (int64_t)monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top;
+        monitor.position.x = (int64_t)monitorInfo.rcMonitor.left;
+        monitor.position.y = (int64_t)monitorInfo.rcMonitor.top;
+        monitor.name = monitorInfo.szDevice;
+
+        monitorsVec->emplace_back(std::move(monitor));
+
+        return true;
+    }
+
+    std::vector<Monitor> Window::GetAllMonitors() {
+        std::vector<Monitor> monitors;
+        ::EnumDisplayMonitors(nullptr, nullptr, MonitorCallback, (LPARAM)&monitors);
+        return monitors;
+    }
+
+    void Window::Center(Monitor monitor) {
+        SetWindowPosition( ( monitor.size.x - m_width ) / 2 , ( monitor.size.y - m_height ) / 2);
+    }
+
+    void Window::Fullscreen(bool fullscreen, Monitor monitor) {
         if (m_fullscreen == fullscreen)
             return;
 
@@ -295,7 +343,7 @@ namespace IWindow {
             SetWindowLongPtr(m_window, GWL_EXSTYLE, WS_EX_LEFT);
             SetWindowLongPtr(m_window, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
             SetWindowSize(m_oldWidth, m_oldHeight);
-            Center();
+            Center(monitor);
             return;
         }
 
@@ -303,16 +351,13 @@ namespace IWindow {
         m_oldWidth = m_width;
         m_oldHeight = m_height;
 
-        MONITORINFO mi = { sizeof(mi) };
-        if (!::GetMonitorInfo(MonitorFromWindow(m_window, MONITOR_DEFAULTTOPRIMARY), &mi)) return;
-
         SetWindowLongPtr(m_window, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TOPMOST);
         SetWindowLongPtr(m_window, GWL_STYLE, WS_POPUP | WS_VISIBLE);
 
         ::SetWindowPos(m_window, nullptr,
-            mi.rcMonitor.left, mi.rcMonitor.top,
-            mi.rcMonitor.right - mi.rcMonitor.left,
-            mi.rcMonitor.bottom - mi.rcMonitor.top,
+            (int)monitor.position.x, (int)monitor.position.y,
+            (int)monitor.size.x,
+            (int)monitor.size.y,
             SWP_NOOWNERZORDER | SWP_FRAMECHANGED | SWP_SHOWWINDOW);
     }
 
@@ -355,8 +400,7 @@ namespace IWindow {
         ::ReleaseDC(nullptr, deviceContext);
 
 
-        for (int32_t i = 0; i < image.width * image.height; i++)
-        {
+        for (int32_t i = 0; i < image.width * image.height; i++) {
             target[0] = source[2];
             target[1] = source[1];
             target[2] = source[0];

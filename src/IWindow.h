@@ -26,6 +26,11 @@ namespace IWindow {
         uint8_t* data;
     };
 
+    struct Monitor {
+        IVector2 size, position;
+        std::wstring name;
+    };
+
 
     class Window {
     private:
@@ -86,8 +91,11 @@ namespace IWindow {
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
 
-        void Center();
-        void Fullscreen(bool fullscreen);
+        Monitor GetPrimaryMonitor();
+        std::vector<Monitor> GetAllMonitors();
+
+        void Center(Monitor monitor);
+        void Fullscreen(bool fullscreen, Monitor monitor);
         bool IsFullscreen();
 
         void SetIcon(Image image);
