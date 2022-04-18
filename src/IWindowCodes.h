@@ -171,6 +171,7 @@ namespace IWindow {
         GP2,
         GP3,
         GP4,
+        
         Max,
     };
 }

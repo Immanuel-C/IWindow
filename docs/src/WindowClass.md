@@ -2,6 +2,8 @@
 
 The window class is where the magic happens. The window class as the name suggests is the class that is reponsible for creating the window on your screen.
 
+The window class is kept in the IWindow.h header file.
+
 This is what the window class .h file looks like (with some stuff taken out).
 
 ```cpp

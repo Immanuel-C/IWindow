@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html" class="active">Gamepad Input</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html" class="active">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -203,8 +203,11 @@
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="OpenGL.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="WindowClass.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="Callbacks.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
                     </nav>
@@ -212,27 +215,16 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="OpenGL.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="WindowClass.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="Callbacks.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            var socket = new WebSocket("ws://localhost:3000/__livereload");
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

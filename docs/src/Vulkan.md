@@ -2,7 +2,9 @@
 
 IWindow needs some isntance extensions to create a `VkSurfaceKHR`. On Win32 the extensions are `VK_KHR_WIN32_SURFACE_EXTENSION_NAME` and `VK_KHR_SURFACE_EXTENSION_NAME`. On X11 the extensions are `VK_KHR_XLIB_SURFACE_EXTENSION_NAME` and `VK_KHR_SURFACE_EXTENSION_NAME`.
 
-To get the required extensions IWindow has a function in `IWindowVK.h`.
+All of the classes/functions in the page is on `IWindowVK.h`.
+
+To get the required extensions IWindow has a function.
 
 `void IWindow::Vk::GetRequiredInstanceExtensions(std::vector<const char*>& extentionNames)`
 

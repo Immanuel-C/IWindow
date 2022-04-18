@@ -1,6 +1,8 @@
 # OpenGL with IWindow
 
-IWindow will handle creating the OpenGL context with the `IWindow::GL::Context` class and `IWindow::GL::Context::LoadOpenGLFunction(const char* name)`.
+IWindow will handle creating the OpenGL context with the `IWindow::GL::Context` class and `IWindow::GL::LoadOpenGLFunction(const char* name)`.
+
+everything in this page is in the `IWindowGL.h` header file.
 
 ``` cpp
 // in IWindowGL.h
@@ -32,7 +34,9 @@ The context class is less complecated than than the window class.
 
 ## Main Functions
 
-like the window class the Context class has two ways you can create it with and the same rules that applied to the window class applies here. These two ways are the constructor and the `Create` function.
+like the window class the Context class has two ways you can create it with and the same rules that applied to the window class applies here. These two ways are the constructor and the `Create` function. `Create` already makes the OpenGL context current.
+
+After you create the context you can then initialize any opengl function loaders like glad and glew. 
 
 Example:
 ```cpp
@@ -51,7 +55,7 @@ Example:
     ...
 ```
 
-`void IWindow::GL::Context::MakeContextCurrent()` tells opengl to render to the window passed into the `Create` function or the constructor. This function is called in the `Create` function/the constructor. 
+`void IWindow::GL::Context::MakeContextCurrent()` makes the OpenGL renderering context to be current.
 
 `void IWindow::GL::Context::SwapBuffers()` Swaps the front and back framebuffers should be called every frame.
 
@@ -67,4 +71,4 @@ Example:
 
 ## Advanced Functions
 
-`void* IWindow::GL::LoadOpenGLFunction(const char* name)` loads a function from opengl the dlls.
+`void* IWindow::GL::LoadOpenGLFunction(const char* name)` loads a function from OpenGL the dlls.

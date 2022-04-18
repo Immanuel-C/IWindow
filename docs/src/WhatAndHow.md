@@ -14,4 +14,4 @@ IWindow comes with premade premake projects to build easily to a static library.
 
 # Important Stuff You Should Know About
 
-All functions/classes are in the `IWindow` namespace.
+**All** functions/classes are in the `IWindow` namespace.

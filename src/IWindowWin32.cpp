@@ -95,6 +95,7 @@ namespace IWindow {
         return iWindow->WindowCallback(window, msg, wparam, lparam);
     }
 
+
     LRESULT CALLBACK Window::WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam) {
         switch (msg)
         {

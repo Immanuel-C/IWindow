@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -144,7 +144,7 @@
 <p>IWindow uses the <a href="https://premake.github.io/">premake5</a> build system.</p>
 <p>IWindow comes with premade premake projects to build easily to a static library. These projects are <code>IWindowWin32GL</code> and <code>IWindowWin32Vk</code>. As the name suggests GL is for OpenGL projects and Vk is for Vulkan. There is also a <code>IWindowWin32All</code> project for OpenGL and Vulkan. </p>
 <h1 id="important-stuff-you-should-know-about"><a class="header" href="#important-stuff-you-should-know-about">Important Stuff You Should Know About</a></h1>
-<p>All functions/classes are in the <code>IWindow</code> namespace.</p>
+<p><strong>All</strong> functions/classes are in the <code>IWindow</code> namespace.</p>
 
                     </main>
 
@@ -166,20 +166,6 @@
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            var socket = new WebSocket("ws://localhost:3000/__livereload");
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>

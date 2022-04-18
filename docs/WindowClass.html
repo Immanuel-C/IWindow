@@ -75,7 +75,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html" class="active">Window Class</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html" class="active">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -136,6 +136,7 @@
                     <main>
                         <h1 id="window-class"><a class="header" href="#window-class">Window Class</a></h1>
 <p>The window class is where the magic happens. The window class as the name suggests is the class that is reponsible for creating the window on your screen.</p>
+<p>The window class is kept in the IWindow.h header file.</p>
 <p>This is what the window class .h file looks like (with some stuff taken out).</p>
 <pre><code class="language-cpp">namespace IWindow {
     class Window {
@@ -290,7 +291,7 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
                             <a rel="prev" href="WhatAndHow.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
-                            <a rel="next" href="Callbacks.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next" href="GamepadInput.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
                         <div style="clear: both"></div>
@@ -302,27 +303,13 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
                     <a rel="prev" href="WhatAndHow.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
-                    <a rel="next" href="Callbacks.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next" href="GamepadInput.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
 
         </div>
 
-        <!-- Livereload script (if served using the cli tool) -->
-        <script type="text/javascript">
-            var socket = new WebSocket("ws://localhost:3000/__livereload");
-            socket.onmessage = function (event) {
-                if (event.data === "reload") {
-                    socket.close();
-                    location.reload();
-                }
-            };
-
-            window.onbeforeunload = function() {
-                socket.close();
-            }
-        </script>
         <script type="text/javascript">
             window.playground_copyable = true;
         </script>
