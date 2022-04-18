@@ -117,9 +117,10 @@ namespace IWindow {
         Window(Window&) = delete;
         Window(Window&&) = delete;
     private:
+#if defined (_WIN32)
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
-
+#endif
         int64_t m_width = 0, m_height = 0, m_oldWidth = 0, m_oldHeight = 0, m_x = 0, m_y = 0;
         int64_t m_mouseX = 0, m_mouseY = 0;
         float m_scrollOffsetX = 0.0f, m_scrollOffsetY = 0.0f;
