@@ -10,7 +10,7 @@ This is what the window class .h file looks like (with some stuff taken out).
 namespace IWindow {
     class Window {
     public:
-        Window() = default;
+Window() = default;
         Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
         ~Window(); 
 
@@ -50,6 +50,8 @@ namespace IWindow {
         template<typename... Args>
         bool IsMouseButtonUp(MouseButton button, Args... args) { return IsMouseButtonUp(button) && IsMouseButtonUp(args...); }
 
+        Vector2 GetMouseScrollOffset();
+
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
@@ -58,6 +60,7 @@ namespace IWindow {
         void SetKeyCallback(KeyCallback callback);
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
+        void SetMouseScrollCallback(MouseScrollCallback callback);
 
         Monitor GetPrimaryMonitor();
         std::vector<Monitor> GetAllMonitors();
@@ -72,6 +75,10 @@ namespace IWindow {
         void SetCursor(NativeCursorID cursorID);
 
         NativeDeviceContext& GetNativeDeviceContext();
+        
+        void operator=(Window&) = delete;
+        Window(Window&) = delete;
+        Window(Window&&) = delete;
     private:
         ...
     };
@@ -193,6 +200,8 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 ...
 ```
+
+`Vector2 IWindow::Window::GetMouseScrollOffset()` gets the scrolls offset. The offsets will be 1 when scrolling forwards and -1 when scrolling backwards (towards the user). See [Vectors](Vector.md).
 
 ## Monitors Related Functions
 

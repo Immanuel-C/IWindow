@@ -231,6 +231,24 @@ window.SetMouseButtonCallback(MouseButtonCallback);
 window.SetMouseMoveCallback(MouseMoveCallback);
 
 </code></pre>
+<h3 id="mouse-scroll-callback"><a class="header" href="#mouse-scroll-callback">Mouse Scroll Callback</a></h3>
+<p>The mouse scroll callback is called when the mouse scoll wheel is scrolled.</p>
+<ul>
+<li>The <code>IWindow::Window&amp;</code> argument is the window that called the callback.</li>
+<li>the first <code>float</code> argument is the scroll offset on the x axis.</li>
+<li>the second <code>float</code> argument is the scroll offset on the y axis.</li>
+</ul>
+<p>The offsets will be 1 when scrolling forwards and -1 when scrolling backwards (towards the user).</p>
+<p>An example of a mouse scroll callback is:</p>
+<pre><code class="language-cpp">void MouseScrollCallback(IWindow::Window&amp; window, float xOffset, float yOffset) {
+    std::cout &lt;&lt; &quot;xOffset: &quot; &lt;&lt; xOffset &lt;&lt; &quot;, yOffset: &quot; &lt;&lt; yOffset &lt;&lt; '\n';
+}
+
+...
+
+// window = IWindow::Window
+window.SetMouseScrollCallback(MouseScrollCallback);
+</code></pre>
 <h4 id="gamepad-connected-callback"><a class="header" href="#gamepad-connected-callback">Gamepad Connected Callback</a></h4>
 <p>The gamepad connected callback is called when a gamepad is connected. </p>
 <ul>

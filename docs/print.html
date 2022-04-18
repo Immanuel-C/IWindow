@@ -153,7 +153,7 @@
 <pre><code class="language-cpp">namespace IWindow {
     class Window {
     public:
-        Window() = default;
+Window() = default;
         Window(int64_t width, int64_t height, const std::string&amp; title, int64_t x = 100, int64_t y = 100);
         ~Window(); 
 
@@ -193,6 +193,8 @@
         template&lt;typename... Args&gt;
         bool IsMouseButtonUp(MouseButton button, Args... args) { return IsMouseButtonUp(button) &amp;&amp; IsMouseButtonUp(args...); }
 
+        Vector2 GetMouseScrollOffset();
+
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
@@ -201,6 +203,7 @@
         void SetKeyCallback(KeyCallback callback);
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
+        void SetMouseScrollCallback(MouseScrollCallback callback);
 
         Monitor GetPrimaryMonitor();
         std::vector&lt;Monitor&gt; GetAllMonitors();
@@ -215,6 +218,10 @@
         void SetCursor(NativeCursorID cursorID);
 
         NativeDeviceContext&amp; GetNativeDeviceContext();
+        
+        void operator=(Window&amp;) = delete;
+        Window(Window&amp;) = delete;
+        Window(Window&amp;&amp;) = delete;
     private:
         ...
     };
@@ -299,6 +306,7 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 ...
 </code></pre>
+<p><code>Vector2 IWindow::Window::GetMouseScrollOffset()</code> gets the scrolls offset. The offsets will be 1 when scrolling forwards and -1 when scrolling backwards (towards the user). See <a href="Vector.html">Vectors</a>.</p>
 <h2 id="monitors-related-functions"><a class="header" href="#monitors-related-functions">Monitors Related Functions</a></h2>
 <p><code>IWindow::Monitor IWindow::Window::GetPrimaryMonitor()</code> gets the primary monitor on your computor. See <a href="./Monitor.html">Monitors</a>.</p>
 <p><code>std::vector&lt;IWindow::Monitor&gt; IWindow::Window::GetAllMonitors()</code> gets all the available monitors. See <a href="./Monitor.html">Monitors</a>.</p>
@@ -473,6 +481,24 @@ window.SetMouseButtonCallback(MouseButtonCallback);
 window.SetMouseMoveCallback(MouseMoveCallback);
 
 </code></pre>
+<h3 id="mouse-scroll-callback"><a class="header" href="#mouse-scroll-callback">Mouse Scroll Callback</a></h3>
+<p>The mouse scroll callback is called when the mouse scoll wheel is scrolled.</p>
+<ul>
+<li>The <code>IWindow::Window&amp;</code> argument is the window that called the callback.</li>
+<li>the first <code>float</code> argument is the scroll offset on the x axis.</li>
+<li>the second <code>float</code> argument is the scroll offset on the y axis.</li>
+</ul>
+<p>The offsets will be 1 when scrolling forwards and -1 when scrolling backwards (towards the user).</p>
+<p>An example of a mouse scroll callback is:</p>
+<pre><code class="language-cpp">void MouseScrollCallback(IWindow::Window&amp; window, float xOffset, float yOffset) {
+    std::cout &lt;&lt; &quot;xOffset: &quot; &lt;&lt; xOffset &lt;&lt; &quot;, yOffset: &quot; &lt;&lt; yOffset &lt;&lt; '\n';
+}
+
+...
+
+// window = IWindow::Window
+window.SetMouseScrollCallback(MouseScrollCallback);
+</code></pre>
 <h4 id="gamepad-connected-callback"><a class="header" href="#gamepad-connected-callback">Gamepad Connected Callback</a></h4>
 <p>The gamepad connected callback is called when a gamepad is connected. </p>
 <ul>
@@ -601,6 +627,12 @@ namespace IWindow {
 <ul>
 <li><code>int64_t x</code> is the x coordinate in the vector. </li>
 <li><code>int64_t y</code> is the y coordinate in the vector.</li>
+</ul>
+<h3 id="iwindowvector2"><a class="header" href="#iwindowvector2"><code>IWindow::Vector2</code></a></h3>
+<p><code>Window::IVector2</code> contains two members.</p>
+<ul>
+<li><code>float x</code> is the x coordinate in the vector. </li>
+<li><code>float y</code> is the y coordinate in the vector.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="monitors"><a class="header" href="#monitors">Monitors</a></h1>
 <p>An <code>IWindow::Monitor</code> is a struct that represents a real monitor.</p>

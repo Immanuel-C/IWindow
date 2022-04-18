@@ -119,7 +119,6 @@ namespace IWindow {
         Max = 500
     };
 
-
     enum struct MouseButton {
         Left,
         Right,
@@ -141,7 +140,6 @@ namespace IWindow {
         Up,
         Max
     };
-
 
     enum struct GamepadButton {
         A = XINPUT_GAMEPAD_A,

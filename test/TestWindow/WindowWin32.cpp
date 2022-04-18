@@ -120,6 +120,9 @@ void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
     //std::cout << "Mouse Moved: " << x << ", " << y << '\n';
 }
 
+void MouseScrollCallback(IWindow::Window& window, float xOffset, float yOffset) {
+    //  std::cout << "x Offset: " << xOffset << " y Offset: " << yOffset << '\n';
+}
 
 int main() {
     IWindow::Window window{};
@@ -158,6 +161,7 @@ int main() {
     window.SetKeyCallback(KeyCallback);
     window.SetMouseButtonCallback(MouseButtonCallback);
     window.SetMouseMoveCallback(MouseMoveCallback);
+    window.SetMouseScrollCallback(MouseScrollCallback);
 
     for (uint32_t i = 0; i < (int)IWindow::GamepadID::Max; i++) 
         IWindow::Gamepad::SetUserPointer((IWindow::GamepadID)i, &gamePadsConnected);
@@ -203,6 +207,8 @@ int main() {
         // std::cout << "Left Stick X: " << gp.RightTrigger() << '\n';
 
         //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
+
+        std::cout << "ScrollX: " << window.GetMouseScrollOffset().x << " ScrollY: " << window.GetMouseScrollOffset().y << '\n';
 
         gp.Update();
         window.Update();

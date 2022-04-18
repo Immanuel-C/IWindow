@@ -218,6 +218,23 @@ namespace IWindow {
             return true; // we have to return true
             break;
         }
+
+        // Y axis
+        case WM_MOUSEWHEEL: {
+            m_scrollOffsetY = (int16_t)GET_Y_LPARAM(wparam) / (float)WHEEL_DELTA; 
+            m_scrollOffsetX = 0.0f;
+            m_mouseScrollCallback(*this, m_scrollOffsetX, m_scrollOffsetY);
+            break;
+        }
+        // X axis
+        case WM_MOUSEHWHEEL: {
+            // X axis inverted for consistency with x11
+            m_scrollOffsetX = -((int16_t)GET_Y_LPARAM(wparam) / (float)WHEEL_DELTA);
+            m_scrollOffsetY = 0.0f;
+            m_mouseScrollCallback(*this, m_scrollOffsetX, m_scrollOffsetY);
+            break;
+        }
+
         default:
             break;
         }
@@ -255,6 +272,10 @@ namespace IWindow {
     bool Window::IsMouseButtonUp(MouseButton button) { return !IsMouseButtonDown(button) || IsMouseButtonDoubleClicked(button); }
 
 
+    Vector2 Window::GetMouseScrollOffset() {
+        return Vector2{ m_scrollOffsetX, m_scrollOffsetY };
+    }
+
     IVector2 Window::GetWindowPosition() {
         WINDOWPLACEMENT windowPlacement{};
         
@@ -272,7 +293,7 @@ namespace IWindow {
     void Window::SetKeyCallback(KeyCallback callback) { m_keyCallback = callback; }
     void Window::SetMouseMoveCallback(MouseMoveCallback callback) { m_mouseMovecallback = callback; }
     void Window::SetMouseButtonCallback(MouseButtonCallback callback) { m_mouseButtonCallback = callback; }
-
+    void Window::SetMouseScrollCallback(MouseScrollCallback callback) { m_mouseScrollCallback = callback; }
 
     IVector2 Window::GetMousePosition() { return IVector2{ m_mouseX, m_mouseY }; }
 

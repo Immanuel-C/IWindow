@@ -21,6 +21,10 @@ namespace IWindow {
         int64_t x, y;
     };
 
+    struct Vector2 {
+        float x, y;
+    };
+
     struct Image {
         int32_t width, height;
         uint8_t* data;
@@ -37,6 +41,7 @@ namespace IWindow {
         // Input callbacks
         typedef std::function<void(Window&, Key, InputState)> KeyCallback;
         typedef std::function<void(Window&, int64_t, int64_t)> MouseMoveCallback;
+        typedef std::function<void(Window&, float, float)> MouseScrollCallback;
         typedef std::function<void(Window&, MouseButton, InputState, ClickState)> MouseButtonCallback;
 
         typedef MouseMoveCallback WindowPosCallback;
@@ -82,6 +87,8 @@ namespace IWindow {
         template<typename... Args>
         bool IsMouseButtonUp(MouseButton button, Args... args) { return IsMouseButtonUp(button) && IsMouseButtonUp(args...); }
 
+        Vector2 GetMouseScrollOffset();
+
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
@@ -90,6 +97,7 @@ namespace IWindow {
         void SetKeyCallback(KeyCallback callback);
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
+        void SetMouseScrollCallback(MouseScrollCallback callback);
 
         Monitor GetPrimaryMonitor();
         std::vector<Monitor> GetAllMonitors();
@@ -114,6 +122,7 @@ namespace IWindow {
 
         int64_t m_width = 0, m_height = 0, m_oldWidth = 0, m_oldHeight = 0, m_x = 0, m_y = 0;
         int64_t m_mouseX = 0, m_mouseY = 0;
+        float m_scrollOffsetX = 0.0f, m_scrollOffsetY = 0.0f;
         std::string m_title = "";
 
         bool m_fullscreen = false;
@@ -131,12 +140,15 @@ namespace IWindow {
         static void DefaultKeyCallback(Window&, Key, InputState) {}
         static void DefaultMouseMoveCallback(Window&, int64_t, int64_t) {}
         static void DefaultMouseButtonCallback(Window&, MouseButton, InputState, ClickState) {}
+        static void DefaultMouseScrollCallback(Window&, float, float) {}
+
 
         WindowPosCallback m_posCallback = DefaultWindowPosCallback;
         WindowSizeCallback m_sizeCallback = DefaultWindowSizeCallback;
         KeyCallback m_keyCallback = DefaultKeyCallback;
         MouseMoveCallback m_mouseMovecallback = DefaultMouseMoveCallback;
         MouseButtonCallback m_mouseButtonCallback = DefaultMouseButtonCallback;
+        MouseScrollCallback m_mouseScrollCallback = DefaultMouseScrollCallback;
 
         NativeDeviceContext m_deviceContext;
 
