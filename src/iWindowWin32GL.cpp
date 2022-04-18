@@ -39,7 +39,7 @@ namespace IWindow {
             wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
             wc.lpfnWndProc = ::DefWindowProc;
             wc.hInstance = ::GetModuleHandleA(nullptr);
-            wc.lpszClassName = TEXT("IWindow::DummyWindow");
+            wc.lpszClassName = L"IWindow::DummyWindow";
 
             if (!RegisterClass(&wc)) return false;
 
@@ -125,13 +125,13 @@ namespace IWindow {
 
             int pixelFormat;
             uint32_t numFormats;
-            wglChoosePixelFormatARB(window.GetNativeGLDeviceContext(), pixelFormatAttribs.data(), nullptr, 1, &pixelFormat, &numFormats);
+            wglChoosePixelFormatARB(window.GetNativeDeviceContext(), pixelFormatAttribs.data(), nullptr, 1, &pixelFormat, &numFormats);
 
             if (!numFormats) return false;
 
             PIXELFORMATDESCRIPTOR pfd;
-            DescribePixelFormat(window.GetNativeGLDeviceContext(), pixelFormat, sizeof(pfd), &pfd);
-            if (!SetPixelFormat(window.GetNativeGLDeviceContext(), pixelFormat, &pfd)) return false;
+            DescribePixelFormat(window.GetNativeDeviceContext(), pixelFormat, sizeof(pfd), &pfd);
+            if (!SetPixelFormat(window.GetNativeDeviceContext(), pixelFormat, &pfd)) return false;
 
             std::array<int, 7>rendereringContextAttribs = {
                 WGL_CONTEXT_MAJOR_VERSION_ARB, majorVersion,
@@ -140,27 +140,27 @@ namespace IWindow {
                 0, // end of array
             };
 
-            m_rendereringContext = wglCreateContextAttribsARB(window.GetNativeGLDeviceContext(), nullptr, rendereringContextAttribs.data());
+            m_rendereringContext = wglCreateContextAttribsARB(window.GetNativeDeviceContext(), nullptr, rendereringContextAttribs.data());
 
             if (!m_rendereringContext) return false;
 
-            if (!wglMakeCurrent(window.GetNativeGLDeviceContext(), m_rendereringContext)) return false;
+            if (!wglMakeCurrent(window.GetNativeDeviceContext(), m_rendereringContext)) return false;
 
             return true;
         }
       
 
         void Context::SwapBuffers() { 
-            ::SwapBuffers(m_window->GetNativeGLDeviceContext());
+            ::SwapBuffers(m_window->GetNativeDeviceContext());
         }
 
         void Context::MakeContextNotCurrent() {
-            wglMakeCurrent(m_window->GetNativeGLDeviceContext(), nullptr);
+            wglMakeCurrent(m_window->GetNativeDeviceContext(), nullptr);
         }
 
         void Context::MakeContextCurrent()
         {
-            wglMakeCurrent(m_window->GetNativeGLDeviceContext(), m_rendereringContext);
+            wglMakeCurrent(m_window->GetNativeDeviceContext(), m_rendereringContext);
         }
 
         void* LoadOpenGLFunction(const char* name) {

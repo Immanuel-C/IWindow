@@ -76,7 +76,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Image</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="WhatAndHow.html">What is IWindow And How Can I Build It</a></li><li class="chapter-item expanded affix "><a href="WindowClass.html">Window Class</a></li><li class="chapter-item expanded affix "><a href="GamepadInput.html">Gamepad Input</a></li><li class="chapter-item expanded affix "><a href="Callbacks.html">Callbacks</a></li><li class="chapter-item expanded affix "><a href="Vulkan.html">Vulkan</a></li><li class="chapter-item expanded affix "><a href="OpenGL.html">OpenGL</a></li><li class="chapter-item expanded affix "><a href="EnumStructs.html">Enum Structs</a></li><li class="chapter-item expanded affix "><a href="ImageStruct.html">Images</a></li><li class="chapter-item expanded affix "><a href="Vector.html">Vectors</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -583,12 +583,12 @@ namespace IWindow {
 <p>This is an enum struct that contains all default window icons (for platforms that support it).</p>
 <h3 id="iwindownativecursorid"><a class="header" href="#iwindownativecursorid"><code>IWindow::NativeCursorID</code></a></h3>
 <p>This enum struct contains all default cursors images.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="image"><a class="header" href="#image">Image</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="image-struct"><a class="header" href="#image-struct">Image Struct</a></h1>
 <p>The image struct contains 3 members. <code>width</code>, <code>height</code>, and <code>data</code>.</p>
 <ul>
 <li><code>int32_t width</code> is the images width.</li>
-<li><code>int32_t width</code> is a <code>int32_t</code>/<code>int</code> (on X86_64 systems). <code>height</code> is the images height.</li>
-<li><code>uint8_t* data</code> is the images pixel data.</li>
+<li><code>int32_t width</code> is the images height.</li>
+<li><code>uint8_t* data</code> is the images pixel data and has to be a <code>unsigned char*</code>/<code>uint8_t*</code>.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vectors"><a class="header" href="#vectors">Vectors</a></h1>
 <h3 id="iwindowivector2"><a class="header" href="#iwindowivector2"><code>IWindow::IVector2</code></a></h3>

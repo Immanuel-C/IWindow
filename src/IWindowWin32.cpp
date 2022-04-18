@@ -404,5 +404,5 @@ namespace IWindow {
         ::SendMessage(m_window, WM_SETCURSOR, (WPARAM)m_window, (LPARAM)0);
     }
 
-    NativeGLDeviceContext& Window::GetNativeGLDeviceContext() { return m_deviceContext; }
+    NativeDeviceContext& Window::GetNativeDeviceContext() { return m_deviceContext; }
 }

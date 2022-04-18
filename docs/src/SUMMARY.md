@@ -7,5 +7,5 @@
 [Vulkan](./Vulkan.md)
 [OpenGL](./OpenGL.md)
 [Enum Structs](./EnumStructs.md)
-[Image](./ImageStruct.md)
+[Images](./ImageStruct.md)
 [Vectors](./Vector.md)

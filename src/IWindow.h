@@ -95,7 +95,7 @@ namespace IWindow {
         void SetIcon(NativeIconID iconID);
         void SetCursor(NativeCursorID cursorID);
 
-        NativeGLDeviceContext& GetNativeGLDeviceContext();
+        NativeDeviceContext& GetNativeDeviceContext();
         
         void operator=(Window&) = delete;
         Window(Window&) = delete;
@@ -129,7 +129,7 @@ namespace IWindow {
         MouseMoveCallback m_mouseMovecallback = DefaultMouseMoveCallback;
         MouseButtonCallback m_mouseButtonCallback = DefaultMouseButtonCallback;
 
-        NativeGLDeviceContext m_deviceContext;
+        NativeDeviceContext m_deviceContext;
 
         NativeCursor m_cursor;
         NativeIcon m_icon;

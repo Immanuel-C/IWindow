@@ -7,7 +7,7 @@
 
 namespace IWindow {
     typedef HWND NativeWindowHandle; 
-    typedef HDC NativeGLDeviceContext;
+    typedef HDC NativeDeviceContext;
     typedef HGLRC NativeGLRendereringContext;
     typedef HCURSOR NativeCursor;
     typedef HICON NativeIcon; 
