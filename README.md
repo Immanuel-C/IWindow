@@ -9,7 +9,8 @@
 
 # How to build
 
-Use premake5. If you dont have premake5 you can install it [here](https://premake.github.io/).
+Use premake5. If you dont have premake5 you can install it [here](https://premake.github.io/). 
+Add the premake5 executable into the main folder or into your environment path.
 
 call `premake5 [build target]` in the main folder or if your on windows you can use the build.bat.
 
