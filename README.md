@@ -11,4 +11,6 @@
 
 Use premake5. If you dont have premake5 you can install it [here](https://premake.github.io/).
 
+call `premake5 [build target]` in the main folder.
+
 The documentation of this library is on this [website](https://immanuel-c.github.io/IWindow).
