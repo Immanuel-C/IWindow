@@ -1,3 +1,5 @@
+#ifdef _WIN32
+
 #include "IWindowVK.h"
 
 #include <vulkan/vulkan_win32.h>
@@ -19,3 +21,5 @@ namespace IWindow {
         }
     }
 }
+
+#endif

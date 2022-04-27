@@ -28,8 +28,27 @@ workspace "IWindow"
         objdir ("bin-int/%{prj.name}/%{cfg.buildcfg}")
     end
 
-    startproject "TestWindow"
+    if package.config:sub(1,1) == "/" then   --if linux (using "/" seperator")  NOTE: There are other platforms that use this directory seperator too... but the only one IWindow supports is linux at the current moment
+    startproject("LinuxTest")
 
+    project "LinuxTest"
+        location "test/LinuxTest"
+        kind "ConsoleApp"
+        language "C++"
+        cppdialect "C++17"
+
+        files {"%{prj.location}/WindowX11.cpp", "src/IWindowXlib.cpp"}
+
+        includedirs {"src"}
+
+        links {"X11"}
+
+        defaultBuildLocation()
+
+        defaultBuildCfg()
+    else                            -- else (using windows)
+
+    startproject("TestWindow")
     project "TestWindow"
         location "test/TestWindow"
         kind "ConsoleApp"
@@ -125,3 +144,5 @@ workspace "IWindow"
         defaultBuildLocation()
 
         defaultBuildCfg()
+
+    end
