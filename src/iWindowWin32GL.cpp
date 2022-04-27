@@ -1,5 +1,3 @@
-#ifdef _WIN32
-
 #include "IWindowGL.h"
 #include <wingdi.h>
 
@@ -187,5 +185,3 @@ namespace IWindow {
         }
     }
 }
-
-#endif
