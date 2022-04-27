@@ -32,7 +32,6 @@ namespace IWindow {
     class Window {
     private:
         // Input callbacks
-        
         typedef std::function<void(Window&, Key, InputState)> KeyCallback;
         typedef std::function<void(Window&, int64_t, int64_t)> MouseMoveCallback;
         typedef std::function<void(Window&, float, float)> MouseScrollCallback;
@@ -40,11 +39,6 @@ namespace IWindow {
 
         typedef MouseMoveCallback WindowPosCallback;
         typedef WindowPosCallback WindowSizeCallback;
-        #ifndef _WIN32
-        ::Atom WmCleanup;
-        ::Atom WindowType;
-        ::Atom _value;
-        #endif
     public:
         Window() = default;
         Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
@@ -91,9 +85,9 @@ namespace IWindow {
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
-         void SetPosCallback(WindowPosCallback callback);
+        void SetPosCallback(WindowPosCallback callback);
         void SetSizeCallback(WindowSizeCallback callback);
-       void SetKeyCallback(KeyCallback callback);
+        void SetKeyCallback(KeyCallback callback);
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
         void SetMouseScrollCallback(MouseScrollCallback callback);
@@ -107,8 +101,8 @@ namespace IWindow {
 
         void SetIcon(Image image);
         void SetCursor(Image image, uint32_t hotX, uint32_t hotY);
-     //   void SetIcon(NativeIconID iconID);
-     //   void SetCursor(NativeCursorID cursorID);
+        void SetIcon(NativeIconID iconID);
+        void SetCursor(NativeCursorID cursorID);
 
         NativeDeviceContext& GetNativeDeviceContext();
 
@@ -156,8 +150,8 @@ namespace IWindow {
 
         NativeDeviceContext m_deviceContext;
 
-        //NativeCursor m_cursor;
-        //NativeIcon m_icon;
+        NativeCursor m_cursor;
+        NativeIcon m_icon;
 
         void* m_userPtr = nullptr;
     };

@@ -1,19 +1,13 @@
 #pragma once
 
 #if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Xinput.h>
 #include <windowsx.h>
-#else
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xatom.h>
-#endif
+
 
 namespace IWindow {
-    #if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-
     typedef HWND NativeWindowHandle; 
     typedef HDC NativeDeviceContext;
     typedef HGLRC NativeGLRendereringContext;
@@ -33,11 +27,11 @@ namespace IWindow {
 
     // Gamepad
     typedef XINPUT_STATE NativeGamepadState;
-#else
-    typedef ::Window NativeWindowHandle;
-#endif
+
     typedef void* X11Display;
-    typedef void* NativeDeviceContext;
-};
+}
+
+#endif
+
 
 

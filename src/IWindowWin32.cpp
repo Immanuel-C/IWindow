@@ -1,5 +1,3 @@
-#ifdef _WIN32
-
 #include "IWindow.h"
 
 #include <iostream>
@@ -486,5 +484,3 @@ namespace IWindow {
 
     NativeDeviceContext& Window::GetNativeDeviceContext() { return m_deviceContext; }
 }
-
-#endif

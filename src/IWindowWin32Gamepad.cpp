@@ -1,5 +1,3 @@
-#ifdef _WIN32
-
 #include "IWindowGamepad.h"
 
 namespace IWindow {
@@ -142,5 +140,3 @@ namespace IWindow {
         m_state = GetState(); 
     }
 }
-
-#endif
