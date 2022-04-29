@@ -1,7 +1,6 @@
 #include "IWindow.h"
 #include <iostream>
-#include <stdexcept>
-#include <unistd.h>
+#include <thread>
 
 int main()
 {
@@ -9,32 +8,35 @@ int main()
 
     if (!window.Create(1280, 720, u8"Hello IWindow!"))
     {
-        printf("failed to create an IWindow window! Abort!\n");
+        std::cout << "failed to create an IWindow window! Abort!\n";
         return EXIT_FAILURE;
     }
 
-    window.SetWindowSize(1000, 1000);
+    window.SetWindowSize(1280, 720);
 
-    bool oldPress = false;
+    //window.Fullscreen(true, window.GetPrimaryMonitor());
+    window.Fullscreen(false, window.GetPrimaryMonitor());
+
+
+    IWindow::Monitor primaryMonitor = window.GetPrimaryMonitor();
+    std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
+
+    for (IWindow::Monitor& monitor : monitors) {
+        // IWindow::Monitor::name is a std::wstring
+        //std::wcout << "Monitor Name: " << monitor.name << "\nMonitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n';
+    }
 
     while (window.IsRunning())
     {
+        std::cout << "Scroll Offset: " << window.GetMouseScrollOffset().x << ", " << window.GetMouseScrollOffset().y << '\n';
         
-        window.Update();
+        if (window.IsMouseButtonDown(IWindow::MouseButton::Side2))
+            std::cout << "Mouse Button Down!\n";
 
         if (window.IsKeyDown(IWindow::Key::A))
-        {
-            if (oldPress == false)
-                printf("A key DOWN!\n");
-            oldPress = true;
-        }
-        else
-        {
-            oldPress = false;
-        }
+            std::cout << "A key is down!\n";
+        window.Update(); 
     }
-
-    window.~Window();
 
     return EXIT_SUCCESS;
 }

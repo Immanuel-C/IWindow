@@ -25,6 +25,8 @@ namespace IWindow {
         m_x = x;
         m_y = y;
         m_title = title;
+        m_userPtr = nullptr;
+
         m_icon = LoadIcon(nullptr, IDI_APPLICATION);
         m_cursor = LoadCursor(nullptr, IDC_ARROW);
 
@@ -160,75 +162,49 @@ namespace IWindow {
 
         case WM_LBUTTONDOWN:
             m_mouseButtons[(int)MouseButton::Left] = true;
-            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Down, ClickState::Single);
+            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Down);
             break;
         case WM_LBUTTONUP:
             m_mouseButtons[(int)MouseButton::Left] = false;
-            m_mouseButtonsDbl[(int)MouseButton::Left] = false;
-            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Up, ClickState::Up);
-            break;
-        case WM_LBUTTONDBLCLK:
-            m_mouseButtonsDbl[(int)MouseButton::Left] = true;
-            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Down, ClickState::Double);
+            m_mouseButtonCallback(*this, MouseButton::Left, InputState::Up);
             break;
 
         case WM_RBUTTONDOWN:
             m_mouseButtons[(int)MouseButton::Right] = true;
-            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Down, ClickState::Single);
+            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Down);
             break;
         case WM_RBUTTONUP:
             m_mouseButtons[(int)MouseButton::Right] = false;
-            m_mouseButtonsDbl[(int)MouseButton::Right] = false;
-            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Up, ClickState::Up);
+            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Up);
             break;
-        case WM_RBUTTONDBLCLK:
-            m_mouseButtons[(int)MouseButton::Right] = true;
-            m_mouseButtonsDbl[(int)MouseButton::Right] = true;
-            m_mouseButtonCallback(*this, MouseButton::Right, InputState::Down, ClickState::Double);
-            break;
-
 
         case WM_MBUTTONDOWN:
             m_mouseButtons[(int)MouseButton::Middle] = true;
-            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Down, ClickState::Single);
+            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Down);
             break;
         case WM_MBUTTONUP:
             m_mouseButtons[(int)MouseButton::Middle] = false;
-            m_mouseButtonsDbl[(int)MouseButton::Middle] = false;
-            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Up, ClickState::Up);
+            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Up);
             break;
-        case WM_MBUTTONDBLCLK:
-            m_mouseButtonsDbl[(int)MouseButton::Middle] = true;
-            m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Down, ClickState::Double);
-            break;
-
 
         case WM_XBUTTONDOWN: {
             UINT button = GET_XBUTTON_WPARAM(wparam);
             MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
             m_mouseButtons[(int)sideBtn] = true;
-            m_mouseButtonCallback(*this, sideBtn, InputState::Down, ClickState::Single);
+            m_mouseButtonCallback(*this, sideBtn, InputState::Down);
             break;
         }
         case WM_XBUTTONUP: {
             UINT button = GET_XBUTTON_WPARAM(wparam);
             MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
             m_mouseButtons[(int)sideBtn] = false;
-            m_mouseButtonsDbl[(int)sideBtn] = false;
-            m_mouseButtonCallback(*this, sideBtn, InputState::Up, ClickState::Up);
-            break;
-        }
-        case WM_XBUTTONDBLCLK: {
-            UINT button = GET_XBUTTON_WPARAM(wparam);
-            MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
-            m_mouseButtonsDbl[(int)sideBtn] = true;
-            m_mouseButtonCallback(*this, sideBtn, InputState::Down, ClickState::Double);
+            m_mouseButtonCallback(*this, sideBtn, InputState::Up);
             break;
         }
 
         case WM_SETCURSOR: {
             ::SetCursor(m_cursor);
-            return true; // we have to return true
+            return true; // Have to return true
             break;
         }
 
@@ -276,13 +252,12 @@ namespace IWindow {
         ::SetWindowPos(m_window, nullptr, (int)m_x, (int)m_y, (int)m_width, (int)m_height, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
 
-    bool Window::IsKeyDown(Key key) { return m_keys[(int)key]; }
+    bool Window::IsKeyDown(Key key) { return m_keys[(int64_t)key]; }
 
     bool Window::IsKeyUp(Key key) { return !IsKeyDown(key); }
 
     bool Window::IsMouseButtonDown(MouseButton button) { return m_mouseButtons[(int)button]; }
-    bool Window::IsMouseButtonDoubleClicked(MouseButton button) { return m_mouseButtonsDbl[(int)button]; }
-    bool Window::IsMouseButtonUp(MouseButton button) { return !IsMouseButtonDown(button) || IsMouseButtonDoubleClicked(button); }
+    bool Window::IsMouseButtonUp(MouseButton button) { return !IsMouseButtonDown(button); }
 
 
     Vector2 Window::GetMouseScrollOffset() {

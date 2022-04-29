@@ -198,9 +198,6 @@ int main() {
             gp.Rumble(0.25f, 0.35f);
         }
 
-        if (window.IsMouseButtonDoubleClicked(IWindow::MouseButton::Left)) {
-            std::cout << "Double clicked the left mouse button!\n";
-        }
 
         // std::cout << window.GetMousePosition().x << ", " << window.GetMousePosition().y << '\n';
 

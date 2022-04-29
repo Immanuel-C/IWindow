@@ -36,15 +36,10 @@ namespace IWindow {
         typedef std::function<void(Window&, Key, InputState)> KeyCallback;
         typedef std::function<void(Window&, int64_t, int64_t)> MouseMoveCallback;
         typedef std::function<void(Window&, float, float)> MouseScrollCallback;
-        typedef std::function<void(Window&, MouseButton, InputState, ClickState)> MouseButtonCallback;
+        typedef std::function<void(Window&, MouseButton, InputState)> MouseButtonCallback;
 
         typedef MouseMoveCallback WindowPosCallback;
         typedef WindowPosCallback WindowSizeCallback;
-        #ifndef _WIN32
-        ::Atom WmCleanup;
-        ::Atom WindowType;
-        ::Atom _value;
-        #endif
     public:
         Window() = default;
         Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
@@ -78,10 +73,6 @@ namespace IWindow {
         template<typename... Args>
         bool IsMouseButtonDown(MouseButton button, Args... args) { return IsMouseButtonDown(button) && IsMouseButtonDown(args...); }
 
-        bool IsMouseButtonDoubleClicked(MouseButton button);
-        template<typename... Args>
-        bool IsMouseButtonDoubleClicked(MouseButton button, Args... args) { return IsMouseButtonDoubleClicked(button) && IsMouseButtonDoubleClicked(args...); }
-
         bool IsMouseButtonUp(MouseButton button);
         template<typename... Args>
         bool IsMouseButtonUp(MouseButton button, Args... args) { return IsMouseButtonUp(button) && IsMouseButtonUp(args...); }
@@ -91,9 +82,9 @@ namespace IWindow {
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
-         void SetPosCallback(WindowPosCallback callback);
+        void SetPosCallback(WindowPosCallback callback);
         void SetSizeCallback(WindowSizeCallback callback);
-       void SetKeyCallback(KeyCallback callback);
+        void SetKeyCallback(KeyCallback callback);
         void SetMouseMoveCallback(MouseMoveCallback callback);
         void SetMouseButtonCallback(MouseButtonCallback callback);
         void SetMouseScrollCallback(MouseScrollCallback callback);
@@ -107,8 +98,10 @@ namespace IWindow {
 
         void SetIcon(Image image);
         void SetCursor(Image image, uint32_t hotX, uint32_t hotY);
-     //   void SetIcon(NativeIconID iconID);
-     //   void SetCursor(NativeCursorID cursorID);
+        // Win32 (Windows) Only
+        void SetIcon(NativeIconID iconID);
+        // Win32 (Windows) Only
+        void SetCursor(NativeCursorID cursorID);
 
         NativeDeviceContext& GetNativeDeviceContext();
 
@@ -136,15 +129,14 @@ namespace IWindow {
         NativeWindowHandle m_window;
         X11Display m_display;
 
-        std::array<bool, (int32_t)Key::Max> m_keys{false};
-        std::array<bool, (int32_t)MouseButton::Max> m_mouseButtons{false};
-        std::array<bool, (int32_t)MouseButton::Max> m_mouseButtonsDbl{false};
+        std::array<bool, (int64_t)Key::Max> m_keys{ false };
+        std::array<bool, (int64_t)MouseButton::Max> m_mouseButtons{ false };
 
         static void DefaultWindowPosCallback(Window&, int64_t, int64_t) {}
         static void DefaultWindowSizeCallback(Window&, int64_t, int64_t) {}
         static void DefaultKeyCallback(Window&, Key, InputState) {}
         static void DefaultMouseMoveCallback(Window&, int64_t, int64_t) {}
-        static void DefaultMouseButtonCallback(Window&, MouseButton, InputState, ClickState) {}
+        static void DefaultMouseButtonCallback(Window&, MouseButton, InputState) {}
         static void DefaultMouseScrollCallback(Window&, float, float) {}
 
         WindowPosCallback m_posCallback = DefaultWindowPosCallback;
@@ -156,9 +148,9 @@ namespace IWindow {
 
         NativeDeviceContext m_deviceContext;
 
-        //NativeCursor m_cursor;
-        //NativeIcon m_icon;
+        NativeCursor m_cursor;
+        NativeIcon m_icon;
 
-        void* m_userPtr = nullptr;
+        void* m_userPtr;
     };
 }

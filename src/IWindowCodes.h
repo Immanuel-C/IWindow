@@ -122,21 +122,14 @@ namespace IWindow {
     enum struct MouseButton {
         Left,
         Right,
-        Middle,
-        Side1,
-        Side2,
+        Middle, // Scroll Wheel
+        Side1,  // Browser back button
+        Side2,  // Browser forward button
         Max
     };
 
     enum struct InputState {
         Down,
-        Up,
-        Max
-    };
-
-    enum struct ClickState {
-        Double,
-        Single,
         Up,
         Max
     };
@@ -313,11 +306,11 @@ namespace IWindow {
     }
 
     enum struct MouseButton {
-        Left,
-        Right,
-        Middle,
-        Side1,
-        Side2,
+        Left = 1,
+        Right = 3,  
+        Middle = 2, // Scroll Wheel
+        Side1 = 8,  // Browser back button
+        Side2 = 9,  // Browser forward button
         Max
     };
 
@@ -328,12 +321,6 @@ namespace IWindow {
     };
 
 
-    enum struct ClickState {
-        Double,
-        Single,
-        Up,
-        Max
-    };
 
     enum struct GamepadButton {
         Max,

@@ -41,5 +41,5 @@ bin-int
 *.vcxproj.user
 .vs
 .vscode
-MakeFile
 *.make
+Makefile

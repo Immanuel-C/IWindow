@@ -1,6 +1,7 @@
 #pragma once
 
 #if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Xinput.h>
 #include <windowsx.h>
@@ -8,11 +9,11 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <GL/glx.h>
 #endif
 
 namespace IWindow {
     #if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
 
     typedef HWND NativeWindowHandle; 
     typedef HDC NativeDeviceContext;
@@ -33,11 +34,23 @@ namespace IWindow {
 
     // Gamepad
     typedef XINPUT_STATE NativeGamepadState;
+    typedef void* X11Display;
 #else
     typedef ::Window NativeWindowHandle;
+    typedef Display* X11Display;
+    typedef GC NativeDeviceContext;
+    typedef GLXContext NativeGLRendereringContext;
+    typedef void* NativeCursor;
+    typedef void* NativeIcon; 
+
+    enum struct NativeCursorID {
+        Max
+    };
+
+    enum struct NativeIconID {
+        Max
+    };
 #endif
-    typedef void* X11Display;
-    typedef void* NativeDeviceContext;
 };
 
 
