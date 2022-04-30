@@ -3,7 +3,6 @@
 #include "IWindow.h"
 #include "IWindowPlatform.h"
 
-
 namespace IWindow {
     namespace GL {
         class Context {
@@ -20,6 +19,7 @@ namespace IWindow {
             void SwapBuffers();
 
             void operator=(Context&) = delete;
+            void operator=(Context&&) = delete;
             Context(Context&) = delete;
             Context(Context&&) = delete;
         private:

@@ -10,6 +10,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <GL/glx.h>
+#include <linux/joystick.h>
 #endif
 
 namespace IWindow {
@@ -40,6 +41,7 @@ namespace IWindow {
     typedef Display* X11Display;
     typedef GC NativeDeviceContext;
     typedef GLXContext NativeGLRendereringContext;
+    typedef js_event NativeGamepadState;
     typedef void* NativeCursor;
     typedef void* NativeIcon; 
 

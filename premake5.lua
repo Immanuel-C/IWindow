@@ -2,11 +2,12 @@ workspace "IWindow"
     configurations {"Debug", "Release"}
     architecture "x86_64"
 
+    print ("Make sure to set the vulkan sdk path")
 
     vulkanSdk = os.getenv("VULKAN_SDK");
+
     if vulkanSdk == nil then
         error "The vulkan sdk path is not set!"
-        exit(-1)
     end
 
     function defaultBuildCfg()
@@ -37,11 +38,13 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/WindowX11.cpp", "src/IWindowXlib.cpp"}
+        files {"%{prj.location}/WindowX11.cpp", "src/IWindowXlib.cpp", "src/IWindowXlibGL.cpp", "src/IWindowXlibGamepad.cpp"}
 
         includedirs {"src"}
 
-        links {"X11"}
+
+        -- libdirs { vulkanSdk ..  "/lib" }
+        links {"X11", "GLX", "GL"}
 
         defaultBuildLocation()
 

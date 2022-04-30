@@ -23,7 +23,7 @@ INCLUDES += -I../../src
 FORCE_INCLUDE +=
 ALL_CPPFLAGS += $(CPPFLAGS) -MMD -MP $(DEFINES) $(INCLUDES)
 ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-LIBS += -lX11
+LIBS += -lX11 -lGLX -lGL
 LDDEPS +=
 LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
 define PREBUILDCMDS
@@ -64,8 +64,12 @@ GENERATED :=
 OBJECTS :=
 
 GENERATED += $(OBJDIR)/IWindowXlib.o
+GENERATED += $(OBJDIR)/IWindowXlibGL.o
+GENERATED += $(OBJDIR)/IWindowXlibGamepad.o
 GENERATED += $(OBJDIR)/WindowX11.o
 OBJECTS += $(OBJDIR)/IWindowXlib.o
+OBJECTS += $(OBJDIR)/IWindowXlibGL.o
+OBJECTS += $(OBJDIR)/IWindowXlibGamepad.o
 OBJECTS += $(OBJDIR)/WindowX11.o
 
 # Rules
@@ -131,6 +135,12 @@ endif
 # #############################################
 
 $(OBJDIR)/IWindowXlib.o: ../../src/IWindowXlib.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/IWindowXlibGL.o: ../../src/IWindowXlibGL.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/IWindowXlibGamepad.o: ../../src/IWindowXlibGamepad.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/WindowX11.o: WindowX11.cpp

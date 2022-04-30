@@ -2,6 +2,7 @@
 
 #include <array>
 #include <functional>
+#include <string>
 
 #include "IWindowCodes.h"
 #include "IWindowPlatform.h"
@@ -13,6 +14,7 @@ namespace IWindow {
     public:
         Gamepad() = default;
         Gamepad(GamepadID gamepadIndex);
+        ~Gamepad();
 
         bool IsLeftStickInDeadzone();
         bool IsRightStickInDeadzone();
@@ -43,9 +45,13 @@ namespace IWindow {
         static void* GetUserPointer(GamepadID gid);
 
         // 0.0f = cancel, 1.0f max speed
+        // Windows only
         void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f);
 
         void Update();
+
+        // Linux Only
+        static void LinuxSetDevPath(const std::string& devPath);
 
     private:
         NativeGamepadState m_state;
@@ -58,5 +64,10 @@ namespace IWindow {
         static std::array<bool, (int)GamepadID::Max> m_connectedGamepads;
 
         static std::array<void*, (int)GamepadID::Max> m_userPtrs;
+
+        // Linux Only
+        static std::string m_devPath;
+        int m_js;
     };
+    
 }

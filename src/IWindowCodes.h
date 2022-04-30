@@ -323,6 +323,27 @@ namespace IWindow {
 
 
     enum struct GamepadButton {
+        A,
+        B,
+        X,
+        Y,
+
+        LeftShoulder,
+        RightShoulder,
+
+        Back,
+        Start,
+
+        Super,
+
+        LeftStick,
+        RightStick,
+
+        DpadUp,
+        DpadDown,
+        DpadRight,
+        DpadLeft,
+
         Max,
     };
 

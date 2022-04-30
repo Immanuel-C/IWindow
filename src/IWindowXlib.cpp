@@ -1,3 +1,4 @@
+#if !defined(_WIN32)
 #include "IWindow.h"
 #include <iostream>
 #include <X11/Xlib.h>
@@ -29,7 +30,6 @@ namespace IWindow {
         m_y = y;
         m_title = title;
         m_userPtr = nullptr;
-        const char* displayEnv = getenv("DISPLAY");
         m_display = XOpenDisplay(nullptr);
 
         if (!m_display) { return false; }
@@ -37,20 +37,68 @@ namespace IWindow {
         int root = DefaultRootWindow(m_display);
         int defaultScreen = DefaultScreen(m_display);
 
-        XVisualInfo visInfo = {};
-        if (!XMatchVisualInfo(m_display, defaultScreen, SCREEN_BIT_DEPTH, TrueColor, &visInfo)) { return false; }
+        static std::array<int, 23> visualAttribs = {
+            GLX_X_RENDERABLE, true,
+            GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+            GLX_RENDER_TYPE, GLX_RGBA_BIT,
+            GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
+            GLX_RED_SIZE, 8,
+            GLX_GREEN_SIZE, 8,
+            GLX_BLUE_SIZE, 8,
+            GLX_ALPHA_SIZE, 8,
+            GLX_DEPTH_SIZE, 24,
+            GLX_STENCIL_SIZE, 8,
+            GLX_DOUBLEBUFFER, true,
+            None
+        };
+
+        int fbcount = 0;
+
+        GLXFBConfig* fbc = glXChooseFBConfig(
+            m_display, 
+            DefaultScreen(m_display), 
+            visualAttribs.data(), 
+            &fbcount
+        );
+
+        if (!fbc) {
+            std::cerr << "Failed to retrieve a framebuffer config\n";
+            return false;
+        }
+
+        int bestFbcIndex = -1, worstFbcIndex = -1, BestNumSamples = -1, worstNumSamples = -1;
+
+        // Choose framebuffer config
+        for (int32_t i = 0; i < fbcount; i++) {
+            XVisualInfo* visualInfo = glXGetVisualFromFBConfig(m_display, fbc[i]);
+            if (visualInfo) {
+                int sampleBuffers = 0, samples = 0;
+                glXGetFBConfigAttrib(m_display, fbc[i], GLX_SAMPLE_BUFFERS, &sampleBuffers);
+                glXGetFBConfigAttrib(m_display, fbc[i], GLX_SAMPLES, &samples);
+                
+                if ( bestFbcIndex < 0 || sampleBuffers && samples > BestNumSamples )
+                    bestFbcIndex = i, BestNumSamples = samples;
+                if ( worstFbcIndex < 0 || !sampleBuffers || samples < worstNumSamples )
+                    worstFbcIndex = i, worstNumSamples = samples;
+            }
+            XFree(visualInfo);
+        }
+
+
+        GLXFBConfig bestFbc = fbc[bestFbcIndex];
+        XVisualInfo *vi = glXGetVisualFromFBConfig(m_display, bestFbc);
 
         XSetWindowAttributes windowAttr;
         windowAttr.background_pixel = 0;
-        windowAttr.colormap = XCreateColormap(m_display, root, visInfo.visual, AllocNone);
-        uint64_t attributeMask = CWBackPixel | CWColormap;
+        windowAttr.colormap = XCreateColormap(m_display, root, vi->visual, AllocNone);
+        uint64_t attributeMask = CWBackPixel | CWColormap ;
 
         m_window = XCreateWindow(
                         m_display, root,
                         x, y,
                         width, height, 0,
-                        visInfo.depth, InputOutput,
-                        visInfo.visual, attributeMask, &windowAttr
+                        vi->depth, InputOutput,
+                        vi->visual, attributeMask, &windowAttr
                     );
 
         if (!m_window) { return false; }
@@ -266,8 +314,6 @@ namespace IWindow {
     bool Window::IsMouseButtonUp(MouseButton button) { return !IsMouseButtonDown(button); }
     Vector2 Window::GetMouseScrollOffset() { return Vector2{ m_scrollOffsetX, m_scrollOffsetY }; }
 
-
-
     void Window::SetPosCallback(WindowPosCallback callback) { m_posCallback = callback; }
     void Window::SetSizeCallback(WindowSizeCallback callback) { m_sizeCallback = callback; }
     void Window::SetKeyCallback(KeyCallback callback) { m_keyCallback = callback; }
@@ -275,3 +321,4 @@ namespace IWindow {
     void Window::SetMouseButtonCallback(MouseButtonCallback callback) { m_mouseButtonCallback = callback; }
     void Window::SetMouseScrollCallback(MouseScrollCallback callback) { m_mouseScrollCallback = callback; }
 };
+#endif // _WIN32

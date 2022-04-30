@@ -110,6 +110,7 @@ namespace IWindow {
         X11Display GetX11Display();
         
         void operator=(Window&) = delete;
+        void operator=(Window&&) = delete;
         Window(Window&) = delete;
         Window(Window&&) = delete;
     private:
