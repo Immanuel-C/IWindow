@@ -1,0 +1,107 @@
+sdl x11
+sdl dga
+9	# Esc
+67	# F1
+68	# F2
+69	# F3
+70	# F4
+71	# F5
+72	# F6
+73	# F7
+74	# F8
+75	# F9
+76	# F10
+95	# F11
+96	# F12
+111	# PrintScrn
+78	# Scroll Lock
+110	# Pause
+49	# `
+10	# 1
+11	# 2
+12	# 3
+13	# 4
+14	# 5
+15	# 6
+16	# 7
+17	# 8
+18	# 9
+19	# 0
+20	# -
+21	# =
+22	# Backspace
+106	# Insert
+97	# Home
+99	# Page Up
+77	# Num Lock
+112	# KP /
+63	# KP *
+82	# KP -
+23	# Tab
+24	# Q
+25	# W
+26	# E
+27	# R
+28	# T
+29	# Y
+30	# U
+31	# I
+32	# O
+33	# P
+34	# [
+35	# ]
+36	# Return
+107	# Delete
+103	# End
+105	# Page Down
+79	# KP 7
+80	# KP 8
+81	# KP 9
+86	# KP +
+66	# Caps Lock
+38	# A
+39	# S
+40	# D
+41	# F
+42	# G
+43	# H
+44	# J
+45	# K
+46	# L
+47	# ;
+48	# '
+83	# KP 4
+84	# KP 5
+85	# KP 6
+50	# Shift Left
+94	# International
+52	# Z
+53	# X
+54	# C
+55	# V
+56	# B
+57	# N
+58	# M
+59	# ,
+60	# .
+61	# /
+62	# Shift Right
+51	# \
+98	# Cursor Up
+87	# KP 1
+88	# KP 2
+89	# KP 3
+108	# KP Enter
+37	# Ctrl Left
+115	# Logo Left (-> Option)
+64	# Alt Left (-> Command)
+65	# Space
+113	# Alt Right (-> Command)
+116	# Logo Right (-> Option)
+117	# Menu (-> International)
+109	# Ctrl Right
+100	# Cursor Left
+104	# Cursor Down
+102	# Cursor Right
+90	# KP 0
+91	# KP .

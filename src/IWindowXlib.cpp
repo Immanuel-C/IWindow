@@ -4,6 +4,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <X11/Xcursor/Xcursor.h>
+
 
 const uint32_t SCREEN_BIT_DEPTH = 24;
 // Additional mouse button names for XButtonEvent
@@ -29,6 +31,9 @@ namespace IWindow {
         m_x = x;
         m_y = y;
         m_title = title;
+
+        m_keys.resize((int64_t)Key::Max, false);
+
         m_userPtr = nullptr;
         m_display = XOpenDisplay(nullptr);
 
@@ -288,8 +293,8 @@ namespace IWindow {
             m_oldWidth = m_width;
             m_oldHeight = m_height;
             //resize and remove window border
-            Atom wmState = XInternAtom(m_display, "_NET_WM_STATE", true);
-            Atom wmFullscreen = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", true);
+            Atom wmState = XInternAtom(m_display, "_NET_WM_STATE", false);
+            Atom wmFullscreen = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", false);
             XChangeProperty(m_display, m_window, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&wmFullscreen, 1);
             SetWindowSize(monitor.size.x, monitor.size.y);
             Center(monitor);
@@ -320,5 +325,67 @@ namespace IWindow {
     void Window::SetMouseMoveCallback(MouseMoveCallback callback) { m_mouseMovecallback = callback; }
     void Window::SetMouseButtonCallback(MouseButtonCallback callback) { m_mouseButtonCallback = callback; }
     void Window::SetMouseScrollCallback(MouseScrollCallback callback) { m_mouseScrollCallback = callback; }
-};
+
+    
+    void Window::SetIcon(Image image) {
+        int longCount = 0;
+
+        longCount += 2 + image.width * image.height;
+
+        unsigned long* icon = new unsigned long[longCount * sizeof(unsigned long)];
+        unsigned long* target = icon;
+
+        *target++ = image.width;
+        *target++ = image.height;
+
+        for (int i = 0;  i < image.width * image.height;  i++) {
+            *target++ = (((unsigned long) image.data[i * 4 + 0]) << 16) |
+                        (((unsigned long) image.data[i * 4 + 1]) <<  8) |
+                        (((unsigned long) image.data[i * 4 + 2]) <<  0) |
+                        (((unsigned long) image.data[i * 4 + 3]) << 24);
+        }
+
+        XChangeProperty(m_display, m_window,
+                        XInternAtom(m_display, "_NET_WM_ICON", false),
+                        XA_CARDINAL, 32,
+                        PropModeReplace,
+                        (unsigned char*) icon,
+                        longCount);
+
+        XFlush(m_display);
+    }
+
+    void Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY) {
+        XcursorImage* native = XcursorImageCreate(image.width, image.height);
+        if (!native)
+            return;
+
+        native->xhot = hotX;
+        native->yhot = hotY;
+
+        unsigned char* source = (unsigned char*) image.data;
+        XcursorPixel* target = native->pixels;
+
+        for (int i = 0;  i < image.width * image.height;  i++, target++, source += 4)
+        {
+            unsigned int alpha = source[3];
+
+            *target = (alpha << 24) |
+                    ((unsigned char) ((source[0] * alpha) / 255) << 16) |
+                    ((unsigned char) ((source[1] * alpha) / 255) <<  8) |
+                    ((unsigned char) ((source[2] * alpha) / 255) <<  0);
+        }
+
+        m_cursor = XcursorImageLoadCursor(m_display, native);
+        XcursorImageDestroy(native);
+
+        XDefineCursor(m_display, m_window, m_cursor);
+    }
+
+    // Win32 (Windows) Only
+    void Window::SetIcon(NativeIconID iconID) {}
+    // Win32 (Windows) Only
+    void Window::SetCursor(NativeCursorID cursorID) {}
+
+}; 
 #endif // _WIN32

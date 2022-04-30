@@ -41,7 +41,7 @@ namespace IWindow {
         wc.lpfnWndProc = s_WindowCallback;
         wc.hInstance = instance;
         wc.lpszClassName = classNane.c_str();
-        wc.style = CS_OWNDC | CS_DBLCLKS ;
+        wc.style = CS_OWNDC;
         wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
         wc.hCursor = m_cursor;
         wc.hIcon = m_icon;

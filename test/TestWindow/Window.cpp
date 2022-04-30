@@ -59,10 +59,9 @@ void GamepadConnectedCallback(IWindow::GamepadID gid, bool isConnected) {
     std::cout << "Gamepad " << (int)gid << " was " << sConnected << "!\n";
 }
 
-void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState iState, IWindow::ClickState cState) {
+void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState state) {
     const char* sButton = "";
-    const char* sIState = "";
-    const char* sCState = "";
+    const char* sState = "";
 
     using namespace IWindow;
 
@@ -85,35 +84,21 @@ void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, I
     }
 
 
-    switch (iState)
+    switch (state)
     {
     case IWindow::InputState::Down:
-        sIState = "pressed";
+        sState = "pressed";
         break;
     case IWindow::InputState::Up:
-        sIState = "released";
-        break;
-    default:
-        break;
-    }
-
-    switch (cState)
-    {
-    case IWindow::ClickState::Double:
-        sCState = "2";
-        break;
-    case IWindow::ClickState::Single:
-        sCState = "1";
-        break;
-    case IWindow::ClickState::Up:
-        sCState = "up";
+        sState = "released";
         break;
     default:
         break;
     }
 
 
-    std::cout << "Mouse button " << sButton << " was clicked times " << sCState << " and was " << sIState << '\n';
+
+    std::cout << "Mouse button " << sButton << " was " << sState << '\n';
 }
 
 void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
@@ -126,9 +111,7 @@ void MouseScrollCallback(IWindow::Window& window, float xOffset, float yOffset) 
 
 int main() {
     IWindow::Window window{};
-    IWindow::Window w2{};
     if (!window.Create(1280, 720, u8"Hello IWindow!")) return EXIT_FAILURE;
-    if (!w2.Create(1280, 720, u8"Test")) return EXIT_FAILURE;
     // window.SetCursor(IWindow::NativeCursorID::Hand); // Using internal windowing apis cursors
     // window.SetIcon(IWindow::NativeIconID::Default); // Using internal windowing apis icons
 
@@ -188,6 +171,7 @@ int main() {
 
 
     while (window.IsRunning()) {
+        // Windows only
         gp.Rumble();
 
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
@@ -209,6 +193,5 @@ int main() {
 
         gp.Update();
         window.Update();
-        w2.Update();
     }
 }

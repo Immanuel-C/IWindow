@@ -80,6 +80,10 @@ namespace IWindow {
 `static void IWindow::Gamepad::SetUserPointer(IWindow::GamepadID gid, void* ptr)` sets a pointer that is associated to the GamepadID.
 `static void* IWindow::Gamepad::GetUserPointer(IWindow::GamepadID gid)` gets the pointer associated with the GamepadID. nullptr if no pointer is set.
 
+## Win32 Only
+
+If using Xlib this wont do anything.
+
 `void IWindow::Gamepad::Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f)` vibrates the gamepads motors. leftMotor controlles the left motor on the gamepad and the rightMotor controlles the right motor on the gamepad. Setting the a value to 0 will stop vibrations and setting it to 1 will set the motors to the max speed.
 
 

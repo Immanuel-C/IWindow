@@ -1,9 +1,9 @@
+#include <glad/glad.h>
 #include "IWindow.h"
 #include "IWindowGL.h"
 #include "IWindowGamepad.h"
 
 
-#include <glad/glad.h>
 
 #include <iostream>
 
@@ -21,12 +21,12 @@ int main() {
     if (!window.Create(WINDOW_WIDTH, WINDOW_HEIGHT, "Hello IWindow")) return EXIT_FAILURE;
 
     if (!glcontext.Create(window, GL_VERSION_MAJOR, GL_VERSION_MINOR)) { 
-        MessageBoxA(nullptr, "Failed to create a IWindow context!\nThis is probably because your computor doesn't support the required version of OpenGL", "Error", MB_ICONEXCLAMATION | MB_OK);
+        std::cout << "Failed to create a IWindow context!\nThis is probably because your computor doesn't support the required version of OpenGL\n";
         return EXIT_FAILURE;
     }
     
     if (!gladLoadGL()) {
-        MessageBoxA(nullptr, "Failed to load glad!", "Error", MB_ICONEXCLAMATION | MB_OK);
+        std::cout << "Failed to load glad!\n";
         return EXIT_FAILURE;
     }
 

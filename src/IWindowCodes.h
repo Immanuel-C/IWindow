@@ -50,7 +50,6 @@ namespace IWindow {
 
         Back = VK_BACK,
         Tab = VK_TAB,
-        Clear = VK_CLEAR,
         Enter = VK_RETURN,
         Shift = VK_SHIFT,
         Control = VK_CONTROL,
@@ -67,18 +66,13 @@ namespace IWindow {
         ArrowUp = VK_UP,
         ArrowRight = VK_RIGHT,
         ArrowDown = VK_DOWN,
-        Select = VK_SELECT,
-        Print = VK_PRINT,
-        Execute = VK_EXECUTE,
         PrintScreen = VK_SNAPSHOT,
         Insert = VK_INSERT,
         Delete = VK_DELETE,
-        Help = VK_HELP,
         LeftSuper = VK_LWIN,
         RightSuper = VK_RWIN,
-        Sleep = VK_SLEEP,
-        Multiply = VK_MULTIPLY,
         Add = VK_ADD,
+        Multiply = VK_MULTIPLY,
         Subtract = VK_SUBTRACT,
         Decimal = VK_DECIMAL,
         Divide = VK_DIVIDE,
@@ -168,142 +162,113 @@ namespace IWindow {
 }
 
 #else
+
 namespace IWindow {
+
     enum struct Key {
-        N0 = 0x13,
-        N1 = 0xa,
-        N2 = 0xb,
-        N3 = 0xc,
-        N4 = 0xd,
-        N5 = 0xe,
-        N6 = 0xf,
-        N7 = 0x10,
-        N8 = 0x11,
-        N9 = 0x12,
+        N0 = 19,
+        N1 = 10,
+        N2 = 11,
+        N3 = 12,
+        N4 = 13,
+        N5 = 14,
+        N6 = 15,
+        N7 = 16,
+        N8 = 17,
+        N9 = 18,
 
-        A = 0x26,
-        B = 0x38,
-        C = 0x36,
-        D = 0x28,
-        E = 0x1a,
-        F = 0x29,
-        G = 0x2a,
-        H = 0x2b,
-        I = 0x1f,
-        J = 0x2c,
-        K = 0x2d,
-        L = 0x2e,
-        M = 0x3a,
-        N = 0x39,
-        O = 0x20,
-        P = 0x21,
-        Q = 0x18,
-        R = 0x1b,
-        S = 0x27,
-        T = 0x1c,
-        U = 0x1e,
-        V = 0x37,
-        W = 0x19,
-        X = 0x35,
-        Y = 0x1d,
-        Z = 0x34,
+        A = 38,
+        B = 56,
+        C = 54,
+        D = 40,
+        E = 26,
+        F = 41,
+        G = 42,
+        H = 43,
+        I = 31,
+        J = 44,
+        K = 45,
+        L = 46,
+        M = 58,
+        N = 57,
+        O = 32,
+        P = 33,
+        Q = 24,
+        R = 27,
+        S = 39,
+        T = 28,
+        U = 30,
+        V = 55,
+        W = 25,
+        X = 53,
+        Y = 29,
+        Z = 52,
 
-        Np0 = 0x5a,
-        Np1 = 0x57,
-        Np2 = 0x58,
-        Np3 = 0x59,
-        Np4 = 0x53,
-        Np5 = 0x54,
-        Np6 = 0x55,
-        Np7 = 0x4f,
-        Np8 = 0x50,
-        Np9 = 0x51,
+        Np0 = 90,
+        Np1 = 87,
+        Np2 = 88,
+        Np3 = 89,
+        Np4 = 83,
+        Np5 = 84,
+        Np6 = 85,
+        Np7 = 79,
+        Np8 = 80,
+        Np9 = 81,
 
-        F1 = 0x43,
-        F2 = 0x44,
-        F3 = 0x45,
-        F4 = 0x46,
-        F5 = 0x47,
-        F6 = 0x48,
-        F7 = 0x49,
-        F8 = 0x4a,
-        F9 = 0x4b,
-        F10 = 0x4c,
-        F11 = 0x5f,
-        F12 = 0x60,
 
-        Max = 0x61
+        F1 = 67,
+        F2 = 68,
+        F3 = 69,
+        F4 = 70,
+        F5 = 71,
+        F6 = 72,
+        F7 = 73,
+        F8 = 74,
+        F9 = 75,
+        F10 = 76,
+        F11 = 95,
+        F12 = 96,
+
+        Back = 22,
+        Tab = 23,
+        Enter = 108, 
+        Shift = 56,
+        Control = 37,
+        Alt = 64,
+        Pause = 110,
+        CapsLock = 66,
+        Escape = 9,
+        Space = 65,
+        PageUp = 99,
+        PageDown = 105,
+        End = 103,
+        Home = 97,
+        ArrowLeft = 113,
+        ArrowUp = 111,
+        ArrowRight = 114,
+        ArrowDown = 39,
+        PrintScreen = 111,
+        Insert = 106,
+        Delete = 107,
+        LeftSuper = 133,
+        RightSuper = 0, // Get this
+        Subtract = 20,
+        Decimal = 60,
+        Add = 86,
+        Divide = 61,
+        Multiply = 63,
+        ScrollLock = 78,
+        NumLock = 77,
+        LShift = Shift,
+        RShift = 62,
+        LControl = Control,
+        RControl = 109,
+        LMenu = 117,
+        RMenu = 117,
+
+        Max = 200,
     };
 
-    inline bool IWindowCheckX11KeySupported(Key key)
-    {
-        switch (key) {
-            case Key::N0: {return true; }
-            case Key::N1: {return true; }
-            case Key::N2: {return true; }
-            case Key::N3: {return true; }
-            case Key::N4: {return true; }
-            case Key::N5: {return true; }
-            case Key::N6: {return true; }
-            case Key::N7: {return true; }
-            case Key::N8: {return true; }
-            case Key::N9: {return true; }
-
-
-            case Key::A: {return true; }
-            case Key::B: {return true; }
-            case Key::C: {return true; }
-            case Key::D: {return true; }
-            case Key::E: {return true; }
-            case Key::F: {return true; }
-            case Key::G: {return true; }
-            case Key::H: {return true; }
-            case Key::I: {return true; }
-            case Key::J: {return true; }
-            case Key::K: {return true; }
-            case Key::L: {return true; }
-            case Key::M: {return true; }
-            case Key::N: {return true; }
-            case Key::O: {return true; }
-            case Key::P: {return true; }
-            case Key::Q: {return true; }
-            case Key::R: {return true; }
-            case Key::S: {return true; }
-            case Key::T: {return true; }
-            case Key::U: {return true; }
-            case Key::V: {return true; }
-            case Key::W: {return true; }
-            case Key::X: {return true; }
-            case Key::Y: {return true; }
-            case Key::Z: {return true; }
-
-            case Key::Np0: {return true; }
-            case Key::Np1: {return true; }
-            case Key::Np2: {return true; }
-            case Key::Np3: {return true; }
-            case Key::Np4: {return true; }
-            case Key::Np5: {return true; }
-            case Key::Np6: {return true; }
-            case Key::Np7: {return true; }
-            case Key::Np8: {return true; }
-            case Key::Np9: {return true; }
-
-            case Key::F1: {return true; }
-            case Key::F2: {return true; }
-            case Key::F3: {return true; }
-            case Key::F4: {return true; }
-            case Key::F5: {return true; }
-            case Key::F6: {return true; }
-            case Key::F7: {return true; }
-            case Key::F8: {return true; }
-            case Key::F9: {return true; }
-            case Key::F10: {return true; }
-            case Key::F11: {return true; }
-            case Key::F12: {return true; }
-        };
-
-        return false;
-    }
 
     enum struct MouseButton {
         Left = 1,
@@ -319,8 +284,6 @@ namespace IWindow {
         Up,
         Max
     };
-
-
 
     enum struct GamepadButton {
         A,

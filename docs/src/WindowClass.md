@@ -10,7 +10,7 @@ This is what the window class .h file looks like (with some stuff taken out).
 namespace IWindow {
     class Window {
     public:
-Window() = default;
+        Window() = default;
         Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
         ~Window(); 
 
@@ -42,10 +42,6 @@ Window() = default;
         template<typename... Args>
         bool IsMouseButtonDown(MouseButton button, Args... args) { return IsMouseButtonDown(button) && IsMouseButtonDown(args...); }
 
-        bool IsMouseButtonDoubleClicked(MouseButton button);
-        template<typename... Args>
-        bool IsMouseButtonDoubleClicked(MouseButton button, Args... args) { return IsMouseButtonDoubleClicked(button) && IsMouseButtonDoubleClicked(args...); }
-
         bool IsMouseButtonUp(MouseButton button);
         template<typename... Args>
         bool IsMouseButtonUp(MouseButton button, Args... args) { return IsMouseButtonUp(button) && IsMouseButtonUp(args...); }
@@ -71,12 +67,19 @@ Window() = default;
 
         void SetIcon(Image image);
         void SetCursor(Image image, uint32_t hotX, uint32_t hotY);
+        // Win32 (Windows) Only
         void SetIcon(NativeIconID iconID);
+        // Win32 (Windows) Only
         void SetCursor(NativeCursorID cursorID);
 
         NativeDeviceContext& GetNativeDeviceContext();
+
+        // X11 (Linux) only
+        // On Windows this will return nullptr
+        X11Display GetX11Display();
         
         void operator=(Window&) = delete;
+        void operator=(Window&&) = delete;
         Window(Window&) = delete;
         Window(Window&&) = delete;
     private:
@@ -184,7 +187,6 @@ The `bool IWindow::Window::IsKeyDown(IWindow::Window::Key key)` and `IWindow::Wi
 
 `bool IWindow::Window::IsMouseButtonDown(IWindow::MouseButton button)` and `bool IWindow::Window::IsMouseButtonUp(IWindow::MouseButton button)` functions check if a argument `button` is pressed or released. 
 
-`bool IWindow::Window::IsMouseButtonDoubleClicked(IWindow::MouseButton button)` checks if a argument `button` was pressed 2 in quick succesion.
 
 The templated input functions allow you to pass in multiple buttons/keys and the function checks if all the buttons/keys are pressed/released.
 
@@ -219,6 +221,10 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 `void IWindow::Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY)`. sets the cursor to an image. The cursor has to be inside the window to show image. The image has to have 4 channels, in order `RGBA`, 8 bits/1 byte per channel, the image has to start at the top left corner. `hotX` is the location of the x location that effects cursor events. `hotY` is similer but it is the y location. Think of the 'Hot' location has the place cursor events take place (e.g. when you click it will be at the hot location).
 
+## Win32 only
+
+When using Xlib these functions wont do anything
+
 `void IWindow::Window::SetIcon(NativeIconID iconID)` sets the icon using a native icon id. See [Enum Structs](./EnumStructs.md).
 
 `void IWindow::Window::SetCursor(NativeCursorID cursorID)` sets the cursor using a native cursor id. See [Enum Structs](./EnumStructs.md).
@@ -228,3 +234,8 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 `IWindow::Window::NativeWindowHandle& IWindow::Window::GetNativeWindowHandle()` gets the internal windowing api's window handle (e.g. Win32: `HWND`, X11: `Window`).
 
 `IWindow::Window::NativeDeviceContext& IWindow::Window::GetNativeDeviceContext()` gets the internal windowing api's graphics/device context (e.g. Win32: `HDC`, X11: `GC`).
+
+
+## Xlib Only
+
+`IWindow::X11Display IWindow::Window::GetX11Display()` returns the display connection to the X server.

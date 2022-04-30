@@ -1,10 +1,15 @@
 #include "IWindow.h"
-#include "IWindowVk.h"
+#include "IWindowVK.h"
 
 #include <iostream>
 
 int main() {
-    IWindow::Window window = IWindow::Window(1280, 720, "Hello IWindow");
+    IWindow::Window window{};
+    
+    if (!window.Create(1280, 720, "Hello IWindow")) {
+        std::cout << "Failed to create window!\n";
+        return EXIT_FAILURE;
+    }
 
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -36,6 +41,9 @@ int main() {
         std::cerr << "Failed to create window surface\n";
         return EXIT_FAILURE;
     }
+
+
+    std::cout << "Success!\n";
 
 
     while (window.IsRunning()) {

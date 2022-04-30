@@ -42,14 +42,17 @@ namespace IWindow {
     typedef GC NativeDeviceContext;
     typedef GLXContext NativeGLRendereringContext;
     typedef js_event NativeGamepadState;
-    typedef void* NativeCursor;
+    typedef Cursor NativeCursor;
     typedef void* NativeIcon; 
 
     enum struct NativeCursorID {
+        Arrow,
+        Hand,
         Max
     };
 
     enum struct NativeIconID {
+        Default,
         Max
     };
 #endif

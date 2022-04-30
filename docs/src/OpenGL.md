@@ -18,11 +18,13 @@ namespace IWindow {
 
             void MakeContextNotCurrent();
             void MakeContextCurrent();
-
+             
             void SwapBuffers();
 
             void operator=(Context&) = delete;
+            void operator=(Context&&) = delete;
             Context(Context&) = delete;
+            Context(Context&&) = delete;
         };
 
         void* LoadOpenGLFunction(const char* name);

@@ -11,6 +11,8 @@ namespace IWindow {
     std::string Gamepad::m_devPath = "/dev/input/js1";
     std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{ false };
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{ nullptr };
+    Gamepad::GamepadConnectedCallback Gamepad::m_connectedCallback = Gamepad::DefaultGamepadConnectedCallback;
+
 
     static constexpr int32_t GAMEPAD_AXIS_LEFT_STICK_Y = 0;
     static constexpr int32_t GAMEPAD_AXIS_LEFT_STICK_X = 1;
@@ -174,10 +176,10 @@ namespace IWindow {
     void Gamepad::SetConnectedCallback(GamepadConnectedCallback callback) { m_connectedCallback = callback; }
 
     void Gamepad::SetUserPointer(GamepadID gid, void* ptr) { m_userPtrs[(int64_t)gid] = ptr; }
-    void* Gamepad::GetUserPointer(GamepadID gid) { m_userPtrs[(int64_t)gid]; }
+    void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int64_t)gid]; }
 
 
-    void Gamepad::Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f) {
+    void Gamepad::Rumble(float leftMotor, float rightMotor) {
         // Windows only for now
     }
 
