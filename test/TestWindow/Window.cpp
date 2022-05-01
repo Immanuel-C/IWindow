@@ -3,13 +3,12 @@
 #include "stbi.h"
 
 #include <iostream>
-#include <chrono>
-#include <future>
+#include <unistd.h>
 
 
 namespace Example {
     void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-        //std::cout << "Window position: " << x << ", " << y << '\n';
+        std::cout << "Window position: " << x << ", " << y << '\n';
     }
 }
 
@@ -32,7 +31,7 @@ void KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::InputState 
     }
 
 
-    std::cout << "Key: " << (int)key << "is being/was just " << sState << '\n';
+    std::cout << "Key: " << (int)key << " was just " << sState << '\n';
 }
 
 void GamepadConnectedCallback(IWindow::GamepadID gid, bool isConnected) {
@@ -67,19 +66,19 @@ void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, I
 
     switch (button) {
     case MouseButton::Left:
-        sButton = "Left";
+        sButton = "left";
         break;
     case MouseButton::Right:
-        sButton = "Right";
+        sButton = "right";
         break;
     case MouseButton::Middle:
-        sButton = "Middle";
+        sButton = "middle";
         break;
     case MouseButton::Side1:
-        sButton = "Side1";
+        sButton = "side1";
         break;
     case MouseButton::Side2:
-        sButton = "Side2";
+        sButton = "side2";
         break;
     }
 
@@ -102,11 +101,11 @@ void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, I
 }
 
 void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
-    //std::cout << "Mouse Moved: " << x << ", " << y << '\n';
+    std::cout << "Mouse Moved: " << x << ", " << y << '\n';
 }
 
 void MouseScrollCallback(IWindow::Window& window, float xOffset, float yOffset) {
-    //  std::cout << "x Offset: " << xOffset << " y Offset: " << yOffset << '\n';
+    std::cout << "x Offset: " << xOffset << " y Offset: " << yOffset << '\n';
 }
 
 int main() {
@@ -130,7 +129,7 @@ int main() {
     // width / 2, height / 2 is middle of cursor
     window.SetCursor(image, 0, 0);
 
-    stbi_image_free(data); // || delete data;
+    stbi_image_free(data); // delete[] data;
 
 
     IWindow::Gamepad gp{ IWindow::GamepadID::GP1 };
@@ -138,8 +137,14 @@ int main() {
     int windowUserPtrExample = 10;
     uint32_t gamePadsConnected = 0;
 
-    // Register callbacks
     window.SetUserPointer(&windowUserPtrExample);
+
+    for (uint32_t i = 0; i < (int)IWindow::GamepadID::Max; i++) 
+        IWindow::Gamepad::SetUserPointer((IWindow::GamepadID)i, &gamePadsConnected);
+
+    IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
+
+    // Register callbacks
     window.SetPosCallback(Example::WindowPosCallback);
     window.SetSizeCallback(WindowSizeCallback);
     window.SetKeyCallback(KeyCallback);
@@ -147,31 +152,30 @@ int main() {
     window.SetMouseMoveCallback(MouseMoveCallback);
     window.SetMouseScrollCallback(MouseScrollCallback);
 
-    for (uint32_t i = 0; i < (int)IWindow::GamepadID::Max; i++) 
-        IWindow::Gamepad::SetUserPointer((IWindow::GamepadID)i, &gamePadsConnected);
-
-    IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
 
     // Set fullscreen on the primary monitor then wait 1 second then set to no fullscreen
     // on the primary monitor
     // window.Fullscreen(true, window.GetPrimaryMonitor());
-    // std::this_thread::sleep_for(std::chrono::seconds{ 1 });
+    // sleep(1);
     // window.Fullscreen(false, window.GetPrimaryMonitor());
 
     // Gets all available monitors
     std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
 
 
+    /*
     // Print monitor properties
     for (IWindow::Monitor& monitor : monitors) 
         // monitor.name is a std::wstring
         std::wcout << "Monitor Name: " << monitor.name << '\n'
             << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n'
             << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
+    */  
 
 
     while (window.IsRunning()) {
-        // Windows only
+
+        // Rumble is Win32 only. For now
         gp.Rumble();
 
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
@@ -179,17 +183,9 @@ int main() {
 
         if (gp.IsButtonDown(IWindow::GamepadButton::A)) {
             std::cout << "A was pressed!\n";
+            // Rumble is Win32 only. For now
             gp.Rumble(0.25f, 0.35f);
         }
-
-
-        // std::cout << window.GetMousePosition().x << ", " << window.GetMousePosition().y << '\n';
-
-        // std::cout << "Left Stick X: " << gp.RightTrigger() << '\n';
-
-        //std::cout << "Right Trigger: " << gp.RightTrigger() << '\n';
-
-        std::cout << "ScrollX: " << window.GetMouseScrollOffset().x << " ScrollY: " << window.GetMouseScrollOffset().y << '\n';
 
         gp.Update();
         window.Update();

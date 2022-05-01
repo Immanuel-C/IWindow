@@ -3,14 +3,15 @@
 #include <array>
 #include <functional>
 #include <string>
+#include <future>
 
 #include "IWindowCodes.h"
 #include "IWindowPlatform.h"
 
 namespace IWindow {
+    typedef std::function<void(GamepadID, bool)> GamepadConnectedCallback;
+
     class Gamepad {
-    private:
-        typedef std::function<void(GamepadID, bool)> GamepadConnectedCallback;
     public:
         Gamepad() = default;
         Gamepad(GamepadID gamepadIndex);

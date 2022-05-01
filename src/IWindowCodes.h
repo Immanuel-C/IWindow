@@ -279,7 +279,7 @@ namespace IWindow {
         Max
     };
 
-     enum struct InputState {
+    enum struct InputState {
         Down,
         Up,
         Max
@@ -297,15 +297,15 @@ namespace IWindow {
         Back,
         Start,
 
-        Super,
+        //Super,
 
-        LeftStick,
-        RightStick,
+        LeftStick = 9,
+        RightStick = 10,
 
-        DpadUp,
-        DpadDown,
-        DpadRight,
-        DpadLeft,
+        DpadUp = 11,
+        DpadDown = 12,
+        DpadRight = 13,
+        DpadLeft = 14,
 
         Max,
     };

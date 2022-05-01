@@ -6,7 +6,6 @@
 #include <X11/Xatom.h>
 #include <X11/Xcursor/Xcursor.h>
 
-
 const uint32_t SCREEN_BIT_DEPTH = 24;
 // Additional mouse button names for XButtonEvent
 static constexpr uint32_t Button6 = 6;
@@ -32,12 +31,13 @@ namespace IWindow {
         m_y = y;
         m_title = title;
 
-        m_keys.resize((int64_t)Key::Max, false);
-
         m_userPtr = nullptr;
         m_display = XOpenDisplay(nullptr);
 
-        if (!m_display) { return false; }
+        if (!m_display) {
+            std::cerr << "Failed to open display connection!\n";
+            return false; 
+        }
 
         int root = DefaultRootWindow(m_display);
         int defaultScreen = DefaultScreen(m_display);
@@ -106,12 +106,22 @@ namespace IWindow {
                         vi->visual, attributeMask, &windowAttr
                     );
 
-        if (!m_window) { return false; }
+        if (!m_window) { 
+            std::cerr << "Failed to create window!\n";
+            return false; 
+        }
 
         m_deviceContext = XCreateGC(m_display, m_window, 0, nullptr);
-
-        //subscribe to these input events:
-        XSelectInput(m_display, m_window, KeyPressMask | KeyReleaseMask | PointerMotionMask | ButtonPressMask | ButtonReleaseMask);
+            //subscribe to these input events:
+        XSelectInput(m_display, m_window, 
+            KeyPressMask        | 
+            KeyReleaseMask      | 
+            PointerMotionMask   | 
+            ButtonPressMask     | 
+            ButtonReleaseMask   | 
+            // For resize and move events 
+            StructureNotifyMask
+        );
 
         XStoreName(m_display, m_window, title.c_str());  
 
@@ -123,87 +133,102 @@ namespace IWindow {
         Atom wmDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
         if(!XSetWMProtocols(m_display, m_window, &wmDeleteWindow, 1)) { return false; } 
 
+        std::cout << "Linux joystick driver version: " << JSIOCGVERSION << '\n';
+
         return true;
     }
 
     void Window::Update() {
-        if (!XPending(m_display)) // If no events are pending return because XNextEvent will pause the thread until an event is registered.
-            return;
-        // Move to next window event (and also check if window is still running)
-        XEvent ev;
-        XNextEvent(m_display, &ev); // Fetch the next event
+        while (XPending(m_display)) { // If no events are pending return because XNextEvent will pause the thread until an event is registered.
+            // Move to next window event (and also check if window is still running)
+            XEvent ev;
+            XNextEvent(m_display, &ev); // Fetch the next event
 
-        if (ev.xany.window != m_window) // If the event is from another window return.
-            return;
+            if (ev.xany.window != m_window) // If the event is from another window return.
+                return;
 
-        switch (ev.type)
-        {
-        case KeyPress: {
-            if (ev.xkey.keycode < (int)Key::Max) { // Check if higher than mask to avoid mem overflow
-                m_keys[ev.xkey.keycode] = true;
-                m_keyCallback(*this, (Key)ev.xkey.keycode, InputState::Down);
-            }
-            break;
-        }
-        case KeyRelease: {
-            if (ev.xkey.keycode < (int)Key::Max) {
-                m_keys[ev.xkey.keycode] = false;
-                m_keyCallback(*this, (Key)ev.xkey.keycode, InputState::Up);
-            }
-            break;
-        }
-        case MotionNotify: {
-            if (ev.type == MotionNotify) {
-                m_x = ev.xmotion.x;
-                m_y = ev.xmotion.y;
-                m_mouseMovecallback(*this, m_x, m_y);
-            }
-            break;
-        }
-        case ButtonPress: {
-            if (ev.xbutton.button < (int)MouseButton::Max) {
-                // Button4 = forward on Y axis, Button5 = backwards (towards user) on Y axis
-                if (ev.xbutton.button == Button4 || ev.xbutton.button == Button5) {
-                    m_scrollOffsetY = ev.xbutton.button == Button4 ? 1.0f : -1.0f;
-                    m_scrollOffsetX = 0.0f;
-                    m_mouseScrollCallback(*this, m_scrollOffsetX, m_scrollOffsetY);
-                    break;
-                } 
-                // Button6 = forward on X axis, Button7 = backwards (towards user) on X axis
-                else if (ev.xbutton.button == Button6 || ev.xbutton.button == Button7) {
-                    m_scrollOffsetX = ev.xbutton.button == Button6 ? 1.0f : -1.0f;
-                    m_scrollOffsetY = 0.0f;
-                    m_mouseScrollCallback(*this, m_scrollOffsetX, m_scrollOffsetY);
-                    break;
+            switch (ev.type)
+            {
+            case KeyPress: {
+                if (ev.xkey.keycode < (int)Key::Max) { // Check if higher than mask to avoid mem overflow
+                    m_keys[ev.xkey.keycode] = true;
+                    m_keyCallback(*this, (Key)ev.xkey.keycode, InputState::Down);
                 }
+                break;
+            }
+            case KeyRelease: {
+                if (ev.xkey.keycode < (int)Key::Max) {
+                    m_keys[ev.xkey.keycode] = false;
+                    m_keyCallback(*this, (Key)ev.xkey.keycode, InputState::Up);
+                }
+                break;
+            }
+            case MotionNotify: {
+                if (ev.type == MotionNotify) {
+                    m_mouseX = ev.xmotion.x;
+                    m_mouseY = ev.xmotion.y;
+                    m_mouseMovecallback(*this, m_mouseX, m_mouseY);
+                }
+                break;
+            }
+            case ButtonPress: {
+                if (ev.xbutton.button < (int)MouseButton::Max) {
+                    // Button4 = forward on Y axis, Button5 = backwards (towards user) on Y axis
+                    if (ev.xbutton.button == Button4 || ev.xbutton.button == Button5) {
+                        m_scrollOffsetY = ev.xbutton.button == Button4 ? 1.0f : -1.0f;
+                        m_scrollOffsetX = 0.0f;
+                        m_mouseScrollCallback(*this, m_scrollOffsetX, m_scrollOffsetY);
+                        break;
+                    } 
+                    // Button6 = forward on X axis, Button7 = backwards (towards user) on X axis
+                    else if (ev.xbutton.button == Button6 || ev.xbutton.button == Button7) {
+                        m_scrollOffsetX = ev.xbutton.button == Button6 ? 1.0f : -1.0f;
+                        m_scrollOffsetY = 0.0f;
+                        m_mouseScrollCallback(*this, m_scrollOffsetX, m_scrollOffsetY);
+                        break;
+                    }
 
-                m_mouseButtons[(int64_t)ev.xbutton.button] = true;
-                m_mouseButtonCallback(*this, (MouseButton)ev.xbutton.button, InputState::Down);
+                    m_mouseButtons[(int64_t)ev.xbutton.button] = true;
+                    m_mouseButtonCallback(*this, (MouseButton)ev.xbutton.button, InputState::Down);
+                }
+                break;
             }
-            break;
-        }
-        case ButtonRelease: {
-            if (ev.xbutton.button < (int)MouseButton::Max) {
-                m_mouseButtons[(int64_t)ev.xbutton.button] = false;
-                m_mouseButtonCallback(*this, (MouseButton)ev.xbutton.button, InputState::Up);
+            case ButtonRelease: {
+                if (ev.xbutton.button < (int)MouseButton::Max) {
+                    m_mouseButtons[(int64_t)ev.xbutton.button] = false;
+                    m_mouseButtonCallback(*this, (MouseButton)ev.xbutton.button, InputState::Up);
+                }
+                break;
             }
-            break;
-        }
-        case DestroyNotify: {
-            XDestroyWindowEvent* e = (XDestroyWindowEvent*) &ev;
-            m_running = false;
-            break;
-        }
-        case ClientMessage: {
-            XClientMessageEvent* e = (XClientMessageEvent*)&ev;
-            if((Atom)e->data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", False)) 
+            // Resize and move events
+            case ConfigureNotify: {
+                if (ev.xconfigure.width != m_width || ev.xconfigure.height != m_height) {
+                    m_width = ev.xconfigure.width;
+                    m_height = ev.xconfigure.height;
+                    m_sizeCallback(*this, m_width, m_height);
+                } else if (ev.xconfigure.x != m_x || ev.xconfigure.y != m_y) {
+                    m_x = ev.xconfigure.x;
+                    m_y = ev.xconfigure.y;
+                    m_posCallback(*this, m_y, m_x);
+                }
+                break;
+            }
+            case DestroyNotify: {
+                XDestroyWindowEvent* e = (XDestroyWindowEvent*) &ev;
                 m_running = false;
-            break;
-        }
-        default:
-            break;
-        }
+                break;
+            }
+            case ClientMessage: {
+                XClientMessageEvent* e = (XClientMessageEvent*)&ev;
+                if((Atom)e->data.l[0] == XInternAtom(m_display, "WM_DELETE_WINDOW", false)) 
+                    m_running = false;
+                break;
+            }
+            default:
+                break;
+            }
 
+        }
     }
 
     bool Window::IsRunning() { return m_running; }
@@ -244,6 +269,10 @@ namespace IWindow {
         XMoveWindow(m_display, m_window, m_x, m_y);
     }
 
+    IVector2 Window::GetMousePosition() {
+        return IVector2{ m_mouseX, m_mouseY };
+    }
+
     Monitor Window::GetPrimaryMonitor() {
         int snum = DefaultScreen(m_display);
         Monitor monitor{};
@@ -270,8 +299,6 @@ namespace IWindow {
             monitor.size.x = screen->width; 
             monitor.size.y = screen->height;
 
-            using namespace std::string_literals;
-
             monitor.name = L"Monitor " + std::to_wstring(i);
 
             monitors.emplace_back(std::move(monitor));
@@ -293,8 +320,8 @@ namespace IWindow {
             m_oldWidth = m_width;
             m_oldHeight = m_height;
             //resize and remove window border
-            Atom wmState = XInternAtom(m_display, "_NET_WM_STATE", false);
-            Atom wmFullscreen = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", false);
+            Atom wmState = XInternAtom(m_display, "_NET_WM_STATE", true);
+            Atom wmFullscreen = XInternAtom(m_display, "_NET_WM_STATE_FULLSCREEN", true);
             XChangeProperty(m_display, m_window, wmState, XA_ATOM, 32, PropModeReplace, (unsigned char *)&wmFullscreen, 1);
             SetWindowSize(monitor.size.x, monitor.size.y);
             Center(monitor);

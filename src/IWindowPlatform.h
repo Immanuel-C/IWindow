@@ -13,6 +13,15 @@
 #include <linux/joystick.h>
 #endif
 
+
+#if __cplusplus >= 202002L
+#define IWINDOW_LIKELY [[likely]]
+#define IWINDOW_UNLIKELY [[unlikely]]
+#else
+#define IWINDOW_LIKELY 
+#define IWINDOW_UNLIKELY 
+#endif
+
 namespace IWindow {
     #if defined(_WIN32)
 

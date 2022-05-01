@@ -11,7 +11,7 @@ namespace IWindow {
     std::string Gamepad::m_devPath = "/dev/input/js1";
     std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{ false };
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{ nullptr };
-    Gamepad::GamepadConnectedCallback Gamepad::m_connectedCallback = Gamepad::DefaultGamepadConnectedCallback;
+    GamepadConnectedCallback Gamepad::m_connectedCallback = Gamepad::DefaultGamepadConnectedCallback;
 
 
     static constexpr int32_t GAMEPAD_AXIS_LEFT_STICK_Y = 0;
@@ -30,14 +30,20 @@ namespace IWindow {
     Gamepad::Gamepad(GamepadID gamepadIndex) : m_gamepadIndex { (int)gamepadIndex }{
         m_js = open(m_devPath.c_str(), O_RDONLY);
         // -1 if failed
-        if (m_js == -1)  std::cout << "Failed to open: \"" << m_devPath << "\" for gamepad input!\n";
+        // if (m_js == -1)  std::cout << "Failed to open: \"" << m_devPath << "\" for gamepad input!\n";
+        if (m_js == -1) {
+            m_connectedGamepads[m_gamepadIndex] = false;
+            return;
+        }
+
+        m_connectedGamepads[m_gamepadIndex] = true;
+        m_connectedCallback(gamepadIndex, true);
     } 
 
-    Gamepad::~Gamepad() {
-        if (!IsConnected())
-            return;
-            
-        close(m_js);
+    Gamepad::~Gamepad() {            
+        if (m_js != -1) close(m_js);
+        m_connectedGamepads[m_gamepadIndex] = false;
+        m_connectedCallback((GamepadID)m_gamepadIndex, false);
     }
 
     float Gamepad::LeftStickX() {
@@ -137,34 +143,24 @@ namespace IWindow {
     }
 
     bool Gamepad::IsButtonUp(GamepadButton button) { return !IsButtonDown(button); }
+    
 
     void Gamepad::Update() {
-        if (read(m_js, &m_state, sizeof(js_event)) != sizeof(js_event)) {
+        // if read != sizeof(NativeGamepadState) then it failed
+        if (read(m_js, &m_state, sizeof(NativeGamepadState)) != sizeof(NativeGamepadState)) {
             if (m_connectedGamepads[m_gamepadIndex])
                 m_connectedCallback((GamepadID)m_gamepadIndex, false);
             m_connectedGamepads[m_gamepadIndex] = false;
+            // If read failed its probably because the js fd has failed to open because no gamepads are detected
+            if (m_js == -1) IWINDOW_LIKELY
+                m_js = open(m_devPath.c_str(), O_RDONLY);
             return;
         }
 
-        if (!m_connectedGamepads[m_gamepadIndex])
+        if (!m_connectedGamepads[m_gamepadIndex]) {
             m_connectedCallback((GamepadID)m_gamepadIndex, true);
-
-        m_connectedGamepads[m_gamepadIndex] = true;
-
-        // switch (m_state.type) {
-        //     case JS_EVENT_BUTTON: {
-        //         const char* inputState = m_state.value ? "pressed\n" : "released\n";
-        //         std::cout << "Button: " << (int)m_state.number << " was " << inputState;
-        //         break;
-        //     }
-        //     case JS_EVENT_AXIS: {
-        //         std::cout << "Axis " << (int)m_state.number << " Value: " << m_state.value << "\n";
-
-        //         break;
-        //     }
-        //     default:
-        //         break;
-        // }
+            m_connectedGamepads[m_gamepadIndex] = true;
+        }
     }
 
     bool Gamepad::IsConnected() { return m_connectedGamepads[m_gamepadIndex]; }
@@ -177,7 +173,6 @@ namespace IWindow {
 
     void Gamepad::SetUserPointer(GamepadID gid, void* ptr) { m_userPtrs[(int64_t)gid] = ptr; }
     void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int64_t)gid]; }
-
 
     void Gamepad::Rumble(float leftMotor, float rightMotor) {
         // Windows only for now

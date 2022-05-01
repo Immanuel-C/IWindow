@@ -130,7 +130,7 @@ namespace IWindow {
         NativeWindowHandle m_window;
         X11Display m_display;
 
-        std::vector<bool> m_keys{};
+        std::array<bool, (int64_t)Key::Max> m_keys{ false };
         std::array<bool, (int64_t)MouseButton::Max> m_mouseButtons{ false };
 
         static void DefaultWindowPosCallback(Window&, int64_t, int64_t) {}
