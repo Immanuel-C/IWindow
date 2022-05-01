@@ -6,6 +6,8 @@
  
  IWindow supports Win32 and X11.
  
+ **This branch is unstable.**
+ 
  No this isn't as good as GLFW yet...
 
 # How to build
