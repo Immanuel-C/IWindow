@@ -1,6 +1,4 @@
-sdl x11
-sdl dga
-9	# Esc
+9	  # Esc
 67	# F1
 68	# F2
 69	# F3
