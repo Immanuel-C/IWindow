@@ -51,9 +51,6 @@ namespace IWindow {
 
         void Update();
 
-        // Linux Only
-        static void LinuxSetDevPath(const std::string& devPath);
-
     private:
         NativeGamepadState m_state;
         int m_gamepadIndex;
@@ -67,7 +64,7 @@ namespace IWindow {
         static std::array<void*, (int)GamepadID::Max> m_userPtrs;
 
         // Linux Only
-        static std::string m_devPath;
+        std::string m_devPath;
         int m_js;
     };
     
