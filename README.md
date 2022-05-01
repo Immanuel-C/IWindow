@@ -1,7 +1,7 @@
 # IWindow
  A simple windowing library ment to be used with Vulkan, OpenGL or Direct3D.
  
- Currently IWindow only supports windows. But X11 support is being worked on in the X11-Support branch. **The X11-Support branch is unstable thought.**
+ Currently IWindow only supports windows. But X11 support is being worked on in the X11-Support branch. **The X11-Support branch is unstable.**
  
  IWindow is written is C++ and uses C++17 and currently only supports 64 bit machines but 32 bit support may be supported.
  
