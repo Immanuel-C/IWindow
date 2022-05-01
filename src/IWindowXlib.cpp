@@ -96,7 +96,7 @@ namespace IWindow {
         XSetWindowAttributes windowAttr;
         windowAttr.background_pixel = 0;
         windowAttr.colormap = XCreateColormap(m_display, root, vi->visual, AllocNone);
-        uint64_t attributeMask = CWBackPixel | CWColormap ;
+        uint64_t attributeMask = CWBackPixel | CWColormap;
 
         m_window = XCreateWindow(
                         m_display, root,
@@ -133,7 +133,7 @@ namespace IWindow {
         Atom wmDeleteWindow = XInternAtom(m_display, "WM_DELETE_WINDOW", False);
         if(!XSetWMProtocols(m_display, m_window, &wmDeleteWindow, 1)) { return false; } 
 
-        std::cout << "Linux joystick driver version: " << JSIOCGVERSION << '\n';
+        //std::cout << "Linux joystick driver version: " << JSIOCGVERSION << '\n';
 
         return true;
     }

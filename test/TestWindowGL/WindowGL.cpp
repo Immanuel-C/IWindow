@@ -1,9 +1,8 @@
+// Include glad or any other function loader before IWindow
 #include <glad/glad.h>
 #include "IWindow.h"
 #include "IWindowGL.h"
 #include "IWindowGamepad.h"
-
-
 
 #include <iostream>
 
@@ -30,7 +29,7 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    if (GL_VERSION_MAJOR > 2)
+    if (GL_VERSION_MAJOR > 2 && GL_VERSION_MINOR > 2)
         auto myglGenBuffers = (void (*)(GLsizei, GLuint*))IWindow::GL::LoadOpenGLFunction("glGenBuffers");
 
 

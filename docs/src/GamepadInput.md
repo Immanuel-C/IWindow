@@ -89,4 +89,4 @@ If using Xlib this wont do anything.
 
 ## Advanced Functions
 
-`GamepadState IWindow::Gamepad::GetState()` get the native gamepad api's state (e.g. XInput: `XINPUT_STATE`).
+`GamepadState IWindow::Gamepad::GetState()` get the native gamepad api's state (e.g. XInput: `XINPUT_STATE`, X11: `js_event`).

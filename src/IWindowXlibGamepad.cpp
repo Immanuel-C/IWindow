@@ -28,7 +28,7 @@ namespace IWindow {
     void Gamepad::LinuxSetDevPath(const std::string& devPath) { m_devPath = devPath; }
 
     Gamepad::Gamepad(GamepadID gamepadIndex) : m_gamepadIndex { (int)gamepadIndex }{
-        m_js = open(m_devPath.c_str(), O_RDONLY);
+        m_js = open(m_devPath.c_str(), O_RDONLY | O_NONBLOCK);
         // -1 if failed
         // if (m_js == -1)  std::cout << "Failed to open: \"" << m_devPath << "\" for gamepad input!\n";
         if (m_js == -1) {
@@ -147,13 +147,18 @@ namespace IWindow {
 
     void Gamepad::Update() {
         // if read != sizeof(NativeGamepadState) then it failed
-        if (read(m_js, &m_state, sizeof(NativeGamepadState)) != sizeof(NativeGamepadState)) {
-            if (m_connectedGamepads[m_gamepadIndex])
+        // if read == -1 it means that the joystick file descriptor sent no event 
+        // It will only return this if the O_NONBLOCK flag is set when opening the file descriptor
+
+        int readOp = read(m_js, &m_state, sizeof(NativeGamepadState)); 
+
+        // If read failed its probably because the js fd has failed to open because no gamepads are detected
+        if (readOp != sizeof(NativeGamepadState) && m_js == -1) {
+            if (m_connectedGamepads[m_gamepadIndex]) {
                 m_connectedCallback((GamepadID)m_gamepadIndex, false);
-            m_connectedGamepads[m_gamepadIndex] = false;
-            // If read failed its probably because the js fd has failed to open because no gamepads are detected
-            if (m_js == -1) IWINDOW_LIKELY
-                m_js = open(m_devPath.c_str(), O_RDONLY);
+                m_connectedGamepads[m_gamepadIndex] = false;
+            }
+            m_js = open(m_devPath.c_str(), O_RDONLY | O_NONBLOCK);
             return;
         }
 
