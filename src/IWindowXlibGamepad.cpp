@@ -6,7 +6,6 @@
 #include <iostream>
 #include <limits>
 
-
 namespace IWindow {
     std::string Gamepad::m_devPath = "/dev/input/js1";
     std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{ false };
@@ -25,10 +24,12 @@ namespace IWindow {
     static constexpr int32_t GAMEPAD_AXIS_DPAD_X = 6;
     static constexpr int32_t GAMEPAD_AXIS_DPAD_Y = 7;
 
+    static constexpr int64_t FD_OPEN_MASK = (O_RDONLY | O_NONBLOCK);
+
     void Gamepad::LinuxSetDevPath(const std::string& devPath) { m_devPath = devPath; }
 
     Gamepad::Gamepad(GamepadID gamepadIndex) : m_gamepadIndex { (int)gamepadIndex }{
-        m_js = open(m_devPath.c_str(), O_RDONLY | O_NONBLOCK);
+        m_js = open(m_devPath.c_str(), FD_OPEN_MASK);
         // -1 if failed
         // if (m_js == -1)  std::cout << "Failed to open: \"" << m_devPath << "\" for gamepad input!\n";
         if (m_js == -1) {
@@ -158,7 +159,7 @@ namespace IWindow {
                 m_connectedCallback((GamepadID)m_gamepadIndex, false);
                 m_connectedGamepads[m_gamepadIndex] = false;
             }
-            m_js = open(m_devPath.c_str(), O_RDONLY | O_NONBLOCK);
+            m_js = open(m_devPath.c_str(), FD_OPEN_MASK);
             return;
         }
 
