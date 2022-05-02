@@ -1,4 +1,8 @@
 # IWindow
+
+### **WARNING: This branch is unstable.**
+
+
  A simple windowing library ment to be used with Vulkan, OpenGL or Direct3D.
  
  
@@ -6,7 +10,6 @@
  
  IWindow supports Win32 and X11.
  
- **This branch is unstable.**
  
  No this isn't as good as GLFW yet...
 
