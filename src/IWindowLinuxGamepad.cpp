@@ -1,3 +1,4 @@
+#if !defined(_WIN32)
 #include "IWindowGamepad.h"
 
 #include <fcntl.h>
@@ -7,8 +8,8 @@
 #include <iostream>
 #include <limits>
 #include <dirent.h>
-#include <chrono>
-#include <thread>
+#include <sys/ioctl.h>
+
 
 namespace IWindow {
     std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{ false };
@@ -28,6 +29,12 @@ namespace IWindow {
     static constexpr int32_t GAMEPAD_AXIS_DPAD_Y = 7;
 
     static constexpr int64_t FD_OPEN_MASK = (O_RDONLY | O_NONBLOCK);
+    static constexpr int64_t EVENT_FD_OPEN_MASK = (O_RDWR | O_ASYNC);
+
+    // Same as XInput XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
+    static constexpr int16_t GAMEPAD_LEFT_STICK_DEADZONE = 7849;
+    // Same as XInput XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE
+    static constexpr int16_t GAMEPAD_RIGHT_STICK_DEADZONE = 8689;
 
     /* TEST_BIT  : Courtesy of Johan Deneux */
     #define BITS_PER_LONG (sizeof(long) * 8)
@@ -39,7 +46,7 @@ namespace IWindow {
 
 
     bool DirExists(const std::string& filename) {
-        DIR *dir;
+        DIR* dir;
         dir = opendir(filename.c_str());
         
         if (!dir)
@@ -67,7 +74,7 @@ namespace IWindow {
             std::string tmpEventFileName = "/sys/class/input/js" + std::to_string(m_gamepadIndex) + "/device/event" + std::to_string(i);
             if (DirExists(tmpEventFileName)) {
                 m_devEventPath = "/dev/input/event" + std::to_string(i);
-                m_event = open(m_devEventPath.c_str(), O_RDWR);
+                m_event = open(m_devEventPath.c_str(), EVENT_FD_OPEN_MASK);
                 if (m_event != -1) {
                     std::array<unsigned long, 4> features;
                     // Ask for device features. If it failes rumble is not supported
@@ -79,7 +86,7 @@ namespace IWindow {
             }
         }
 
-        m_event = open(m_devEventPath.c_str(), O_RDWR);
+        m_event = open(m_devEventPath.c_str(), EVENT_FD_OPEN_MASK);
 
     } 
 
@@ -87,6 +94,39 @@ namespace IWindow {
         if (m_js != -1) close(m_js);
         if (m_event != -1) close(m_event);
     }
+
+    bool Gamepad::IsLeftStickInDeadzone() {
+        if (!IsConnected())
+            return false;
+            
+        if (m_state.type != JS_EVENT_AXIS && m_state.number != GAMEPAD_AXIS_LEFT_STICK_Y || m_state.number != GAMEPAD_AXIS_LEFT_STICK_X)
+            return false;
+
+        if (m_state.value > GAMEPAD_LEFT_STICK_DEADZONE || m_state.value < -GAMEPAD_LEFT_STICK_DEADZONE && m_state.number == GAMEPAD_AXIS_LEFT_STICK_X)
+            return false;
+
+        if (m_state.value > GAMEPAD_LEFT_STICK_DEADZONE || m_state.value < -GAMEPAD_LEFT_STICK_DEADZONE && m_state.number == GAMEPAD_AXIS_LEFT_STICK_Y)
+            return false;
+
+        return true; 
+    }
+
+    bool Gamepad::IsRightStickInDeadzone() {
+        if (!IsConnected())
+            return false;
+            
+        if (m_state.type != JS_EVENT_AXIS && m_state.number != GAMEPAD_AXIS_RIGHT_STICK_X || m_state.number != GAMEPAD_AXIS_RIGHT_STICK_Y)
+            return false;
+
+        if (m_state.value > GAMEPAD_RIGHT_STICK_DEADZONE || m_state.value < -GAMEPAD_RIGHT_STICK_DEADZONE && m_state.number == GAMEPAD_AXIS_RIGHT_STICK_X)
+            return false;
+
+        if (m_state.value > GAMEPAD_RIGHT_STICK_DEADZONE || m_state.value < -GAMEPAD_RIGHT_STICK_DEADZONE && m_state.number == GAMEPAD_AXIS_RIGHT_STICK_Y)
+            return false;
+
+        return true; 
+    }
+
 
     float Gamepad::LeftStickX() {
         if (!IsConnected())
@@ -222,7 +262,7 @@ namespace IWindow {
     void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int64_t)gid]; }
 
 
-
+    // TODO(Immu): Since the linux api doesn't support setting each motor seperatly the function should change to only one value passed in
     void Gamepad::Rumble(float leftMotor, float rightMotor) {
         if (!IsConnected() || m_event == -1)
             return;
@@ -234,7 +274,7 @@ namespace IWindow {
         effect.u.rumble.strong_magnitude = 0x8000;
         effect.u.rumble.weak_magnitude = 0;
         effect.replay.length = 5000;
-        effect.replay.delay = 0;
+        effect.replay.delay = 1000;
         effect.id = -1;
 
         input_event play{}, stop{};
@@ -251,12 +291,12 @@ namespace IWindow {
         stop.value = false;
 
 
+        // Stop any previous rumble effect
         if (write(m_event, &stop, sizeof(stop)) == -1) {
             std::cerr << "Failed to write rumble stop event to driver!\n";
             return;
         }
 
-        // TEMP: Since the linux api doesn't support setting each motors value seperatly the function should change to only one value passed in
         if (leftMotor <= 0.0f || rightMotor <= 0.0f) 
             return;
 
@@ -277,3 +317,4 @@ namespace IWindow {
     }
 
 }
+#endif // _WIN32

@@ -17,7 +17,10 @@ namespace IWindow {
         Gamepad(GamepadID gamepadIndex);
         ~Gamepad();
 
+
+        // TODO(Immu): Allow user defined deadzone
         bool IsLeftStickInDeadzone();
+        // TODO(Immu): Allow user defined deadzone
         bool IsRightStickInDeadzone();
 
         float LeftStickX();
@@ -46,11 +49,9 @@ namespace IWindow {
         static void* GetUserPointer(GamepadID gid);
 
         // 0.0f = cancel, 1.0f max speed
-        // Windows only
         void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f);
 
         void Update();
-
     private:
         NativeGamepadState m_state;
         int m_gamepadIndex;

@@ -3,7 +3,7 @@
 #include "IWindowGamepad.h"
 
 namespace IWindow {
-    Gamepad::GamepadConnectedCallback Gamepad::m_connectedCallback = nullptr;
+    Gamepad::GamepadConnectedCallback Gamepad::m_connectedCallback = DefaultGamepadConnectedCallback;
 
     std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{false};
 
@@ -12,8 +12,7 @@ namespace IWindow {
     Gamepad::Gamepad(GamepadID gamepadIndex) 
     : m_gamepadIndex { (int)gamepadIndex }
     {
-        if (!m_connectedCallback)
-            m_connectedCallback = DefaultGamepadConnectedCallback;
+
     }
 
     XINPUT_STATE Gamepad::GetState() {
