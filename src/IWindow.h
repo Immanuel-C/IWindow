@@ -153,5 +153,6 @@ namespace IWindow {
         NativeIcon m_icon;
 
         void* m_userPtr;
+
     };
 }

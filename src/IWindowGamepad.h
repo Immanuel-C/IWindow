@@ -64,8 +64,9 @@ namespace IWindow {
         static std::array<void*, (int)GamepadID::Max> m_userPtrs;
 
         // Linux Only
-        std::string m_devPath;
-        int m_js;
+        std::string m_devPath, m_devEventPath;
+        int m_js, m_event;
+        std::future<void> m_rumbleFuture;
     };
     
 }

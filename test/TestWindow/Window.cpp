@@ -132,7 +132,7 @@ int main() {
     stbi_image_free(data); // delete[] data;
 
 
-    IWindow::Gamepad gp{ IWindow::GamepadID::GP1 };
+    IWindow::Gamepad gp{ IWindow::GamepadID::GP2 };
 
     int windowUserPtrExample = 10;
     uint32_t gamePadsConnected = 0;
@@ -174,20 +174,20 @@ int main() {
 
 
     while (window.IsRunning()) {
-
-        // Rumble is Win32 only. For now
-        gp.Rumble();
+        //gp.Rumble();
 
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
             std::cout << "Key A and W were pressed without Alt being pressed\n";
 
         if (gp.IsButtonDown(IWindow::GamepadButton::A)) {
             std::cout << "A was pressed!\n";
-            // Rumble is Win32 only. For now
-            gp.Rumble(0.25f, 0.35f);
+            gp.Rumble(1.0f, 0.35f);
         }
 
         gp.Update();
         window.Update();
     }
+
+
+    return EXIT_SUCCESS;
 }

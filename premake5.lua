@@ -36,7 +36,7 @@ workspace "IWindow"
         platformFiles = nil
 
         if package.config:sub(1,1) == "/" then -- Linux
-            platformFiles = {"src/IWindowXlib.cpp", "src/IWindowXlibGamepad.cpp"}
+            platformFiles = {"src/IWindowXlib.cpp", "src/IWindowLinuxGamepad.cpp"}
             platformLinks = {"X11", "Xcursor", "GLX"}
         else
             platformFiles = {"src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
@@ -109,7 +109,7 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowXlibGamepad.cpp"}
+        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowLinuxGamepad.cpp"}
 
         includedirs { "src" }
 
@@ -128,7 +128,7 @@ workspace "IWindow"
         includedirs { "src" }
 
 
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "src/IWindowXlibGamepad.cpp"}
+        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "src/IWindowLinuxGamepad.cpp"}
         
         links {"X11",  "Xcursor", "vulkan"}
 
@@ -144,7 +144,7 @@ workspace "IWindow"
 
         includedirs { "src" }
 
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowXlibGamepad.cpp"}
+        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowLinuxGamepad.cpp"}
 
         links {"X11",  "Xcursor", "vulkan", "GL", "GLX"}
 

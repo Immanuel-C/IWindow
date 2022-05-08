@@ -314,7 +314,6 @@ namespace IWindow {
     void Window::Fullscreen(bool fullscreen, Monitor monitor) {
         if (m_fullscreen == fullscreen) return;
 
-        m_fullscreen = fullscreen;
 
         if (fullscreen) {
             m_oldWidth = m_width;
@@ -355,6 +354,9 @@ namespace IWindow {
 
     
     void Window::SetIcon(Image image) {
+        if (!image.data || !image.width || !image.height) 
+            return;
+
         int longCount = 0;
 
         longCount += 2 + image.width * image.height;
@@ -383,6 +385,9 @@ namespace IWindow {
     }
 
     void Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY) {
+        if (!image.data || !image.width || !image.height) 
+            return;
+
         XcursorImage* native = XcursorImageCreate(image.width, image.height);
         if (!native)
             return;

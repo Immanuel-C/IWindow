@@ -3,11 +3,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/joystick.h>
+#include <linux/input.h>
 #include <iostream>
 #include <limits>
+#include <dirent.h>
+#include <chrono>
+#include <thread>
 
 namespace IWindow {
-    
     std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{ false };
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{ nullptr };
     GamepadConnectedCallback Gamepad::m_connectedCallback = Gamepad::DefaultGamepadConnectedCallback;
@@ -26,6 +29,25 @@ namespace IWindow {
 
     static constexpr int64_t FD_OPEN_MASK = (O_RDONLY | O_NONBLOCK);
 
+    /* TEST_BIT  : Courtesy of Johan Deneux */
+    #define BITS_PER_LONG (sizeof(long) * 8)
+    #define OFF(x)  ((x)%BITS_PER_LONG)
+    #define BIT(x)  (1UL<<OFF(x))
+    #define LONG(x) ((x)/BITS_PER_LONG)
+    #define TEST_BIT(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
+
+
+
+    bool DirExists(const std::string& filename) {
+        DIR *dir;
+        dir = opendir(filename.c_str());
+        
+        if (!dir)
+            return false;
+        
+        closedir(dir);
+        return true;
+    }
 
     Gamepad::Gamepad(GamepadID gamepadIndex) : m_gamepadIndex { (int)gamepadIndex }{
         m_devPath = "/dev/input/js" + std::to_string(m_gamepadIndex);
@@ -39,12 +61,31 @@ namespace IWindow {
 
         m_connectedGamepads[m_gamepadIndex] = true;
         m_connectedCallback(gamepadIndex, true);
+
+        for (uint32_t i = 0; i < 99; i++) {
+            using namespace std::string_literals;
+            std::string tmpEventFileName = "/sys/class/input/js" + std::to_string(m_gamepadIndex) + "/device/event" + std::to_string(i);
+            if (DirExists(tmpEventFileName)) {
+                m_devEventPath = "/dev/input/event" + std::to_string(i);
+                m_event = open(m_devEventPath.c_str(), O_RDWR);
+                if (m_event != -1) {
+                    std::array<unsigned long, 4> features;
+                    // Ask for device features. If it failes rumble is not supported
+                    if (ioctl(m_event, EVIOCGBIT(EV_FF, sizeof(unsigned long) * 4), features.data()) != -1) {
+                        if (TEST_BIT(FF_RUMBLE, features))
+                            break;
+                    }
+                }
+            }
+        }
+
+        m_event = open(m_devEventPath.c_str(), O_RDWR);
+
     } 
 
     Gamepad::~Gamepad() {            
         if (m_js != -1) close(m_js);
-        m_connectedGamepads[m_gamepadIndex] = false;
-        m_connectedCallback((GamepadID)m_gamepadIndex, false);
+        if (m_event != -1) close(m_event);
     }
 
     float Gamepad::LeftStickX() {
@@ -56,7 +97,7 @@ namespace IWindow {
 
         // The range is usally between std::numeric_limits<signed short>::max() and std::numeric_limits<signed short>::min()
         // but we want it to be in range -1.0f and 1.0f for consistency 
-        return m_state.value / (float)std::numeric_limits<signed short>::max();
+        return (float)m_state.value / (float)std::numeric_limits<signed short>::max();
     }
 
     float Gamepad::LeftStickY() {
@@ -180,8 +221,59 @@ namespace IWindow {
     void Gamepad::SetUserPointer(GamepadID gid, void* ptr) { m_userPtrs[(int64_t)gid] = ptr; }
     void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int64_t)gid]; }
 
+
+
     void Gamepad::Rumble(float leftMotor, float rightMotor) {
-        // Windows only for now
+        if (!IsConnected() || m_event == -1)
+            return;
+        
+
+        ff_effect effect{};
+
+        effect.type = FF_RUMBLE;
+        effect.u.rumble.strong_magnitude = 0x8000;
+        effect.u.rumble.weak_magnitude = 0;
+        effect.replay.length = 5000;
+        effect.replay.delay = 0;
+        effect.id = -1;
+
+        input_event play{}, stop{};
+
+        play.type = EV_FF;
+        play.code = effect.id;
+        // true = play rumble effect
+        play.value = true;
+
+
+        stop.type = EV_FF;
+        stop.code = effect.id;
+        // false = stop rumble effect
+        stop.value = false;
+
+
+        if (write(m_event, &stop, sizeof(stop)) == -1) {
+            std::cerr << "Failed to write rumble stop event to driver!\n";
+            return;
+        }
+
+        // TEMP: Since the linux api doesn't support setting each motors value seperatly the function should change to only one value passed in
+        if (leftMotor <= 0.0f || rightMotor <= 0.0f) 
+            return;
+
+
+        // Send the effect to the driver
+        if (ioctl(m_event, EVIOCSFF, &effect) == -1) {
+            std::cerr << "Failed to send gamepad effect to the driver!\n";
+            return;
+        }
+
+
+        // Write play event
+        if (write(m_event, &play, sizeof(play)) == -1) { 
+            std::cerr << "Failed to write rumble play event to driver!\n";
+            return; 
+        }
+
     }
 
 }
