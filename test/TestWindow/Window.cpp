@@ -135,7 +135,7 @@ int main() {
     IWindow::Gamepad gp{ IWindow::GamepadID::GP2 };
 
     int windowUserPtrExample = 10;
-    uint32_t gamePadsConnected = 0;
+    int gamePadsConnected = 0;
 
     window.SetUserPointer(&windowUserPtrExample);
 
@@ -180,13 +180,14 @@ int main() {
             std::cout << "Key A and W were pressed without Alt being pressed\n";
 
         if (gp.IsButtonDown(IWindow::GamepadButton::A)) {
-            std::cout << "A was pressed!\n";
+           // std::cout << "A was pressed!\n";
             gp.Rumble(1.0f, 0.35f);
         }
 
         gp.Update();
         window.Update();
     }
+
 
 
     return EXIT_SUCCESS;

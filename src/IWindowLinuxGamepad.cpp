@@ -28,6 +28,7 @@
 #if !defined(_WIN32)
 #include "IWindowGamepad.h"
 
+#include <thread>
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/joystick.h>
@@ -35,14 +36,14 @@
 #include <iostream>
 #include <limits>
 #include <dirent.h>
-#include <sys/ioctl.h>
+#include <string.h>
 
 
 namespace IWindow {
     std::array<bool, (int)GamepadID::Max> Gamepad::m_connectedGamepads{ false };
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{ nullptr };
     GamepadConnectedCallback Gamepad::m_connectedCallback = Gamepad::DefaultGamepadConnectedCallback;
-
+    std::array<bool, (int)GamepadID::Max> hasSentEffect{ false };
 
     static constexpr int32_t GAMEPAD_AXIS_LEFT_STICK_Y = 0;
     static constexpr int32_t GAMEPAD_AXIS_LEFT_STICK_X = 1;
@@ -56,7 +57,7 @@ namespace IWindow {
     static constexpr int32_t GAMEPAD_AXIS_DPAD_Y = 7;
 
     static constexpr int64_t FD_OPEN_MASK = (O_RDONLY | O_NONBLOCK);
-    static constexpr int64_t EVENT_FD_OPEN_MASK = (O_RDWR | O_ASYNC);
+    static constexpr int64_t EVENT_FD_OPEN_MASK = O_RDWR;
 
     // Same as XInput XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE
     static constexpr int16_t GAMEPAD_LEFT_STICK_DEADZONE = 7849;
@@ -113,19 +114,36 @@ namespace IWindow {
             }
         }
 
-        m_event = open(m_devEventPath.c_str(), EVENT_FD_OPEN_MASK);
+        if (m_event == -1) return;
+
+        ff_effect effect{};
+
+        effect.type = FF_RUMBLE;
+        effect.u.rumble.strong_magnitude = UINT16_MAX / 2;
+        effect.u.rumble.weak_magnitude = UINT16_MAX / 4;
+        // One second converted to miliseconds
+        effect.replay.length = 1 * 1000;
+        effect.replay.delay = 0;
+        effect.id = -1;
+
+        // Send the effect to the driver
+        if (ioctl(m_event, EVIOCSFF, &effect) == -1) {
+            std::cerr << "Failed to send gamepad effect to the driver! Error string: " << strerror(errno) << '\n';
+            return;
+        }
+
 
     } 
 
     Gamepad::~Gamepad() {            
         if (m_js != -1) close(m_js);
-        if (m_event != -1) close(m_event);
+        if (m_event != -1) close(m_event); 
     }
 
     bool Gamepad::IsLeftStickInDeadzone() {
         if (!IsConnected())
-            return false;
-            
+
+
         if (m_state.type != JS_EVENT_AXIS && m_state.number != GAMEPAD_AXIS_LEFT_STICK_Y || m_state.number != GAMEPAD_AXIS_LEFT_STICK_X)
             return false;
 
@@ -288,59 +306,107 @@ namespace IWindow {
     void Gamepad::SetUserPointer(GamepadID gid, void* ptr) { m_userPtrs[(int64_t)gid] = ptr; }
     void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int64_t)gid]; }
 
+    // No mutex would be required for this function
+    void RumbleAsync(int event, float leftMotor, float rightMotor) {
+
+        input_event play{}, stop{};
+
+        play.type = EV_FF;
+        play.code = -1;
+        // 1 = play rumble effect once
+        play.value = 1;
+
+
+        stop.type = EV_FF;
+        stop.code = -1;
+        // 0 = stop rumble effect 
+        stop.value = 0;
+
+
+        if (leftMotor <= 0.0f || rightMotor <= 0.0f) 
+            return;
+
+        // Write stop event
+        if (write(event, &stop, sizeof(input_event)) == -1) { 
+            std::cerr << "Failed to write rumble stop event to driver! Error string: " << strerror(errno) << '\n';
+            return; 
+        }
+
+        // Write play event
+        if (write(event, &play, sizeof(input_event)) == -1) { 
+            std::cerr << "Failed to write rumble play event to driver! Error string: " << strerror(errno) << '\n';
+            return; 
+        }
+
+        std::cerr << "Errno: " << strerror(errno) << '\n';
+
+
+
+        std::this_thread::sleep_for(std::chrono::seconds{1});
+    }
 
     // TODO(Immu): Since the linux api doesn't support setting each motor seperatly the function should change to only one value passed in
     void Gamepad::Rumble(float leftMotor, float rightMotor) {
         if (!IsConnected() || m_event == -1)
             return;
-        
 
-        ff_effect effect{};
-
-        effect.type = FF_RUMBLE;
-        effect.u.rumble.strong_magnitude = 0x8000;
-        effect.u.rumble.weak_magnitude = 0;
-        effect.replay.length = 5000;
-        effect.replay.delay = 1000;
-        effect.id = -1;
-
-        input_event play{}, stop{};
-
-        play.type = EV_FF;
-        play.code = effect.id;
-        // true = play rumble effect
-        play.value = true;
-
-
-        stop.type = EV_FF;
-        stop.code = effect.id;
-        // false = stop rumble effect
-        stop.value = false;
-
-
-        // Stop any previous rumble effect
-        if (write(m_event, &stop, sizeof(stop)) == -1) {
-            std::cerr << "Failed to write rumble stop event to driver!\n";
-            return;
-        }
-
-        if (leftMotor <= 0.0f || rightMotor <= 0.0f) 
-            return;
-
-
-        // Send the effect to the driver
-        if (ioctl(m_event, EVIOCSFF, &effect) == -1) {
-            std::cerr << "Failed to send gamepad effect to the driver!\n";
+        // If the future is not valid we cant call std::future::wait_for
+        if (!m_rumbleFuture.valid()) {
+            m_rumbleFuture = std::async(std::launch::async, RumbleAsync, m_event, leftMotor, rightMotor);
             return;
         }
 
 
-        // Write play event
-        if (write(m_event, &play, sizeof(play)) == -1) { 
-            std::cerr << "Failed to write rumble play event to driver!\n";
-            return; 
-        }
+        // if the future is not ready and we try to reset it, it will wait until the previous thread is done which would pause the main thread.
+        if (m_rumbleFuture.wait_for(std::chrono::seconds{0}) == std::future_status::ready)
+            m_rumbleFuture = std::async(std::launch::async, RumbleAsync, m_event, leftMotor, rightMotor);
 
+        // ff_effect effect{};
+
+        // effect.type = FF_RUMBLE;
+        // effect.u.rumble.strong_magnitude = 0x8000;
+        // effect.u.rumble.weak_magnitude = 0;
+        // effect.replay.length = 1000;
+        // effect.replay.delay = 0;
+
+        // effect.id = -1;
+
+
+        // input_event play{}, stop{};
+
+        // play.type = EV_FF;
+        // play.code = effect.id;
+        // // 1 = play rumble effect once
+        // play.value = 1;
+
+
+        // stop.type = EV_FF;
+        // stop.code = effect.id;
+        // // 0 = stop rumble effect 
+        // stop.value = 0;
+
+
+        // if (leftMotor <= 0.0f || rightMotor <= 0.0f) 
+        //     return;
+
+
+        // // Send the effect to the driver
+        // if (ioctl(m_event, EVIOCSFF, &effect) == -1) {
+        //     std::cerr << "Failed to send gamepad effect to the driver! Error string: " << strerror(errno) << '\n';
+        //     return;
+        // }
+
+        // // Write play event
+        // if (write(m_event, &play, sizeof(input_event)) == -1) { 
+        //     std::cerr << "Failed to write rumble play event to driver! Error string: " << strerror(errno) << '\n';
+        //     return; 
+        // }
+
+        // // Stop any previous rumble effect and deletes any effects in the gamepads memory
+        // if (ioctl(m_event, EVIOCRMFF, effect.id) == -1) {
+        //    std::cerr << "Failed to delete gamepad effect on gamepad! Error string: " << strerror(errno) << '\n';
+        //    return;
+        // }
     }
 
 }
