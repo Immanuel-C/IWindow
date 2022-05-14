@@ -488,3 +488,5 @@ namespace IWindow {
 
     NativeDeviceContext& Window::GetNativeDeviceContext() { return m_deviceContext; }
 }
+
+#endif
