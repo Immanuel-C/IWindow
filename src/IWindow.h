@@ -59,7 +59,6 @@ namespace IWindow {
     class Window {
     private:
         // Input callbacks
-        
         typedef std::function<void(Window&, Key, InputState)> KeyCallback;
         typedef std::function<void(Window&, int64_t, int64_t)> MouseMoveCallback;
         typedef std::function<void(Window&, float, float)> MouseScrollCallback;

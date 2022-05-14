@@ -48,5 +48,3 @@ namespace IWindow {
         }
     }
 }
-
-#endif

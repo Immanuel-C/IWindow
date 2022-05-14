@@ -25,7 +25,8 @@ workspace "IWindow"
         objdir ("bin-int/%{prj.name}/%{cfg.buildcfg}")
     end
 
-    startproject("TestWindow")
+    startproject "TestWindow"
+
     project "TestWindow"
         location "test/TestWindow"
         kind "ConsoleApp"

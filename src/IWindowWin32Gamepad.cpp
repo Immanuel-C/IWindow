@@ -170,5 +170,3 @@ namespace IWindow {
         m_state = GetState(); 
     }
 }
-
-#endif
