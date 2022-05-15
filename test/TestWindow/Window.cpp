@@ -3,7 +3,6 @@
 #include "stbi.h"
 
 #include <iostream>
-#include <unistd.h>
 
 
 namespace Example {

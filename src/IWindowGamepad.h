@@ -76,7 +76,10 @@ namespace IWindow {
         static void SetUserPointer(GamepadID gid, void* ptr);
         static void* GetUserPointer(GamepadID gid);
 
-        // 0.0f = cancel, 1.0f max speed
+        /*
+            0.0f = cancel, 1.0f max speed
+            Windows only for now
+        */
         void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f);
 
         void Update();

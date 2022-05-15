@@ -2,7 +2,7 @@ workspace "IWindow"
     configurations {"Debug", "Release"}
     architecture "x86_64"
 
-    print ("Make sure to set the vulkan sdk path")
+    print ("Make sure to set the vulkan sdk path!")
 
     vulkanSdk = os.getenv("VULKAN_SDK");
 
@@ -84,19 +84,18 @@ workspace "IWindow"
         cppdialect "C++17"
 
         files {"%{prj.location}/WindowVk.cpp"}
-        includedirs { "src" }
-
-        if not vulkanSdk  == nil then
-            includedirs { vulkanSdk .. "/Include"}
-        end
-
+        
+        
         if package.config:sub(1,1) == "/" then -- Linux
             platformLinks = { "IWindowXlibVk", "X11", "Xcursor", "vulkan", "GLX" }
+            includedirs { "src" }
         else
+            libdirs { vulkanSdk .. "/Lib" }
+            includedirs { vulkanSdk .. "/Include", "src" }
             platformLinks = { "IWindowWin32Vk", "User32", "vulkan-1" }
         end
 
-        links {platformLinks}
+        links { platformLinks }
 
         defaultBuildLocation()
 
