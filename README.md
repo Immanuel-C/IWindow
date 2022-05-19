@@ -1,5 +1,7 @@
 # IWindow
 
+### **ImGui support is being worked on. This code is not guaranteed to be stable and may not compile on some machines**
+
 A simple windowing library ment to be used with Vulkan, OpenGL or Direct3D.
  
 IWindow is written is C++ and uses C++17 and currently only supports 64 bit machines but 32 bit support may be supported.
