@@ -274,7 +274,7 @@ namespace IWindow {
         ArrowLeft = 113,
         ArrowUp = 111,
         ArrowRight = 114,
-        ArrowDown = 39,
+        ArrowDown = 116,
         PrintScreen = 111,
         Insert = 106,
         Delete = 107,
