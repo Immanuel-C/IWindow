@@ -17,6 +17,7 @@ No this isn't as good as GLFW yet...
 - Create a Vulkan surface and get the required instance extensions for IWindow to link with Vulkan
 - Keyboard and mouse support with callbacks
 - Gamepad support with a gamepad connect callback (Linux doesn't support rumble yet because of bugs and some features are missing like setting the deadzone)
+- Win32 (Windows) and X11 (Most Linux machines) machines are supported
 
 # How to build The Example
 
