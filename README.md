@@ -10,6 +10,14 @@ IWindow supports Win32 (Windows) and X11 (Most Linux machines).
  
 No this isn't as good as GLFW yet...
 
+# IWindow Features
+
+- Create a window
+- Create an OpenGL context (no OpenGL ES support)
+- Create a Vulkan surface and get the required instance extensions for IWindow to link with Vulkan
+- Keyboard and mouse support with callbacks
+- Gamepad support with a gamepad connect callback (Linux doesn't support rumble yet because of bugs and some features are missing like setting the deadzone)
+
 # How to build The Example
 
 Use premake5. If you dont have premake5 you can install it [here](https://premake.github.io/). 
