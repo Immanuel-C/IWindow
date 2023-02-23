@@ -44,7 +44,7 @@ namespace IWindow {
             surfaceInfo.hinstance = GetModuleHandle(nullptr);
             surfaceInfo.hwnd = window.GetNativeWindowHandle();
 
-            return vkCreateWin32SurfaceKHR(instance, &surfaceInfo, nullptr, &surface);
+            return vkCreateWin32SurfaceKHR(instance, &surfaceInfo, nullptr, (VkSurfaceKHR*)&surface);
         }
     }
 }
