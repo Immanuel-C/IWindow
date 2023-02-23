@@ -34,6 +34,6 @@
 namespace IWindow {
     namespace Vk {
         void GetRequiredInstanceExtensions(std::vector<const char*>& extensionNames);
-        VkResult CreateSurface(VkInstance instance, VkSurfaceKHR& surface, Window& window);
+        VkResult CreateSurface(VkInstance instance, const VkSurfaceKHR& surface, Window& window);
     }
 }
