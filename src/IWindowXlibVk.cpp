@@ -44,7 +44,7 @@ namespace IWindow {
             surfaceInfo.dpy = window.GetX11Display();
             surfaceInfo.window = window.GetNativeWindowHandle();
 
-            return vkCreateXlibSurfaceKHR(instance, &surfaceInfo, nullptr, &surface);
+            return vkCreateXlibSurfaceKHR(instance, &surfaceInfo, nullptr, (VkSurfaceKHR*)&surface);
         }
     }
 }
