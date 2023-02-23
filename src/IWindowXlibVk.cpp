@@ -38,7 +38,7 @@ namespace IWindow {
             extensionNames.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
         }
 
-        VkResult CreateSurface(VkInstance instance, VkSurfaceKHR& surface, Window& window) {
+        VkResult CreateSurface(VkInstance instance, const VkSurfaceKHR& surface, Window& window) {
             VkXlibSurfaceCreateInfoKHR surfaceInfo{};
             surfaceInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
             surfaceInfo.dpy = window.GetX11Display();
