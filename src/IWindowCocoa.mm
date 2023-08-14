@@ -389,8 +389,6 @@ static const NSRange nsEmptyRange = { NSNotFound, 0 };
 
 namespace IWindow {
 
-    X11Display Window::GetX11Display() { return nullptr; }
-
     Window::Window(int64_t width, int64_t height, const std::string& title, int64_t x, int64_t y) { Create(width, height, title, x, y); }
     Window::~Window() { 
         //TODO

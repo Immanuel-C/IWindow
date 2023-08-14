@@ -131,7 +131,7 @@ int main() {
     stbi_image_free(data); // delete[] data;
 
 
-    IWindow::Gamepad gp{ IWindow::GamepadID::GP0 };
+    IWindow::Gamepad gp{ IWindow::GamepadID::GP1 }; //TODO: is GP1 ok?
 
     int windowUserPtrExample = 10;
     int gamePadsConnected = 0;

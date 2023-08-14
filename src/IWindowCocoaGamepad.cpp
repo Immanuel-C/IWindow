@@ -36,7 +36,7 @@ namespace IWindow {
 
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{nullptr};
 
-    Gamepad::Gamepad(GamepadID gamepadIndex) 
+    Gamepad::Gamepad(GamepadID gamepadIndex, float triggerDeadzone, float stickDeadzone) 
     : m_gamepadIndex { (int)gamepadIndex }
     {
 
@@ -46,16 +46,24 @@ namespace IWindow {
 
     GamepadID Gamepad::GetID() { return (GamepadID)m_gamepadIndex; }
 
-    bool Gamepad::IsLeftStickInDeadzone() {
+    void Gamepad::SetTriggerDeadzone(float deadzone) {
+        //TODO
+    }
+    
+    float Gamepad::GetTriggerDeadzone() {
         //TODO
 
-        return true;
+        return 0.0f;
     }
 
-    bool Gamepad::IsRightStickInDeadzone() {
+    void Gamepad::SetStickDeadzone(float deadzone) {
+        //TODO
+    }
+
+    float Gamepad::GetStickDeadzone() {
         //TODO
 
-        return true;
+        return 0.0f;
     }
 
     float Gamepad::LeftStickX() { return 0.0f; } //TODO
@@ -75,7 +83,7 @@ namespace IWindow {
         return 0.0f;
     }
 
-    void Gamepad::Rumble(float leftMotor, float rightMotor) {
+    void Gamepad::Rumble(float rumble) {
         //TODO
 
     }

@@ -41,6 +41,7 @@ workspace "IWindow"
 
         if os.istarget("macosx") then
             platformFiles = {"src/IWindowCocoa.mm", "src/IWindowCocoaGamepad.cpp"}
+            platformLinks = {}
         else
             platformFiles = {"src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
             platformLinks = {"User32", "XInput"}
