@@ -42,7 +42,7 @@ namespace IWindow {
     class Gamepad {
     public:
         Gamepad() = default;
-        Gamepad(GamepadID gamepadIndex, float triggerDeadzone, float stickDeadzone);
+        Gamepad(GamepadID gamepadIndex, float triggerDeadzone = 0.15, float stickDeadzone = 0.15);
         ~Gamepad();
 
         float LeftStickX();
@@ -95,13 +95,8 @@ namespace IWindow {
 
         static std::array<void*, (int)GamepadID::Max> m_userPtrs;
 
-        float m_triggerDeadzone = 0.15;
-        float m_stickDeadzone = 0.15;
-
-        // Linux Only
-        std::string m_devPath, m_devEventPath;
-        int m_js, m_event;
-        std::future<void> m_rumbleFuture;
+        float m_triggerDeadzone;
+        float m_stickDeadzone;
     };
     
 }

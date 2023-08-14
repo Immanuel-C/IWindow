@@ -33,22 +33,11 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        platformLinks = nil
-        platformFiles = nil
-
-        if package.config:sub(1,1) == "/" then -- Linux
-            platformFiles = {"src/IWindowXlib.cpp", "src/IWindowLinuxGamepad.cpp"}
-            platformLinks = {"X11", "Xcursor", "GLX"}
-        else
-            platformFiles = {"src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
-            platformLinks = {"User32", "XInput"}
-        end
-
-        files {"%{prj.location}/Window.cpp", "%{prj.location}/stb.cpp", platformFiles}
+        files {"%{prj.location}/Window.cpp", "%{prj.location}/stb.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
 
         includedirs { "src" }
 
-        links { platformLinks } 
+        links { "User32", "XInput" } 
 
         defaultBuildLocation()
 
@@ -64,15 +53,8 @@ workspace "IWindow"
 
         includedirs { "src", "%{prj.location}/deps/glad/include" }
 
-        platformLinks = nil
 
-        if package.config:sub(1,1) == "/" then -- Linux
-            platformLinks = { "IWindowXlibGL", "GLX", "GL", "X11", "Xcursor"}
-        else
-            platformLinks = { "IWindowWin32GL", "OpenGL32" }
-        end
-
-        links {platformLinks}
+        links {"IWindowWin32GL", "OpenGL32"}
 
         defaultBuildLocation()
 
@@ -101,57 +83,6 @@ workspace "IWindow"
         defaultBuildLocation()
 
         defaultBuildCfg()
-
-    if package.config:sub(1,1) == "/" then   --if linux (using "/" seperator")  NOTE: There are other platforms that use this directory seperator too... but the only one IWindow supports is linux at the current moment
-    project "IWindowXlibGL"
-        location "src"
-        kind "StaticLib"
-        language "C++"
-        cppdialect "C++17"
-
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowLinuxGamepad.cpp"}
-
-        includedirs { "src" }
-
-        links {"X11", "GLX", "GL", "Xcursor"}
-
-        defaultBuildLocation()
-
-        defaultBuildCfg()
-    
-    project "IWindowXlibVK"
-        location "src"
-        kind "StaticLib"
-        language "C++"
-        cppdialect "C++17"
-
-        includedirs { "src" }
-
-
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "src/IWindowLinuxGamepad.cpp"}
-        
-        links {"X11",  "Xcursor", "vulkan"}
-
-        defaultBuildLocation()
-
-        defaultBuildCfg()
-
-    project "IWindowXlibAll"
-        location "src"
-        kind "StaticLib"
-        language "C++"
-        cppdialect "C++17"
-
-        includedirs { "src" }
-
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowLinuxGamepad.cpp"}
-
-        links {"X11",  "Xcursor", "vulkan", "GL", "GLX"}
-
-        defaultBuildLocation()
-
-        defaultBuildCfg()
-    else                            -- else (using windows)
 
     project "IWindowWin32GL"
         location "src"
@@ -204,6 +135,3 @@ workspace "IWindow"
 
         defaultBuildCfg()
 
-    end
-
-    
