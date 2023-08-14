@@ -4,7 +4,7 @@
 
 A simple windowing library ment to be used with Vulkan, OpenGL or Direct3D.
  
-IWindow is written is C++ and uses C++17 and currently only supports 64 bit machines but 32 bit support may be supported.
+IWindow is written is C++ and uses C++17 and currently only supports 64 bit machines.
  
 IWindow supports Win32 (Windows) and X11 (Most Linux machines).
  
