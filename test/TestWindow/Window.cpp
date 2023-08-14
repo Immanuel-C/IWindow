@@ -131,7 +131,7 @@ int main() {
     stbi_image_free(data); // delete[] data;
 
 
-    IWindow::Gamepad gp{ IWindow::GamepadID::GP2 };
+    IWindow::Gamepad gp{ IWindow::GamepadID::GP0 };
 
     int windowUserPtrExample = 10;
     int gamePadsConnected = 0;
@@ -162,14 +162,12 @@ int main() {
     std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
 
 
-    /*
     // Print monitor properties
     for (IWindow::Monitor& monitor : monitors) 
         // monitor.name is a std::wstring
         std::wcout << "Monitor Name: " << monitor.name << '\n'
             << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n'
             << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
-    */  
 
 
     while (window.IsRunning()) {
@@ -178,9 +176,22 @@ int main() {
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
             std::cout << "Key A and W were pressed without Alt being pressed\n";
 
-        if (gp.IsButtonDown(IWindow::GamepadButton::A)) {
-           // std::cout << "A was pressed!\n";
-            gp.Rumble(1.0f, 0.35f);
+        if (gp.IsButtonDown(IWindow::GamepadButton::A, IWindow::GamepadButton::B)) {
+            std::cout << "A and B was pressed!\n";
+            gp.Rumble(1.0f);
+        }
+        if (gp.RightTrigger() > gp.GetTriggerDeadzone()) {
+            std::cout << "Right Trigger: " << gp.RightTrigger() << std::endl;
+        }
+        if (gp.LeftTrigger() > gp.GetTriggerDeadzone()) {
+            std::cout << "Left Trigger: " << gp.LeftTrigger() << std::endl;
+        }
+        if (gp.LeftStickX() > gp.GetStickDeadzone() || gp.LeftStickX() < -gp.GetStickDeadzone() || gp.LeftStickY() > gp.GetStickDeadzone() || gp.LeftStickY() < -gp.GetStickDeadzone() ) {
+            std::cout << "Left Stick X: " << gp.LeftStickX() << "Left Stick Y: " << gp.LeftStickY() << std::endl;
+        }
+
+        if (gp.RightStickX() > gp.GetStickDeadzone() || gp.RightStickX() < -gp.GetStickDeadzone() || gp.RightStickY() > gp.GetStickDeadzone() || gp.RightStickY() < -gp.GetStickDeadzone()) {
+            std::cout << "Right Stick X: " << gp.RightStickX() << "Right Stick Y: " << gp.RightStickY() << std::endl;
         }
 
         gp.Update();
