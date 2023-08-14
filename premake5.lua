@@ -39,12 +39,8 @@ workspace "IWindow"
         platformLinks = nil
         platformFiles = nil
 
-        if os.istarget("linux") then
-            platformFiles = {"src/IWindowXlib.cpp", "src/IWindowLinuxGamepad.cpp"}
-            platformLinks = {"X11", "Xcursor", "GLX"}
-        elseif os.istarget("macosx") then
+        if os.istarget("macosx") then
             platformFiles = {"src/IWindowCocoa.mm", "src/IWindowCocoaGamepad.cpp"}
-            --platformLinks = {"Cocoa"}
         else
             platformFiles = {"src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
             platformLinks = {"User32", "XInput"}
@@ -54,7 +50,7 @@ workspace "IWindow"
 
         includedirs { "src" }
 
-        links { platformLinks } 
+        links { "User32", "XInput" } 
 
         defaultBuildLocation()
 
@@ -70,15 +66,8 @@ workspace "IWindow"
 
         includedirs { "src", "%{prj.location}/deps/glad/include" }
 
-        platformLinks = nil
 
-        if package.config:sub(1,1) == "/" then -- Linux
-            platformLinks = { "IWindowXlibGL", "GLX", "GL", "X11", "Xcursor"}
-        else
-            platformLinks = { "IWindowWin32GL", "OpenGL32" }
-        end
-
-        links {platformLinks}
+        links {"IWindowWin32GL", "OpenGL32"}
 
         defaultBuildLocation()
 
@@ -108,57 +97,6 @@ workspace "IWindow"
 
         defaultBuildCfg()
 
-    if package.config:sub(1,1) == "/" then   --if linux (using "/" seperator")  NOTE: There are other platforms that use this directory seperator too... but the only one IWindow supports is linux at the current moment
-    project "IWindowXlibGL"
-        location "src"
-        kind "StaticLib"
-        language "C++"
-        cppdialect "C++17"
-
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowLinuxGamepad.cpp"}
-
-        includedirs { "src" }
-
-        links {"X11", "GLX", "GL", "Xcursor"}
-
-        defaultBuildLocation()
-
-        defaultBuildCfg()
-    
-    project "IWindowXlibVK"
-        location "src"
-        kind "StaticLib"
-        language "C++"
-        cppdialect "C++17"
-
-        includedirs { "src" }
-
-
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "src/IWindowLinuxGamepad.cpp"}
-        
-        links {"X11",  "Xcursor", "vulkan"}
-
-        defaultBuildLocation()
-
-        defaultBuildCfg()
-
-    project "IWindowXlibAll"
-        location "src"
-        kind "StaticLib"
-        language "C++"
-        cppdialect "C++17"
-
-        includedirs { "src" }
-
-        files {"%{prj.location}/IWindowXlib.cpp", "%{prj.location}/IWindowXlibVk.cpp", "%{prj.location}/IWindowXlibGL.cpp", "src/IWindowLinuxGamepad.cpp"}
-
-        links {"X11",  "Xcursor", "vulkan", "GL", "GLX"}
-
-        defaultBuildLocation()
-
-        defaultBuildCfg()
-    else                            -- else (using windows)
-
     project "IWindowWin32GL"
         location "src"
         kind "StaticLib"
@@ -167,7 +105,7 @@ workspace "IWindow"
 
         includedirs { "src" }
 
-        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp", "%{prj.location}/**.h", "%{prj.location}/**.hpp"}
 
         links {"User32", "OpenGL32", "XInput"}
 
@@ -182,7 +120,7 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp", "src/IWindowWin32Gamepad.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp", "src/IWindowWin32Gamepad.cpp", "%{prj.location}/**.h", "%{prj.location}/**.hpp"}
 
         includedirs { vulkanSdk .. "/Include", "src" }
 
@@ -199,7 +137,7 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/IWindowWin32.cpp", "src/IWindowWin32Vk.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "src/IWindowWin32Vk.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp", "%{prj.location}/**.h", "%{prj.location}/**.hpp"}
 
         includedirs { vulkanSdk .. "/Include", "src" }
 
@@ -210,6 +148,3 @@ workspace "IWindow"
 
         defaultBuildCfg()
 
-    end
-
-    

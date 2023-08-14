@@ -180,10 +180,10 @@ namespace IWindow {
     };
 
     enum struct GamepadID {
+        GP0,
         GP1,
         GP2,
         GP3,
-        GP4,
         
         Max,
     };

@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-constexpr uint16_t GL_VERSION_MAJOR = 3;
-constexpr uint16_t GL_VERSION_MINOR = 3;
+constexpr uint16_t GL_VERSION_MAJOR = 2;
+constexpr uint16_t GL_VERSION_MINOR = 0;
 
 constexpr int64_t WINDOW_WIDTH = 1280;
 constexpr int64_t WINDOW_HEIGHT = 720;
@@ -32,6 +32,9 @@ int main() {
     if (GL_VERSION_MAJOR > 2 && GL_VERSION_MINOR > 2)
         auto myglGenBuffers = (void (*)(GLsizei, GLuint*))IWindow::GL::LoadOpenGLFunction("glGenBuffers");
 
+
+    uint32_t buf;
+    glGenBuffers(1, &buf);
 
     while (window.IsRunning()) {
         glClear(GL_COLOR_BUFFER_BIT);

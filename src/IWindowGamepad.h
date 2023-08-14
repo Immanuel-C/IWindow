@@ -42,14 +42,8 @@ namespace IWindow {
     class Gamepad {
     public:
         Gamepad() = default;
-        Gamepad(GamepadID gamepadIndex);
+        Gamepad(GamepadID gamepadIndex, float triggerDeadzone = 0.15, float stickDeadzone = 0.15);
         ~Gamepad();
-
-
-        // TODO(Immu): Allow user defined deadzone
-        bool IsLeftStickInDeadzone();
-        // TODO(Immu): Allow user defined deadzone
-        bool IsRightStickInDeadzone();
 
         float LeftStickX();
         float LeftStickY();
@@ -75,12 +69,18 @@ namespace IWindow {
 
         static void SetUserPointer(GamepadID gid, void* ptr);
         static void* GetUserPointer(GamepadID gid);
+        
+        void SetTriggerDeadzone(float deadzone);
+        float GetTriggerDeadzone();
+
+        void SetStickDeadzone(float deadzone);
+        float GetStickDeadzone();
 
         /*
             0.0f = cancel, 1.0f max speed
             Windows only for now
         */
-        void Rumble(float leftMotor = 0.0f, float rightMotor = 0.0f);
+        void Rumble(float rumble);
 
         void Update();
     private:
@@ -95,10 +95,8 @@ namespace IWindow {
 
         static std::array<void*, (int)GamepadID::Max> m_userPtrs;
 
-        // Linux Only
-        std::string m_devPath, m_devEventPath;
-        int m_js, m_event;
-        std::future<void> m_rumbleFuture;
+        float m_triggerDeadzone;
+        float m_stickDeadzone;
     };
     
 }

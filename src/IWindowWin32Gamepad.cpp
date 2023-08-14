@@ -36,8 +36,10 @@ namespace IWindow {
 
     std::array<void*, (int)GamepadID::Max> Gamepad::m_userPtrs{nullptr};
 
-    Gamepad::Gamepad(GamepadID gamepadIndex) 
-    : m_gamepadIndex { (int)gamepadIndex }
+    Gamepad::Gamepad(GamepadID gamepadIndex, float triggerDeadzone, float stickDeadzone) 
+    : m_gamepadIndex { (int)gamepadIndex },
+      m_triggerDeadzone { triggerDeadzone },
+      m_stickDeadzone { stickDeadzone }
     {
 
     }
@@ -47,7 +49,7 @@ namespace IWindow {
     XINPUT_STATE Gamepad::GetState() {
         XINPUT_STATE state{};
 
-        // ::ZeroMemory(&state, sizeof(XINPUT_STATE));
+        ::ZeroMemory(&state, sizeof(XINPUT_STATE));
 
         XInputGetState(m_gamepadIndex, &state);
 
@@ -62,74 +64,77 @@ namespace IWindow {
         return result == ERROR_SUCCESS;
     }
 
-    bool Gamepad::IsLeftStickInDeadzone() {
-        short x = m_state.Gamepad.sThumbLX;
-        short y = m_state.Gamepad.sThumbLY;
-
-       if (x > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
-           x < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-           return false;
- 
-       if (y > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
-           y < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE)
-           return false;
-
-        return true;
-    }
-
-    bool Gamepad::IsRightStickInDeadzone() {
-        short x = m_state.Gamepad.sThumbRX;
-        short y = m_state.Gamepad.sThumbRY;
-
-       if (x > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
-           x < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
-           return false;
- 
-       if (y > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE ||
-           y < -XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE)
-           return false;
-
-        return true;
-    }
-
     float Gamepad::LeftStickX() { 
         // sThumb_X_X is a short and the value goes from -SHORT_MAX -> SHORT_MAX
         // but we want a value between -1 and 1 with decimals 
-        return m_state.Gamepad.sThumbLX / 32767.0f; 
+        float leftThumbstickX = (float)m_state.Gamepad.sThumbLX;
+        leftThumbstickX /= SHRT_MAX;
+
+        // Check if values are in deadzone
+        if (leftThumbstickX > m_stickDeadzone || leftThumbstickX < -m_stickDeadzone)
+            return leftThumbstickX;
+
+        return 0;
     }
 
-    float Gamepad::LeftStickY() { return m_state.Gamepad.sThumbLY  / 32767.0f; }
-    float Gamepad::RightStickX() { return m_state.Gamepad.sThumbRX / 32767.0f; }
-    float Gamepad::RightStickY() { return m_state.Gamepad.sThumbRY / 32767.0f; }
+    float Gamepad::LeftStickY() {
+        float leftThumbstickY = (float)m_state.Gamepad.sThumbLY;
+        leftThumbstickY /= SHRT_MAX;
+
+        if (leftThumbstickY > m_stickDeadzone || leftThumbstickY < -m_stickDeadzone)
+            return leftThumbstickY;
+
+        return 0;
+    }
+
+    float Gamepad::RightStickX() {
+        float rightThumbstickX = (float)m_state.Gamepad.sThumbRX;
+        rightThumbstickX /= SHRT_MAX;
+
+        if (rightThumbstickX > m_stickDeadzone || rightThumbstickX < -m_stickDeadzone)
+            return rightThumbstickX;
+
+        return 0;
+    }
+    float Gamepad::RightStickY() {
+        float rightThumbstickY = (float)m_state.Gamepad.sThumbRY;
+        rightThumbstickY /= SHRT_MAX;
+
+        if (rightThumbstickY > m_stickDeadzone || rightThumbstickY < -m_stickDeadzone)
+            return rightThumbstickY;
+
+        return 0;
+    }
 
     float Gamepad::LeftTrigger() {
-        BYTE trigger = m_state.Gamepad.bLeftTrigger;
+        float trigger = (float)m_state.Gamepad.bLeftTrigger;
+        // Range is usually 0 - 255 we want the range to be 0 - 1
+        trigger /= 255.0f;
 
-        if (trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
+        if (trigger > m_triggerDeadzone)
             return trigger;
 
         return 0.0f;
     }
 
     float Gamepad::RightTrigger() {
-        BYTE trigger = m_state.Gamepad.bRightTrigger;
+        float trigger = (float)m_state.Gamepad.bRightTrigger;
+        trigger /= 255.0f;
 
-        if (trigger > XINPUT_GAMEPAD_TRIGGER_THRESHOLD)
-            // Range is usually 0 - 255 but I want 0, 0.1, 0.2, ... 1
-            // so dividing by 255 gets me this
-            return trigger / 255.0f;
+        if (trigger > m_triggerDeadzone)
+            return trigger;
 
         return 0.0f;
     }
 
-    void Gamepad::Rumble(float leftMotor, float rightMotor) {
+    void Gamepad::Rumble(float rumble) {
         XINPUT_VIBRATION vibrationState{};
 
-        // ::ZeroMemory(&vibrationState, sizeof(XINPUT_VIBRATION));
+        ::ZeroMemory(&vibrationState, sizeof(XINPUT_VIBRATION));
 
         // calculate real XInput rumble values
-        int iLeftMotor = int(leftMotor * 65535.0f);
-        int iRightMotor = int(rightMotor * 65535.0f);
+        int iLeftMotor = int(rumble * 65535.0f);
+        int iRightMotor = int(rumble * 65535.0f);
 
         // Set vibration values
         vibrationState.wLeftMotorSpeed  = iLeftMotor;
@@ -148,6 +153,13 @@ namespace IWindow {
     void Gamepad::SetUserPointer(GamepadID gid, void* ptr) { m_userPtrs[(int)gid] = ptr; }
 
     void* Gamepad::GetUserPointer(GamepadID gid) { return m_userPtrs[(int)gid]; }
+
+    void Gamepad::SetTriggerDeadzone(float deadzone) { m_triggerDeadzone = deadzone; }
+    float Gamepad::GetTriggerDeadzone() { return m_triggerDeadzone; }
+
+    void Gamepad::SetStickDeadzone(float deadzone) { m_stickDeadzone = deadzone; }
+
+    float Gamepad::GetStickDeadzone() { return m_stickDeadzone; }
 
     void Gamepad::Update() { 
         for (uint32_t i = 0; i < (uint32_t)GamepadID::Max; i++) {

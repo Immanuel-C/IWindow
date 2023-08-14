@@ -130,10 +130,6 @@ namespace IWindow {
         void SetCursor(NativeCursorID cursorID);
 
         NativeDeviceContext& GetNativeDeviceContext();
-
-        // X11 (Linux) only
-        // On Windows this will return nullptr
-        X11Display GetX11Display();
         
         void operator=(Window&) = delete;
         void operator=(Window&&) = delete;
@@ -163,7 +159,6 @@ namespace IWindow {
         bool m_running = true;
 
         NativeWindowHandle m_window;
-        X11Display m_display;
 
         std::array<bool, (int64_t)Key::Max> m_keys{ false };
         std::array<bool, (int64_t)MouseButton::Max> m_mouseButtons{ false };
