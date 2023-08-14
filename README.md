@@ -4,7 +4,7 @@
 
 ## IWindow does not support Linux anymore! ##
 
-I decided to remove linux support of IWindow since it was too much work for 1 person to handle. You can still find Linux support in the OldLinuxSupport branch if others want to contribute to it.
+I decided to remove linux support of IWindow since it was too much work for 1 person to handle. You can still find Linux support in the OldLinuxSupport branch if others want to contribute to it. This doesn't mean IWindow will never support linux.
 
 A simple windowing library ment to be used with Vulkan, OpenGL or Direct3D.
  
