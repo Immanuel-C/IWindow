@@ -32,6 +32,10 @@
 #include <windows.h>
 #include <Xinput.h>
 #include <windowsx.h>
+#elif defined(__APPLE__)
+#ifndef __objc__
+typedef void* id;
+#endif
 #else
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -63,6 +67,26 @@ namespace IWindow {
 
     // Gamepad
     typedef XINPUT_STATE NativeGamepadState;
+
+    // Linux
+    typedef void* X11Display;
+#elif defined(__APPLE__)
+    typedef id NativeWindowHandle;
+    typedef id NativeDeviceContext;
+    typedef id NativeGamepadState;
+    typedef id NativeCursor;
+    typedef id NativeIcon;
+    
+    enum struct NativeCursorID {
+        Arrow,
+        Hand,
+        Max
+    };
+
+    enum struct NativeIconID {
+        Default,
+        Max
+    };
 
     // Linux
     typedef void* X11Display;

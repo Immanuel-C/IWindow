@@ -139,10 +139,19 @@ namespace IWindow {
         void operator=(Window&&) = delete;
         Window(Window&) = delete;
         Window(Window&&) = delete;
+
+#if defined(__APPLE__)
+        void _setRunning(bool aRunning);
+        id _getNSView();
+#endif
+
     private:
 #if defined (_WIN32)
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
+#elif defined(__APPLE__)
+        id m_view;
+        id m_windowDelegate;
 #endif
         int64_t m_width = 0, m_height = 0, m_oldWidth = 0, m_oldHeight = 0, m_x = 0, m_y = 0;
         int64_t m_mouseX = 0, m_mouseY = 0;

@@ -2,6 +2,9 @@ workspace "IWindow"
     configurations {"Debug", "Release"}
     architecture "x86_64"
 
+    configuration {"macosx"}
+        linkoptions {"-framework Cocoa"}
+
     print ("Make sure to set the vulkan sdk path!")
 
     vulkanSdk = os.getenv("VULKAN_SDK");
@@ -36,9 +39,12 @@ workspace "IWindow"
         platformLinks = nil
         platformFiles = nil
 
-        if package.config:sub(1,1) == "/" then -- Linux
+        if os.istarget("linux") then
             platformFiles = {"src/IWindowXlib.cpp", "src/IWindowLinuxGamepad.cpp"}
             platformLinks = {"X11", "Xcursor", "GLX"}
+        elseif os.istarget("macosx") then
+            platformFiles = {"src/IWindowCocoa.mm", "src/IWindowCocoaGamepad.cpp"}
+            --platformLinks = {"Cocoa"}
         else
             platformFiles = {"src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
             platformLinks = {"User32", "XInput"}
