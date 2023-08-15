@@ -3,6 +3,8 @@
 #include "IWindow.h"
 #include "IWindowGL.h"
 #include "IWindowGamepad.h"
+#include "IWindowImGUIBackend.h"
+#include "backends/imgui_impl_opengl2.h"
 
 #include <iostream>
 
@@ -29,17 +31,25 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    if (GL_VERSION_MAJOR > 2 && GL_VERSION_MINOR > 2)
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui_ImplIWindow_Init(window);
+    ImGui_ImplOpenGL2_Init();
+
+    io.DisplaySize.x = window.GetWindowSize().x;
+    io.DisplaySize.y = window.GetWindowSize().y;
+
+    ImGui::StyleColorsClassic();
+
+
+    if (GL_VERSION_MAJOR > 2 && GL_VERSION_MINOR > 2) {
         auto myglGenBuffers = (void (*)(GLsizei, GLuint*))IWindow::GL::LoadOpenGLFunction("glGenBuffers");
-
-
-    uint32_t buf;
-    glGenBuffers(1, &buf);
-
+        uint32_t buf;
+        glGenBuffers(1, &buf);
+    }
     while (window.IsRunning()) {
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-
         if (GL_VERSION_MAJOR < 3) {
             glBegin(GL_POLYGON);
                 glColor3f(1, 0, 0); glVertex3f(-0.6, -0.75, 0.5);
@@ -48,8 +58,26 @@ int main() {
             glEnd();
         }
 
+        // ImGui Loop
+        ImGui_ImplOpenGL2_NewFrame();
+        ImGui::NewFrame();
+        ImGui_ImplIWindow_NewFrame();
+        ImGui::ShowDemoWindow();
+        ImGui::Render();
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+
+        ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+        ImGui::EndFrame();
+
         window.Update();
+
         glcontext.SwapBuffers();
         gp.Update();
     }
+
+    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplIWindow_Shutdown();
+    ImGui::DestroyContext();
 }

@@ -50,6 +50,10 @@ namespace IWindow {
         m_y = y;
         m_title = title;
         m_userPtr = nullptr;
+        m_running = true;
+        m_fullscreen = false;
+        m_focused = false;
+        m_mouseEntered = false;
 
         m_icon = LoadIcon(nullptr, IDI_APPLICATION);
         m_cursor = LoadCursor(nullptr, IDC_ARROW);
@@ -142,6 +146,8 @@ namespace IWindow {
     }
 
 
+    bool Window::operator==(IWindow::Window& window) { return m_window == window.GetNativeWindowHandle(); }
+
     LRESULT CALLBACK Window::WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam) {
         switch (msg)
         {
@@ -155,62 +161,85 @@ namespace IWindow {
             m_posCallback(*this, m_x, m_y);
             break;
         }
+        case WM_MOUSEMOVE: {
+            if (!m_mouseEntered) {
+                // Tells Win32 to post a msg if the cursor leaves a specific window
+                TRACKMOUSEEVENT mouseEvent;
+                ::ZeroMemory(&mouseEvent, sizeof(mouseEvent));
+                mouseEvent.cbSize = sizeof(mouseEvent);
+                mouseEvent.dwFlags = TME_LEAVE;
+                mouseEvent.hwndTrack = m_window;
+                TrackMouseEvent(&mouseEvent);
+
+                m_mouseEntered = true;
+                m_mouseEnteredCallback(*this, m_mouseEntered);
+            }
+            m_x = GET_X_LPARAM(lparam);
+            m_y = GET_Y_LPARAM(lparam);
+            m_mouseMovecallback(*this, m_x, m_y);
+            break;
+        }
+        case WM_MOUSELEAVE: {
+            m_mouseEntered = false;
+            m_mouseEnteredCallback(*this, m_mouseEntered);
+            break;
+        }
         case WM_SIZE: {
             m_width = LOWORD(lparam);
             m_height = HIWORD(lparam);
             m_sizeCallback(*this, m_width, m_height);
             break;
         }
-        case WM_KEYDOWN: 
+        case WM_KEYDOWN: {
             m_keys[wparam] = true;
             m_keyCallback(*this, (Key)wparam, InputState::Down);
             break;
-        case WM_KEYUP: 
+        }
+        case WM_KEYUP: {
             m_keys[wparam] = false;
             m_keyCallback(*this, (Key)wparam, InputState::Up);
             break;
-        case WM_SYSKEYDOWN:
+        }
+        case WM_SYSKEYDOWN: {
             m_keys[wparam] = true;
             m_keyCallback(*this, (Key)wparam, InputState::Down);
             break;
-        case WM_SYSKEYUP:
+        }
+        case WM_SYSKEYUP: {
             m_keys[wparam] = false;
             m_keyCallback(*this, (Key)wparam, InputState::Up);
             break;
-        case WM_MOUSEMOVE:
-            m_mouseX =  GET_X_LPARAM(lparam);
-            m_mouseY =  GET_Y_LPARAM(lparam);
-            m_mouseMovecallback(*this, m_mouseX, m_mouseY);
-            break;
-
-
-        case WM_LBUTTONDOWN:
+        }
+        case WM_LBUTTONDOWN: {
             m_mouseButtons[(int)MouseButton::Left] = true;
             m_mouseButtonCallback(*this, MouseButton::Left, InputState::Down);
             break;
-        case WM_LBUTTONUP:
+        }
+        case WM_LBUTTONUP: {
             m_mouseButtons[(int)MouseButton::Left] = false;
             m_mouseButtonCallback(*this, MouseButton::Left, InputState::Up);
             break;
-
-        case WM_RBUTTONDOWN:
+        }
+        case WM_RBUTTONDOWN: {
             m_mouseButtons[(int)MouseButton::Right] = true;
             m_mouseButtonCallback(*this, MouseButton::Right, InputState::Down);
             break;
-        case WM_RBUTTONUP:
+        }
+        case WM_RBUTTONUP: {
             m_mouseButtons[(int)MouseButton::Right] = false;
             m_mouseButtonCallback(*this, MouseButton::Right, InputState::Up);
             break;
-
-        case WM_MBUTTONDOWN:
+        }
+        case WM_MBUTTONDOWN: {
             m_mouseButtons[(int)MouseButton::Middle] = true;
             m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Down);
             break;
-        case WM_MBUTTONUP:
+        }
+        case WM_MBUTTONUP: {
             m_mouseButtons[(int)MouseButton::Middle] = false;
             m_mouseButtonCallback(*this, MouseButton::Middle, InputState::Up);
             break;
-
+        }
         case WM_XBUTTONDOWN: {
             UINT button = GET_XBUTTON_WPARAM(wparam);
             MouseButton sideBtn = button == XBUTTON1 ? MouseButton::Side1 : MouseButton::Side2;
@@ -229,7 +258,6 @@ namespace IWindow {
         case WM_SETCURSOR: {
             ::SetCursor(m_cursor);
             return true; // Have to return true
-            break;
         }
 
         // Y axis
@@ -247,6 +275,29 @@ namespace IWindow {
             m_mouseScrollCallback(*this, m_scrollOffsetX, m_scrollOffsetY);
             break;
         }
+        
+        // User focused on the window
+        case WM_SETFOCUS: {
+            m_focused = true;
+            m_windowFocusCallback(*this, m_focused);
+            break;
+        }
+
+        // User is not focused on the window
+        case WM_KILLFOCUS: {
+            m_focused = false;
+            m_windowFocusCallback(*this, m_focused);
+            break;
+        }
+
+        case WM_SYSCHAR: 
+        case WM_CHAR: {
+            wchar_t wch = 0;
+            if (::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (char*)&wparam, 1, &wch, 1))
+                m_charCallback(*this, wch);
+            break;
+        }
+        
 
         default:
             break;
@@ -300,12 +351,62 @@ namespace IWindow {
 
     void* Window::GetUserPointer() { return m_userPtr; }
 
-    void Window::SetPosCallback(WindowPosCallback callback) { m_posCallback = callback; }
-    void Window::SetSizeCallback(WindowSizeCallback callback) { m_sizeCallback = callback; }
-    void Window::SetKeyCallback(KeyCallback callback) { m_keyCallback = callback; }
-    void Window::SetMouseMoveCallback(MouseMoveCallback callback) { m_mouseMovecallback = callback; }
-    void Window::SetMouseButtonCallback(MouseButtonCallback callback) { m_mouseButtonCallback = callback; }
-    void Window::SetMouseScrollCallback(MouseScrollCallback callback) { m_mouseScrollCallback = callback; }
+    Window::WindowPosCallback Window::SetPosCallback(WindowPosCallback callback) { 
+        WindowPosCallback oldCallback = m_posCallback;
+        m_posCallback = callback;
+        return oldCallback;
+    }
+
+    Window::WindowSizeCallback Window::SetSizeCallback(WindowSizeCallback callback) { 
+        WindowPosCallback oldCallback = m_sizeCallback;
+        m_sizeCallback = callback;
+        return oldCallback;
+    }
+
+    Window::KeyCallback Window::SetKeyCallback(KeyCallback callback) { 
+        KeyCallback oldCallback = m_keyCallback;
+        m_keyCallback = callback;
+        return oldCallback;
+    }
+
+    Window::MouseMoveCallback Window::SetMouseMoveCallback(MouseMoveCallback callback) { 
+        MouseMoveCallback oldCallback = m_mouseMovecallback;
+        m_mouseMovecallback = callback;
+        return oldCallback;
+    }
+
+    Window::MouseButtonCallback Window::SetMouseButtonCallback(MouseButtonCallback callback) { 
+        MouseButtonCallback oldCallback = m_mouseButtonCallback;
+        m_mouseButtonCallback = callback;
+        return oldCallback;
+    }
+
+    Window::MouseScrollCallback Window::SetMouseScrollCallback(MouseScrollCallback callback) { 
+        MouseScrollCallback oldCallback = m_mouseScrollCallback;
+        m_mouseScrollCallback = callback;
+        return oldCallback;
+    }
+
+    Window::WindowFocusCallback Window::SetWindowFocusCallback(WindowFocusCallback callback)
+    {
+        WindowFocusCallback oldCallback = m_windowFocusCallback;
+        m_windowFocusCallback = callback;
+        return oldCallback;
+    }
+
+    Window::MouseEnteredCallback Window::SetMouseEnteredCallback(MouseEnteredCallback callback)
+    {
+        MouseEnteredCallback oldCallback = m_mouseEnteredCallback;
+        m_mouseEnteredCallback = callback;
+        return oldCallback;
+    }
+
+    Window::CharCallback Window::SetCharCallback(CharCallback callback)
+    {
+        CharCallback oldcallback = m_charCallback;
+        m_charCallback = callback;
+        return oldcallback;
+    }
 
     IVector2 Window::GetMousePosition() { return IVector2{ m_mouseX, m_mouseY }; }
 
@@ -481,6 +582,41 @@ namespace IWindow {
     void Window::SetCursor(NativeCursorID cursorID) {
         m_cursor = ::LoadCursor(nullptr, MAKEINTRESOURCE(cursorID));
         ::SendMessage(m_window, WM_SETCURSOR, (WPARAM)m_window, (LPARAM)0);
+    }
+
+    std::string Window::GetClipboardText()
+    {
+        if (!::OpenClipboard(nullptr)) return "";
+
+        // CF_TEXT = ASCII Text
+        HANDLE data = ::GetClipboardData(CF_TEXT);
+        // Lock the data so we cant ctrl-c a new string while copying the current string
+        const char* c_data  = (char*)::GlobalLock(data);
+        if (!c_data) return "";
+
+        ::GlobalUnlock(data);
+
+        ::CloseClipboard();
+
+        return c_data;
+    }
+
+    void Window::SetClipboardText(const std::string& text)
+    {
+
+        HGLOBAL mem = ::GlobalAlloc(GMEM_MOVEABLE, text.length());
+        memcpy(::GlobalLock(mem), text.c_str(), text.length());
+        ::GlobalUnlock(mem);
+
+        if (!::OpenClipboard(nullptr)) {
+            std::cout << "Cant set clipboard text!\n";
+            return;
+        }
+
+        ::EmptyClipboard();
+        ::SetClipboardData(CF_TEXT, mem);
+
+        ::CloseClipboard();
     }
 
     NativeDeviceContext& Window::GetNativeDeviceContext() { return m_deviceContext; }

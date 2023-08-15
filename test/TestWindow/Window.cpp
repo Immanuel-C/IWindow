@@ -107,6 +107,18 @@ void MouseScrollCallback(IWindow::Window& window, float xOffset, float yOffset) 
     std::cout << "x Offset: " << xOffset << " y Offset: " << yOffset << '\n';
 }
 
+void MouseEnteredCallback(IWindow::Window&, bool entered) {
+    std::cout << "Mouse entered: " << entered << '\n';
+}
+
+void CharCallback(IWindow::Window& window, uint16_t c) {
+    std::cout << "Char pressed: " << (char)c << '\n';
+}
+
+void WindowFocusedCallback(IWindow::Window& window, bool focused) {
+    std::cout << "Window is focused: " << focused << '\n';
+}
+
 int main() {
     IWindow::Window window{};
     if (!window.Create(1280, 720, u8"Hello IWindow!")) return EXIT_FAILURE;
@@ -150,6 +162,9 @@ int main() {
     window.SetMouseButtonCallback(MouseButtonCallback);
     window.SetMouseMoveCallback(MouseMoveCallback);
     window.SetMouseScrollCallback(MouseScrollCallback);
+    window.SetMouseEnteredCallback(MouseEnteredCallback);
+    window.SetCharCallback(CharCallback);
+    window.SetWindowFocusCallback(WindowFocusedCallback);
 
 
     // Set fullscreen on the primary monitor then wait 1 second then set to no fullscreen
@@ -169,12 +184,19 @@ int main() {
             << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n'
             << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
 
+    window.SetClipboardText("Hello World");
 
     while (window.IsRunning()) {
         //gp.Rumble();
 
         if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
             std::cout << "Key A and W were pressed without Alt being pressed\n";
+
+        if (window.IsKeyDown(IWindow::Key::V)) {
+         
+            std::string clipboardText = window.GetClipboardText();
+            std::cout << "Text in clipboard: " << clipboardText.c_str() << '\n';
+        }
 
         if (gp.IsButtonDown(IWindow::GamepadButton::A, IWindow::GamepadButton::B)) {
             std::cout << "A and B was pressed!\n";

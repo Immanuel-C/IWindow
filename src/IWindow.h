@@ -57,15 +57,6 @@ namespace IWindow {
 
 
     class Window {
-    private:
-        // Input callbacks
-        typedef std::function<void(Window&, Key, InputState)> KeyCallback;
-        typedef std::function<void(Window&, int64_t, int64_t)> MouseMoveCallback;
-        typedef std::function<void(Window&, float, float)> MouseScrollCallback;
-        typedef std::function<void(Window&, MouseButton, InputState)> MouseButtonCallback;
-
-        typedef MouseMoveCallback WindowPosCallback;
-        typedef WindowPosCallback WindowSizeCallback;
     public:
         Window() = default;
         Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);
@@ -108,12 +99,28 @@ namespace IWindow {
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
 
-        void SetPosCallback(WindowPosCallback callback);
-        void SetSizeCallback(WindowSizeCallback callback);
-        void SetKeyCallback(KeyCallback callback);
-        void SetMouseMoveCallback(MouseMoveCallback callback);
-        void SetMouseButtonCallback(MouseButtonCallback callback);
-        void SetMouseScrollCallback(MouseScrollCallback callback);
+        // Input callbacks
+        typedef std::function<void(Window&, Key, InputState)> KeyCallback;
+        typedef std::function<void(Window&, int64_t, int64_t)> MouseMoveCallback;
+        typedef std::function<void(Window&, float, float)> MouseScrollCallback;
+        typedef std::function<void(Window&, MouseButton, InputState)> MouseButtonCallback;
+        typedef std::function<void(Window&, bool)> WindowFocusCallback;
+        typedef WindowFocusCallback MouseEnteredCallback;
+        // Does not support unicode yet
+        typedef std::function<void(Window&, uint16_t)> CharCallback;
+
+        typedef MouseMoveCallback WindowPosCallback;
+        typedef WindowPosCallback WindowSizeCallback;
+
+        WindowPosCallback SetPosCallback(WindowPosCallback callback);
+        WindowSizeCallback SetSizeCallback(WindowSizeCallback callback);
+        KeyCallback SetKeyCallback(KeyCallback callback);
+        MouseMoveCallback SetMouseMoveCallback(MouseMoveCallback callback);
+        MouseButtonCallback SetMouseButtonCallback(MouseButtonCallback callback);
+        MouseScrollCallback SetMouseScrollCallback(MouseScrollCallback callback);
+        WindowFocusCallback SetWindowFocusCallback(WindowFocusCallback callback);
+        MouseEnteredCallback SetMouseEnteredCallback(MouseEnteredCallback callback);
+        CharCallback SetCharCallback(CharCallback callback);
 
         Monitor GetPrimaryMonitor();
         std::vector<Monitor> GetAllMonitors();
@@ -129,12 +136,19 @@ namespace IWindow {
         // Win32 (Windows) Only
         void SetCursor(NativeCursorID cursorID);
 
+        // Returns "" if no text available
+        // Must delete data after use
+        // Unicode not supported
+        std::string GetClipboardText();
+        void SetClipboardText(const std::string& text);
+
         NativeDeviceContext& GetNativeDeviceContext();
         
         void operator=(Window&) = delete;
         void operator=(Window&&) = delete;
         Window(Window&) = delete;
         Window(Window&&) = delete;
+        bool operator==(IWindow::Window& window);
     private:
 #if defined (_WIN32)
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -145,9 +159,10 @@ namespace IWindow {
         float m_scrollOffsetX = 0.0f, m_scrollOffsetY = 0.0f;
         std::string m_title = "";
 
-        bool m_fullscreen = false;
-
-        bool m_running = true;
+        bool m_fullscreen;
+        bool m_running;
+        bool m_focused;
+        bool m_mouseEntered;
 
         NativeWindowHandle m_window;
 
@@ -160,6 +175,9 @@ namespace IWindow {
         static void DefaultMouseMoveCallback(Window&, int64_t, int64_t) {}
         static void DefaultMouseButtonCallback(Window&, MouseButton, InputState) {}
         static void DefaultMouseScrollCallback(Window&, float, float) {}
+        static void DefaultWindowFocusCallback(Window&, bool) {}
+        static void DefaultMouseEnteredCallback(Window&, bool) {}
+        static void DefaultCharCallback(Window&, uint16_t) {}
 
         WindowPosCallback m_posCallback = DefaultWindowPosCallback;
         WindowSizeCallback m_sizeCallback = DefaultWindowSizeCallback;
@@ -167,6 +185,9 @@ namespace IWindow {
         MouseMoveCallback m_mouseMovecallback = DefaultMouseMoveCallback;
         MouseButtonCallback m_mouseButtonCallback = DefaultMouseButtonCallback;
         MouseScrollCallback m_mouseScrollCallback = DefaultMouseScrollCallback;
+        WindowFocusCallback m_windowFocusCallback = DefaultWindowFocusCallback;
+        MouseEnteredCallback m_mouseEnteredCallback = DefaultMouseEnteredCallback;
+        CharCallback m_charCallback = DefaultCharCallback;
 
         NativeDeviceContext m_deviceContext;
 
