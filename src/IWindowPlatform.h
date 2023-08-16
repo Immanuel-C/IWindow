@@ -27,13 +27,19 @@
 */
 #pragma once
 
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <Xinput.h>
 #include <windowsx.h>
-
+#elif defined(__APPLE__)
+#ifndef __objc__
+typedef void* id;
+#endif
+#endif
 
 namespace IWindow {
+#if defined(_WIN32)
     typedef HWND NativeWindowHandle; 
     typedef HDC NativeDeviceContext;
     typedef HGLRC NativeGLRendereringContext;
@@ -53,6 +59,24 @@ namespace IWindow {
 
     // Gamepad
     typedef XINPUT_STATE NativeGamepadState;
+#elif defined(__APPLE__)
+    typedef id NativeWindowHandle;
+    typedef id NativeDeviceContext;
+    typedef id NativeGamepadState;
+    typedef id NativeCursor;
+    typedef id NativeIcon;
+    
+    enum struct NativeCursorID {
+        Arrow,
+        Hand,
+        Max
+    };
+
+    enum struct NativeIconID {
+        Default,
+        Max
+    };
+#endif
 };
 
 

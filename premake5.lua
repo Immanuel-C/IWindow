@@ -2,6 +2,9 @@ workspace "IWindow"
     configurations {"Debug", "Release"}
     architecture "x86_64"
 
+    configuration {"macosx"}
+        linkoptions {"-framework Cocoa"}
+
     print ("Make sure to set the vulkan sdk path!")
 
     vulkanSdk = os.getenv("VULKAN_SDK");
@@ -33,7 +36,18 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/Window.cpp", "%{prj.location}/stb.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
+        platformLinks = nil
+        platformFiles = nil
+
+        if os.istarget("macosx") then
+            platformFiles = {"src/IWindowCocoa.mm", "src/IWindowCocoaGamepad.cpp"}
+            platformLinks = {}
+        else
+            platformFiles = {"src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
+            platformLinks = {"User32", "XInput"}
+        end
+
+        files {"%{prj.location}/Window.cpp", "%{prj.location}/stb.cpp", platformFiles}
 
         includedirs { "src" }
 
