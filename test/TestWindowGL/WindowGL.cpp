@@ -28,6 +28,9 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
+void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState state) {
+    std::cout << "Mouse button " << (int)button << " was " << (int)state << '\n';
+}
 
 
 int main() {
@@ -49,13 +52,14 @@ int main() {
 
     glcontext.MakeContextCurrent();
 
+    window.SetMouseButtonCallback(MouseButtonCallback);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     ImGui_ImplOpenGL3_Init();
-    ImGui_ImplIWindow_Init(window, true);
+    ImGui_ImplIWindow_Init(window);
 
     io.DisplaySize.x = (float)window.GetWindowSize().x;
     io.DisplaySize.y = (float)window.GetWindowSize().y;
@@ -163,7 +167,7 @@ int main() {
         currentTime = window.GetTime();
         deltaTime = currentTime - prevTime;
         counter++;
-        if (deltaTime >= 1.0 / 30.0) {
+        if (deltaTime >= 1.0 / 1.0) {
             std::string FPS = std::to_string((1.0 / deltaTime) * counter);
             window.SetTitle(std::string{"IWindow OpenGL Example | FPS: "} + FPS);
         }

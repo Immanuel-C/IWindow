@@ -53,7 +53,7 @@ struct ImGui_ImplIWindow_Data {
 
 };
 
-bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks);
+bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks = true);
 void ImGui_ImplIWindow_NewFrame();
 void ImGui_ImplIWindow_Shutdown();
 

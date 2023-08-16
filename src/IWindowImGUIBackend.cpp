@@ -22,7 +22,8 @@ DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 	OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.*/
+	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 #include "IWindowImGUIBackend.h"
 
 static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo() {
@@ -154,7 +155,7 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 	case IWindow::Key::Pause:
 		return ImGuiKey_Pause;
 	case IWindow::Key::CapsLock:
-		return ImGuiKey_CapsLock;
+		return ImGuiKey_None;
 	case IWindow::Key::Escape:
 		return ImGuiKey_Escape;
 	case IWindow::Key::Space:
@@ -196,17 +197,21 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 	case IWindow::Key::Divide:
 		return ImGuiKey_KeypadDivide;
 	case IWindow::Key::ScrollLock:
-		return ImGuiKey_ScrollLock;
+		return ImGuiKey_None;
 	case IWindow::Key::NumLock:
-		return ImGuiKey_NumLock;
+		return ImGuiKey_None;
 	case IWindow::Key::LShift:
-		return ImGuiKey_LeftShift;
+		return ImGuiKey_None;
 	case IWindow::Key::RShift:
-		return ImGuiKey_RightShift;
+		return ImGuiKey_None;
 	case IWindow::Key::LControl:
-		return ImGuiKey_LeftCtrl;
+		return ImGuiKey_None;
 	case IWindow::Key::RControl:
-		return ImGuiKey_RightCtrl;
+		return ImGuiKey_None;
+	case IWindow::Key::Control:
+		return ImGuiKey_None;
+	case IWindow::Key::Shift:
+		return ImGuiKey_None;
 	case IWindow::Key::LMenu:
 		return ImGuiKey_Menu;
 	case IWindow::Key::RMenu:
@@ -255,8 +260,31 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 		return ImGuiKey_F11;
 	case IWindow::Key::F12:
 		return ImGuiKey_F12;
+	case IWindow::Key::SemiColen:
+		return ImGuiKey_Semicolon;
+	case IWindow::Key::Plus:
+		return ImGuiKey_KeypadAdd;
+	case IWindow::Key::Comma:
+		return ImGuiKey_Comma;
+	case IWindow::Key::Minus:
+		return ImGuiKey_Minus;
+	case IWindow::Key::Period:
+		return ImGuiKey_Period;
+	case IWindow::Key::ForwardSlash:
+		return ImGuiKey_Slash;
+	case IWindow::Key::Tilde:
+		return ImGuiKey_None;
+	case IWindow::Key::LeftBoxBraces:
+		return ImGuiKey_None;
+	case IWindow::Key::BackSlash:
+		return ImGuiKey_Slash;
+	case IWindow::Key::RightBoxBraces:
+		return ImGuiKey_None;
+	case IWindow::Key::SingleQuotes:
+		return ImGuiKey_None;
 	case IWindow::Key::Max:
-		return (ImGuiKey)-1;
+		return ImGuiKey_None;
+
 	}
 }
 
@@ -412,6 +440,9 @@ void ImGui_ImplIWindow_KeyCallback(IWindow::Window& window, IWindow::Key key, IW
 		data->PrevUserCallbackKey(window, key, state);
 
 	ImGuiKey translatedKey = ImGui_ImplIWindow_KeyToImGuiKey(key);
+	if (translatedKey == ImGuiKey_None)
+		return;
+
 	ImGuiIO& io = ImGui::GetIO();
 	io.AddKeyEvent(translatedKey, state == IWindow::InputState::Down);
 }
@@ -456,6 +487,7 @@ void ImGui_ImplIWindow_CharCallback(IWindow::Window& window, uint16_t c) {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
 	if (data->PrevUserCallbackChar != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window))
 		data->PrevUserCallbackChar(window, c);
+
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.AddInputCharacter(c);

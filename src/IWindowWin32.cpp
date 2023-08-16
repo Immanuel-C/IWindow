@@ -301,12 +301,19 @@ namespace IWindow {
 
         case WM_SYSCHAR: 
         case WM_CHAR: {
+            //if (::IsWindowUnicode(m_window))
+            //    PostMessage(m_window, WM_UNICHAR, wparam, lparam);
+
             wchar_t wch = 0;
             if (::MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (char*)&wparam, 1, &wch, 1))
                 m_charCallback(*this, wch);
             break;
         }
         
+        case WM_UNICHAR: {
+            
+            break;
+        }
 
         default:
             break;

@@ -112,6 +112,18 @@ namespace IWindow {
         RControl = VK_RCONTROL,
         LMenu = VK_LMENU,
         RMenu = VK_RMENU,
+        SemiColen = VK_OEM_1,
+        Plus = VK_OEM_PLUS,
+        Comma = VK_OEM_COMMA,
+        Minus = VK_OEM_MINUS,
+        Period = VK_OEM_PERIOD,
+        ForwardSlash = VK_OEM_2,
+        Tilde = VK_OEM_3,
+        LeftBoxBraces = VK_OEM_4,
+        BackSlash = VK_OEM_5,
+        RightBoxBraces = VK_OEM_6,
+        SingleQuotes = VK_OEM_7,
+        
 
 
         Np0 = VK_NUMPAD0,
