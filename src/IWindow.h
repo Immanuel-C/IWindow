@@ -34,6 +34,7 @@
 #include "IWindowPlatform.h"
 #include "IWindowCodes.h"
 
+#include <chrono>
 #include <functional>
 
 namespace IWindow {
@@ -72,11 +73,13 @@ namespace IWindow {
 
         IVector2 GetWindowSize();
         IVector2 GetWindowPosition();
-
-        IVector2 GetMousePosition();
-
+        IVector2 GetFramebufferSize();
         void SetWindowSize(int64_t width, int64_t height);
         void SetWindowPosition(int64_t x, int64_t y);
+
+        IVector2 GetMousePosition();
+        void SetMousePos(int64_t x, int64_t y);
+
 
         bool IsKeyDown(Key key);
         template<typename... Args>
@@ -111,6 +114,7 @@ namespace IWindow {
 
         typedef MouseMoveCallback WindowPosCallback;
         typedef WindowPosCallback WindowSizeCallback;
+        typedef WindowSizeCallback FramebufferSizeCallback;
 
         WindowPosCallback SetPosCallback(WindowPosCallback callback);
         WindowSizeCallback SetSizeCallback(WindowSizeCallback callback);
@@ -121,6 +125,7 @@ namespace IWindow {
         WindowFocusCallback SetWindowFocusCallback(WindowFocusCallback callback);
         MouseEnteredCallback SetMouseEnteredCallback(MouseEnteredCallback callback);
         CharCallback SetCharCallback(CharCallback callback);
+        FramebufferSizeCallback SetFramebufferSizeCallback(FramebufferSizeCallback callback);
 
         Monitor GetPrimaryMonitor();
         std::vector<Monitor> GetAllMonitors();
@@ -144,17 +149,24 @@ namespace IWindow {
 
         NativeDeviceContext& GetNativeDeviceContext();
         
+        double GetTime();
+
+        bool IsFocused();
+
+        void SetTitle(const std::string& title);
+
         void operator=(Window&) = delete;
         void operator=(Window&&) = delete;
         Window(Window&) = delete;
         Window(Window&&) = delete;
         bool operator==(IWindow::Window& window);
+        bool operator!=(IWindow::Window& window);
     private:
 #if defined (_WIN32)
         LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
         static LRESULT CALLBACK s_WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam);
 #endif
-        int64_t m_width = 0, m_height = 0, m_oldWidth = 0, m_oldHeight = 0, m_x = 0, m_y = 0;
+        int64_t m_width = 0, m_height = 0, m_oldWidth = 0, m_oldHeight = 0, m_x = 0, m_y = 0, m_framebufferWidth = 0, m_framebufferHeight = 0;
         int64_t m_mouseX = 0, m_mouseY = 0;
         float m_scrollOffsetX = 0.0f, m_scrollOffsetY = 0.0f;
         std::string m_title = "";
@@ -163,6 +175,8 @@ namespace IWindow {
         bool m_running;
         bool m_focused;
         bool m_mouseEntered;
+
+        std::chrono::high_resolution_clock::time_point m_timeMS;
 
         NativeWindowHandle m_window;
 
@@ -178,6 +192,7 @@ namespace IWindow {
         static void DefaultWindowFocusCallback(Window&, bool) {}
         static void DefaultMouseEnteredCallback(Window&, bool) {}
         static void DefaultCharCallback(Window&, uint16_t) {}
+        static void DefaultFramebufferSizeCallback(Window&, int64_t, int64_t) {}
 
         WindowPosCallback m_posCallback = DefaultWindowPosCallback;
         WindowSizeCallback m_sizeCallback = DefaultWindowSizeCallback;
@@ -188,6 +203,7 @@ namespace IWindow {
         WindowFocusCallback m_windowFocusCallback = DefaultWindowFocusCallback;
         MouseEnteredCallback m_mouseEnteredCallback = DefaultMouseEnteredCallback;
         CharCallback m_charCallback = DefaultCharCallback;
+        FramebufferSizeCallback m_framebufferSizeCallback = DefaultFramebufferSizeCallback;
 
         NativeDeviceContext m_deviceContext;
 

@@ -1,3 +1,28 @@
+/*BSD 2 - Clause License
+
+Copyright(c) 2022, Immanuel Charles
+All rights reserved.
+
+Redistributionand use in sourceand binary forms, with or without
+modification, are permitted provided that the following conditions are met :
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditionsand the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditionsand the following disclaimer in the documentation
+and /or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+	SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+	CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.*/
 #include "IWindowImGUIBackend.h"
 
 static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo() {
@@ -10,7 +35,7 @@ static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo() {
 }
 
 ImGui_ImplIWindow_Data* ImGui_ImplIWindow_GetBackendData() {
-	return ImGui::GetCurrentContext() ? (ImGui_ImplIWindow_Data*)ImGui::GetIO().BackendLanguageUserData : nullptr;
+	return ImGui::GetCurrentContext() ? (ImGui_ImplIWindow_Data*)ImGui::GetIO().BackendPlatformUserData : nullptr;
 }
 
 LRESULT CALLBACK ImGui_ImplIWindow_WndProc(HWND hWnd, UINT msg, WPARAM wparam, LPARAM lparam) {
@@ -33,17 +58,13 @@ int ImGui_ImplIWindow_ButtonToImGuiButton(IWindow::MouseButton button) {
 	switch (button)
 	{
 	case IWindow::MouseButton::Left:
-		return 1;
-	case IWindow::MouseButton::Right:
-		return 2;
-	case IWindow::MouseButton::Middle:
-		return 3;
-	case IWindow::MouseButton::Side1:
-		return 4;
-	case IWindow::MouseButton::Side2:
-		return 5;
-	case IWindow::MouseButton::Max:
 		return 0;
+	case IWindow::MouseButton::Right:
+		return 1;
+	case IWindow::MouseButton::Middle:
+		return 2;
+	default:
+		return -1;
 	}
 }
 
@@ -235,13 +256,13 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 	case IWindow::Key::F12:
 		return ImGuiKey_F12;
 	case IWindow::Key::Max:
-		return -1;
+		return (ImGuiKey)-1;
 	}
 }
 
 
-bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks, IWindowClientApi clientApi) {
-	ImGuiIO io = ImGui::GetIO();
+bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks) {
+	ImGuiIO& io = ImGui::GetIO();
 	if (io.BackendPlatformUserData != nullptr) {
 		std::cout << "Already initialized a platform backend!\n";
 		return false;
@@ -268,14 +289,71 @@ bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks, IWin
 	data->IWindowWndProc = (WNDPROC)::GetWindowLongPtr((HWND)mainViewport->PlatformHandleRaw, GWLP_WNDPROC);
 	if (data->IWindowWndProc == nullptr) {
 		std::cout << "ImGui_Impl_IWindow: Failed to register WndProc hook. Failed to init ImGui_ImplIWindow\n";
-		return;
+		return false;
 	}
 	::SetWindowLongPtr((HWND)mainViewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplIWindow_WndProc);
+
+	return true;
 }
 
-void ImGui_ImplIWindow_NewFrame() { ImGui_ImplWin32_NewFrame(); }
+void ImGui_ImplIWindow_UpdateMouseData() {
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	ImGuiIO& io = ImGui::GetIO();
 
-void ImGui_ImplIWindow_Shutdown() { ImGui_ImplWin32_Shutdown(); }
+	IWindow::Window* window = data->window;
+
+	if (window->IsFocused()) 
+		if (io.WantSetMousePos)
+			window->SetMousePos((int64_t)io.MousePos.x, (int64_t)io.MousePos.y);
+}
+
+void ImGui_ImplIWindow_NewFrame() { 
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	if (data == nullptr) {
+		std::cout << "Did you call ImGui_ImplIWindow_Init?\n";
+		return;
+	}
+	IWindow::IVector2 windowSize, frameBufferSize;
+	windowSize = data->window->GetWindowSize();
+	frameBufferSize = data->window->GetFramebufferSize();
+	io.DisplaySize = ImVec2(windowSize.x, windowSize.y);
+	// window not minimized
+	if (windowSize.x > 0 && windowSize.y > 0)
+		io.DisplayFramebufferScale = ImVec2((float)frameBufferSize.x / (float)windowSize.x, (float)frameBufferSize.y / (float)windowSize.y);
+
+
+	// Get delta time
+	double currentTime = data->window->GetTime();
+	// ?
+	if (currentTime <= data->time)
+		currentTime = data->time + 0.00001f;
+	io.DeltaTime = data->time > 0.0 ? (float)(currentTime - data->time) : (float)(1.0f / 60.0f);
+	data->time = currentTime;
+
+	ImGui_ImplIWindow_UpdateMouseData();
+}
+
+void ImGui_ImplIWindow_Shutdown() { 
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	if (data == nullptr) {
+		std::cout << "No platform backend to shutdown, or already shutdown?\n";
+		return;
+	}
+	ImGuiIO& io = ImGui::GetIO();
+	if (data->installedCallbacks)
+		ImGui_ImplIWindow_RestoreCallbacks(*data->window);
+
+	ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+	::SetWindowLongPtr((HWND)mainViewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)data->IWindowWndProc);
+	data->IWindowWndProc = nullptr;
+
+	io.BackendPlatformName = nullptr;
+	io.BackendPlatformUserData = nullptr;
+	io.BackendFlags &= ~(ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos);
+
+	IM_DELETE(data);
+}
 
 void ImGui_ImplIWindow_SetClipboardText(void* userdata, const char* text) {
 	IWindow::Window* window = (IWindow::Window*)userdata;
@@ -309,7 +387,12 @@ void ImGui_ImplIWindow_MouseButtonCallback(IWindow::Window& window, IWindow::Mou
 		data->PrevUserCallbackMouseButton(window, button, state);
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.AddMouseButtonEvent(ImGui_ImplIWindow_ButtonToImGuiButton(button), state == IWindow::InputState::Down);
+
+	int translatedButton = ImGui_ImplIWindow_ButtonToImGuiButton(button);
+
+
+	if (translatedButton >= 0 && translatedButton < ImGuiMouseButton_COUNT)
+		io.AddMouseButtonEvent(translatedButton, state == IWindow::InputState::Down);
 }
 
 
@@ -353,6 +436,57 @@ void ImGui_ImplIWindow_MousePosCallback(IWindow::Window& window, int64_t x, int6
 }
 
 void ImGui_ImplIWindow_CursorEnterCallback(IWindow::Window& window, bool entered) {
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	if (data->PrevUserCallbackMouseEntered != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window)) data->PrevUserCallbackMouseEntered(window, entered);
+
+	ImGuiIO& io = ImGui::GetIO();
+	if (entered) {
+		data->mouseWindow = &window;
+		io.AddMousePosEvent(data->lastValidMousePos.x, data->lastValidMousePos.y);
+	}
+	else if (!entered && data->mouseWindow == &window) {
+		data->lastValidMousePos = io.MousePos;
+		data->mouseWindow = nullptr;
+		// Im guessing the negative float max tells imgui that the mouse is not on the window
+		io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
+	}
+}
+
+void ImGui_ImplIWindow_CharCallback(IWindow::Window& window, uint16_t c) {
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	if (data->PrevUserCallbackChar != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window))
+		data->PrevUserCallbackChar(window, c);
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.AddInputCharacter(c);
+}
+
+void ImGui_ImplIWindow_RestoreCallbacks(IWindow::Window& window) {
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	if (data->installedCallbacks == false) {
+		std::cout << "Callbacks not installed!\n";
+		return;
+	}
+	if ((*data->window) != window) {
+		std::cout << "cant restore callbacks: Wrong window!\n";
+		return;
+	}
+
+	window.SetWindowFocusCallback(data->PrevUserCallbackFocus);
+	window.SetMouseEnteredCallback(data->PrevUserCallbackMouseEntered);
+	window.SetMouseMoveCallback(data->PrevUserCallbackMouseMove);
+	window.SetMouseButtonCallback(data->PrevUserCallbackMouseButton);
+	window.SetMouseScrollCallback(data->PrevUserCallbackScroll);
+	window.SetKeyCallback(data->PrevUserCallbackKey);
+	window.SetCharCallback(data->PrevUserCallbackChar);
+	data->PrevUserCallbackFocus = nullptr;
+	data->PrevUserCallbackMouseEntered = nullptr;
+	data->PrevUserCallbackMouseMove = nullptr;
+	data->PrevUserCallbackMouseButton = nullptr;
+	data->PrevUserCallbackScroll = nullptr;
+	data->PrevUserCallbackKey = nullptr;
+	data->PrevUserCallbackChar = nullptr;
+	data->installedCallbacks = false;
 
 }
 
@@ -362,4 +496,13 @@ void ImGui_ImplIWindow_InstallCallbacks(IWindow::Window& window) {
 		std::cout << "ImGui_Impl_IWindow: Callbacks already installed. Did you call ImGui_ImplIWindow_Init twice?\n";
 	}
 
+	
+	data->PrevUserCallbackFocus = window.SetWindowFocusCallback(ImGui_ImplIWindow_WindowFocusCallback);
+	data->PrevUserCallbackMouseEntered = window.SetMouseEnteredCallback(ImGui_ImplIWindow_CursorEnterCallback);
+	data->PrevUserCallbackMouseMove = window.SetMouseMoveCallback(ImGui_ImplIWindow_MousePosCallback);
+	data->PrevUserCallbackMouseButton = window.SetMouseButtonCallback(ImGui_ImplIWindow_MouseButtonCallback);
+	data->PrevUserCallbackScroll = window.SetMouseScrollCallback(ImGui_ImplIWindow_ScrollCallback);
+	data->PrevUserCallbackKey = window.SetKeyCallback(ImGui_ImplIWindow_KeyCallback);
+	data->PrevUserCallbackChar = window.SetCharCallback(ImGui_ImplIWindow_CharCallback);
+	data->installedCallbacks = true;
 }

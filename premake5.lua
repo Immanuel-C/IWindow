@@ -52,7 +52,7 @@ workspace "IWindow"
         files {
             "%{prj.location}/WindowGL.cpp", 
             "%{prj.location}/glad.cpp", 
-            "%{prj.location}/../../deps/imgui/backends/imgui_impl_opengl2.cpp", 
+            "%{prj.location}/../../deps/imgui/backends/imgui_impl_opengl3.cpp", 
             "%{prj.location}/../../deps/imgui/imgui_draw.cpp", 
             "%{prj.location}/../../deps/imgui/imgui_tables.cpp",
             "%{prj.location}/../../deps/imgui/imgui_widgets.cpp",

@@ -1,3 +1,4 @@
+#include "IWindow.h"
 /*
     BSD 2-Clause License
 
@@ -116,6 +117,8 @@ namespace IWindow {
 
         m_deviceContext = GetDC(m_window);
 
+        m_timeMS = std::chrono::high_resolution_clock::now();
+
         return true;
     }
 
@@ -147,6 +150,8 @@ namespace IWindow {
 
 
     bool Window::operator==(IWindow::Window& window) { return m_window == window.GetNativeWindowHandle(); }
+
+    bool Window::operator!=(IWindow::Window& window) { return m_window != window.GetNativeWindowHandle(); }
 
     LRESULT CALLBACK Window::WindowCallback(HWND window, UINT msg, WPARAM wparam, LPARAM lparam) {
         switch (msg)
@@ -188,6 +193,10 @@ namespace IWindow {
             m_width = LOWORD(lparam);
             m_height = HIWORD(lparam);
             m_sizeCallback(*this, m_width, m_height);
+            IVector2 framebufferSize = GetFramebufferSize();
+            m_framebufferSizeCallback(*this, framebufferSize.x, framebufferSize.y);
+            m_framebufferWidth = framebufferSize.x;
+            m_framebufferHeight = framebufferSize.y;
             break;
         }
         case WM_KEYDOWN: {
@@ -308,7 +317,7 @@ namespace IWindow {
 
     IVector2 Window::GetWindowSize() {
         RECT rect;
-        ::GetClientRect(m_window, &rect);
+        ::GetWindowRect(m_window, &rect);
 
         return IVector2{(int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top};
     }
@@ -326,6 +335,8 @@ namespace IWindow {
 
         ::SetWindowPos(m_window, nullptr, (int)m_x, (int)m_y, (int)m_width, (int)m_height, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
     }
+
+
 
     bool Window::IsKeyDown(Key key) { return m_keys[(int64_t)key]; }
 
@@ -345,6 +356,14 @@ namespace IWindow {
         ::GetWindowPlacement(m_window, &windowPlacement);
 
         return IVector2{(int64_t)windowPlacement.rcNormalPosition.left, (int64_t)windowPlacement.rcNormalPosition.top};
+    }
+
+    IVector2 Window::GetFramebufferSize()
+    {
+        RECT rect;
+        ::GetClientRect(m_window, &rect);
+
+        return IVector2{ (int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top };
     }
 
     void Window::SetUserPointer(void* ptr) { m_userPtr = ptr; }
@@ -408,7 +427,16 @@ namespace IWindow {
         return oldcallback;
     }
 
+    Window::FramebufferSizeCallback Window::SetFramebufferSizeCallback(FramebufferSizeCallback callback)
+    {
+        FramebufferSizeCallback oldcallback = m_framebufferSizeCallback;
+        m_framebufferSizeCallback = callback;
+        return oldcallback;
+    }
+
     IVector2 Window::GetMousePosition() { return IVector2{ m_mouseX, m_mouseY }; }
+
+    void Window::SetMousePos(int64_t x, int64_t y) { ::SetCursorPos(x, y); }
 
     Monitor Window::GetPrimaryMonitor() {
         // The primary montitors top left corner is always 0, 0
@@ -620,6 +648,14 @@ namespace IWindow {
     }
 
     NativeDeviceContext& Window::GetNativeDeviceContext() { return m_deviceContext; }
+    double Window::GetTime() { 
+        std::chrono::duration<double, std::milli> dur = std::chrono::high_resolution_clock::now() - m_timeMS;
+        return dur.count(); 
+    }
+    bool Window::IsFocused() { return m_focused; }
+
+
+    void IWindow::Window::SetTitle(const std::string& title) {  SetWindowTextA(m_window, (LPCSTR)title.c_str()); }
 }
 
 #endif

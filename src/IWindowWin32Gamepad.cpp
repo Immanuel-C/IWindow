@@ -41,7 +41,6 @@ namespace IWindow {
       m_triggerDeadzone { triggerDeadzone },
       m_stickDeadzone { stickDeadzone }
     {
-
     }
 
     Gamepad::~Gamepad() { }
