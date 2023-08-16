@@ -2,6 +2,10 @@
 
 ### **IWindow is currently in pre-alpha, stability is not guaranteed!** 
 
+## This Branch is for ImGui dev ##
+
+This branch is not guaranteed to be stable
+
 ## IWindow does not support Linux anymore! ##
 
 I decided to remove linux support of IWindow since it was too much work for 1 person to handle. You can still find Linux support in the OldLinuxSupport branch if others want to contribute to it. This doesn't mean IWindow will never support linux.
