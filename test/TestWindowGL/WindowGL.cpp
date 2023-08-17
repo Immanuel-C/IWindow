@@ -147,10 +147,10 @@ int main() {
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
-    double prevTime = 0, currentTime = 0, deltaTime = 0;
-    uint32_t counter = 0;
-
     while (window.IsRunning()) {
+        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(8.33333));
+
+
         // ImGui Loop
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
@@ -168,15 +168,18 @@ int main() {
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        currentTime = window.GetTime();
-        deltaTime = currentTime - prevTime;
-        counter++;
-        if (deltaTime >= 1.0 / 1.0) {
-            std::string FPS = std::to_string((int64_t)((1.0 / deltaTime) * counter));
-            window.SetTitle(std::string{"IWindow OpenGL Example | FPS: "} + FPS);
+        static float framesPerSecond = 0.0f;
+        static int fps;
+        static float lastTime = 0.0f;
+        float currentTime = window.GetTime() * 0.001f;
+        ++framesPerSecond;
+        window.SetTitle(std::string{ "Current Frames Per Second: " } + std::to_string( fps ));
+        if (currentTime - lastTime > 1.0f)
+        {
+            lastTime = currentTime;
+            fps = (int)framesPerSecond;
+            framesPerSecond = 0;
         }
-        prevTime = currentTime;
-
 
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
