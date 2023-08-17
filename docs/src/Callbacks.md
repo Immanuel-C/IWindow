@@ -25,9 +25,13 @@ void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
 
 ...
 
+This function returns the previous callback when a new one is installed.
+
 // IWindow::Window
 window.SetPosCallback(WindowPosCallback);
 ```
+
+This function returns the previous callback when a new one is installed.
 
 #### Window Size Callback
 
@@ -54,6 +58,58 @@ void WindowSizeCallback(IWindow::Window& window, int64_t width, int64_t height) 
 window.SetSizeCallback(WindowPosCallback);
 ```
 
+This function returns the previous callback when a new one is installed.
+
+#### Window Focus Callback
+
+The window focus callback is called when the window changes focus state (Focused/Unfocused).
+
+- The `Window::Window&` argument is the window that called the callback.
+= the `bool` argument tells you if the window has just come into focus (true) or just come out of focus (false).
+
+To register a window focus callback, call `window.SetWindowFocusCallback()`. Where window is IWindow::Window.
+
+An example of a WindowFocus callback is
+```cpp
+void FocusCallback(IWindow::Window& window, bool focused) {
+    std::cout << "Window is focused: " << focused << '\n';
+}
+
+
+
+...
+
+window.SetWindowFocusCallback(FocusCallback);
+```
+
+This function returns the previous callback when a new one is installed.
+
+#### Framebuffer Size Callback
+
+The framebuffer size callback is called when the framebuffer is being resized;
+
+- The `IWindow::Window&` argument is the window that called the callback. 
+- The first `int64_t` argument is the new width of the framebuffer.
+- The second `int64_t` argument is the new height of the frambuffer.
+
+
+To register a framebuffer size callback, call `window.SetFramebufferSizeCallback(callback)`. Where window is a IWindow::Window.
+
+An example of a window size callback is:
+
+```cpp
+void FramebufferSizeCallback(IWindow::Window& window, int64_t width, int64_t height) {
+    std::cout << "Framebuffer size: " << width << ", " << height << '\n';
+}
+
+...
+
+// window is a IWindow::Window
+window.SetFramebufferSizeCallback(WindowPosCallback);
+```
+
+This function returns the previous callback when a new one is installed.
+
 ## Input Callbacks
 
 #### Key Callback
@@ -77,6 +133,8 @@ void KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::InputState 
 
 window.SetKeyCallback(KeyCallback);
 ```
+
+This function returns the previous callback when a new one is installed.
 
 #### Mouse Button Callback
 
@@ -102,6 +160,8 @@ window.SetMouseButtonCallback(MouseButtonCallback);
 
 ```
 
+This function returns the previous callback when a new one is installed.
+
 #### Mouse Move Callback
 
 The mouse move callback is called when the cursor moves.
@@ -126,7 +186,9 @@ window.SetMouseMoveCallback(MouseMoveCallback);
 
 ```
 
-### Mouse Scroll Callback
+This function returns the previous callback when a new one is installed.
+
+#### Mouse Scroll Callback
 
 The mouse scroll callback is called when the mouse scoll wheel is scrolled.
 
@@ -148,6 +210,33 @@ void MouseScrollCallback(IWindow::Window& window, float xOffset, float yOffset) 
 // window = IWindow::Window
 window.SetMouseScrollCallback(MouseScrollCallback);
 ```
+
+This function returns the previous callback when a new one is installed.
+
+###
+
+#### Mouse Entered Callback
+
+The mouse entered callback is called when the mouse cursor enters or exits the windows borders.
+
+- The `IWindow::Window&` argument is the window that called the callback.
+- The `bool` argument is set to `true` when the mouse is entered and `false` when the mouse leaves.
+
+To register the mouse entered callback call `window.SetMouseEnteredCallback()`. Where window is type `IWindow::Window`.
+
+This function returns the previous callback when a new one is installed.
+
+#### Char Callback
+
+The char callback is similar to the key callback but instead of returning a keycode of the key pressed it returns a wide char that contains the keys ascii number.
+
+- The `IWindow::Window&` argument is the window that called the callback.
+- The `uint16_t` argument is a wide char that contains the ascii number of the key pressed.
+
+To register the char callback call `window.SetCharCallback()`, Where window is type `IWindow::Window`
+
+This function returns the previous callback when a new one is installed.
+
 
 #### Gamepad Connected Callback
 

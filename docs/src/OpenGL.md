@@ -21,6 +21,8 @@ namespace IWindow {
              
             void SwapBuffers();
 
+            void vSync(bool vSync);
+
             void operator=(Context&) = delete;
             void operator=(Context&&) = delete;
             Context(Context&) = delete;
@@ -70,6 +72,8 @@ Example:
     }
     ...
 ```
+
+`void IWindow::GL::Context::vSync(bool vSync)` Toggles vSync on or off. Use after context is made current.
 
 ## Advanced Functions
 

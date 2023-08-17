@@ -30,6 +30,8 @@
 #include "IWindow.h"
 #include "IWindowPlatform.h"
 
+#include <iostream>
+
 namespace IWindow {
     namespace GL {
         class Context {
@@ -44,6 +46,8 @@ namespace IWindow {
             void MakeContextCurrent();
              
             void SwapBuffers();
+
+            void vSync(bool vSync);
 
             void operator=(Context&) = delete;
             void operator=(Context&&) = delete;

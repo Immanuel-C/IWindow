@@ -324,7 +324,7 @@ namespace IWindow {
 
     IVector2 Window::GetWindowSize() {
         RECT rect;
-        ::GetWindowRect(m_window, &rect);
+        ::GetClientRect(m_window, &rect);
 
         return IVector2{(int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top};
     }
@@ -367,8 +367,15 @@ namespace IWindow {
 
     IVector2 Window::GetFramebufferSize()
     {
-        RECT rect;
-        ::GetClientRect(m_window, &rect);
+        RECT rect{};
+        IVector2 windowSize = GetWindowSize();
+        ::SetRect(&rect, 0, 0, windowSize.x, windowSize.y);
+        ::AdjustWindowRectExForDpi(&rect, WS_OVERLAPPEDWINDOW |
+            WS_CAPTION |
+            WS_SYSMENU |
+            WS_MINIMIZEBOX |
+            WS_MAXIMIZEBOX |
+            WS_OVERLAPPED, false, WS_EX_APPWINDOW, ::GetDpiForWindow(m_window));
 
         return IVector2{ (int64_t)rect.right - rect.left, (int64_t)rect.bottom - rect.top };
     }

@@ -347,8 +347,9 @@ void ImGui_ImplIWindow_NewFrame() {
 	frameBufferSize = data->window->GetFramebufferSize();
 	io.DisplaySize = ImVec2(windowSize.x, windowSize.y);
 	// window not minimized
-	if (windowSize.x > 0 && windowSize.y > 0)
-		io.DisplayFramebufferScale = ImVec2((float)frameBufferSize.x / (float)windowSize.x, (float)frameBufferSize.y / (float)windowSize.y);
+	// Causes Imgui to think the mouse is offset and program works fine without
+	//if (windowSize.x > 0 && windowSize.y > 0)
+		//io.DisplayFramebufferScale = ImVec2(((float)frameBufferSize.x / (float)windowSize.x), ((float)frameBufferSize.y / (float)windowSize.y));
 
 
 	// Get delta time
@@ -359,6 +360,7 @@ void ImGui_ImplIWindow_NewFrame() {
 	io.DeltaTime = data->time > 0.0 ? (float)(currentTime - data->time) : (float)(1.0f / 60.0f);
 	data->time = currentTime;
 
+	
 	ImGui_ImplIWindow_UpdateMouseData();
 }
 

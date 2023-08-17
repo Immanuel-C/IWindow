@@ -1,6 +1,7 @@
 ﻿#include "IWindow.h"
 #include "IWindowGamepad.h"
 #include "stbi.h"
+#include "IWindowWinRTGamepad.h"
 
 #include <iostream>
 
@@ -165,6 +166,7 @@ int main() {
     window.SetMouseEnteredCallback(MouseEnteredCallback);
     window.SetCharCallback(CharCallback);
     window.SetWindowFocusCallback(WindowFocusedCallback);
+
 
 
     // Set fullscreen on the primary monitor then wait 1 second then set to no fullscreen

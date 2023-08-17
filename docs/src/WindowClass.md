@@ -24,6 +24,8 @@ namespace IWindow {
 
         IVector2 GetWindowSize();
         IVector2 GetWindowPosition();
+        // Add
+        IVector2 GetFramebufferSize();
 
         IVector2 GetMousePosition();
 
@@ -50,13 +52,17 @@ namespace IWindow {
 
         void SetUserPointer(void* ptr);
         void* GetUserPointer();
-
-        void SetPosCallback(WindowPosCallback callback);
-        void SetSizeCallback(WindowSizeCallback callback);
-        void SetKeyCallback(KeyCallback callback);
-        void SetMouseMoveCallback(MouseMoveCallback callback);
-        void SetMouseButtonCallback(MouseButtonCallback callback);
-        void SetMouseScrollCallback(MouseScrollCallback callback);
+        
+        WindowPosCallback SetPosCallback(WindowPosCallback callback);
+        WindowSizeCallback SetSizeCallback(WindowSizeCallback callback);
+        KeyCallback SetKeyCallback(KeyCallback callback);
+        MouseMoveCallback SetMouseMoveCallback(MouseMoveCallback callback);
+        MouseButtonCallback SetMouseButtonCallback(MouseButtonCallback callback);
+        MouseScrollCallback SetMouseScrollCallback(MouseScrollCallback callback);
+        WindowFocusCallback SetWindowFocusCallback(WindowFocusCallback callback);
+        MouseEnteredCallback SetMouseEnteredCallback(MouseEnteredCallback callback);
+        CharCallback SetCharCallback(CharCallback callback);
+        FramebufferSizeCallback SetFramebufferSizeCallback(FramebufferSizeCallback callback);
 
         Monitor GetPrimaryMonitor();
         std::vector<Monitor> GetAllMonitors();
@@ -67,17 +73,21 @@ namespace IWindow {
 
         void SetIcon(Image image);
         void SetCursor(Image image, uint32_t hotX, uint32_t hotY);
-        // Win32 (Windows) Only
         void SetIcon(NativeIconID iconID);
-        // Win32 (Windows) Only
         void SetCursor(NativeCursorID cursorID);
 
-        NativeDeviceContext& GetNativeDeviceContext();
+        std::string GetClipboardText();
+        void SetClipboardText(const std::string& text);
 
-        // X11 (Linux) only
-        // On Windows this will return nullptr
-        X11Display GetX11Display();
+        NativeDeviceContext& GetNativeDeviceContext();
         
+        double GetTime();
+
+        // Add
+        bool IsFocused();
+
+        void SetTitle(const std::string& title);
+
         void operator=(Window&) = delete;
         void operator=(Window&&) = delete;
         Window(Window&) = delete;
@@ -137,7 +147,27 @@ where `x` and `y` are width and height of the window.
 
 `IVector2 IWindow::Window::GetWindowPosition()` return a `IWindow::IVector2`. Where `x` and `y` are the window position. See [Vector](./Vector.md).
 
-The `void IWindow::Window::SetPosCallback`, `void IWindow::Window::SetKeyCallback`, etc. are called when an action like moving the window or a key is pressed happens. For more info goto the [Callbacks section](./Callbacks.md).
+`std::string GetClipboardText()` returns the text currently in the clipboard.
+`void SetClipboardText(const std::string& text)` sets the text in the clipboard. 
+
+`double GetTime()` returns time since window was initialized.
+
+`void SetTitle(const std::string& title)` Sets the title of the window.
+
+`void IWindow::Window::SetIcon(Image image)` sets the window icon to an image. The image has to have 4 channels, in order `RGBA`, 8 bits/1 byte per channel. The image has to starts at the top left corner.
+
+`void IWindow::Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY)`. sets the cursor to an image. The cursor has to be inside the window to show image. The image has to have 4 channels, in order `RGBA`, 8 bits/1 byte per channel, the image has to start at the top left corner. `hotX` is the location of the x location that effects cursor events. `hotY` is similer but it is the y location. Think of the 'Hot' location has the place cursor events take place (e.g. when you click it will be at the hot location).
+
+
+`void IWindow::Window::SetIcon(NativeIconID iconID)` sets the icon using a native icon id. See [Enum Structs](./EnumStructs.md).
+
+`void IWindow::Window::SetCursor(NativeCursorID cursorID)` sets the cursor using a native cursor id. See [Enum Structs](./EnumStructs.md).
+
+`bool IsFocused()` checks if the window is focused.
+
+## Callbacks
+
+The `void IWindow::Window::SetPosCallback`, `void IWindow::Window::SetKeyCallback`, etc. are called when an action like moving the window or a key is pressed happens. For more info go to the [Callbacks section](./Callbacks.md).
 
 
 Example:
@@ -182,25 +212,29 @@ int main() {
 
 ## Input Functions
 
-The `bool IWindow::Window::IsKeyDown(IWindow::Window::Key key)` and `IWindow::Window::IsKeyUp(IWindow::Window::Key key)` functions check if a key is pressed or is released. A key callback could be used to handle this.
+`bool IWindow::Window::IsKeyDown(IWindow::Window::Key key)` function checks if a key is pressed.
 
-
-`bool IWindow::Window::IsMouseButtonDown(IWindow::MouseButton button)` and `bool IWindow::Window::IsMouseButtonUp(IWindow::MouseButton button)` functions check if a argument `button` is pressed or released. 
-
+`bool IWindow::Window::IsMouseButtonDown(IWindow::MouseButton button)` function checks if a argument `button` is pressed. 
 
 The templated input functions allow you to pass in multiple buttons/keys and the function checks if all the buttons/keys are pressed/released.
 
 Example:
 
 ```cpp
+
 ...
+
+IWindow::Window window;
+
+...
+
 // statment will be true if the left and right buttons are pressed
-// window = IWindow::Window
 if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::Right)) {
     ...
 }
 
 ...
+
 ```
 
 `Vector2 IWindow::Window::GetMouseScrollOffset()` gets the scrolls offset. The offsets will be 1 when scrolling forwards and -1 when scrolling backwards (towards the user). See [Vectors](Vector.md).
@@ -217,25 +251,9 @@ if (window.isMouseButtonDown(IWindow::MouseButton::Left, IWindow::MouseButton::R
 
 `bool IWindow::Window::IsFullscreen()` return true if window is fullscreen and false if not.
 
-`void IWindow::Window::SetIcon(Image image)` sets the window icon to an image. The image has to have 4 channels, in order `RGBA`, 8 bits/1 byte per channel. The image has to starts at the top left corner.
-
-`void IWindow::Window::SetCursor(Image image, uint32_t hotX, uint32_t hotY)`. sets the cursor to an image. The cursor has to be inside the window to show image. The image has to have 4 channels, in order `RGBA`, 8 bits/1 byte per channel, the image has to start at the top left corner. `hotX` is the location of the x location that effects cursor events. `hotY` is similer but it is the y location. Think of the 'Hot' location has the place cursor events take place (e.g. when you click it will be at the hot location).
-
-## Win32 only
-
-When using Xlib these functions wont do anything
-
-`void IWindow::Window::SetIcon(NativeIconID iconID)` sets the icon using a native icon id. See [Enum Structs](./EnumStructs.md).
-
-`void IWindow::Window::SetCursor(NativeCursorID cursorID)` sets the cursor using a native cursor id. See [Enum Structs](./EnumStructs.md).
 
 ## Advanced Functions
 
-`IWindow::Window::NativeWindowHandle& IWindow::Window::GetNativeWindowHandle()` gets the internal windowing api's window handle (e.g. Win32: `HWND`, X11: `Window`).
+`IWindow::Window::NativeWindowHandle& IWindow::Window::GetNativeWindowHandle()` gets the internal windowing api's window handle (e.g. Win32: `HWND`).
 
-`IWindow::Window::NativeDeviceContext& IWindow::Window::GetNativeDeviceContext()` gets the internal windowing api's graphics/device context (e.g. Win32: `HDC`, X11: `GC`).
-
-
-## Xlib Only
-
-`IWindow::X11Display IWindow::Window::GetX11Display()` returns the display connection to the X server.
+`IWindow::Window::NativeDeviceContext& IWindow::Window::GetNativeDeviceContext()` gets the internal windowing api's graphics/device context (e.g. Win32: `HDC`).

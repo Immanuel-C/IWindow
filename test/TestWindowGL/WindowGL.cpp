@@ -6,6 +6,7 @@
 #include "IWindowImGUIBackend.h"
 #include "backends/imgui_impl_opengl3.h"
 
+
 #include <iostream>
 
 constexpr uint16_t GL_VERSION_MAJOR = 3;
@@ -51,6 +52,7 @@ int main() {
     }
 
     glcontext.MakeContextCurrent();
+    glcontext.vSync(true);
 
     window.SetMouseButtonCallback(MouseButtonCallback);
 
@@ -60,6 +62,9 @@ int main() {
 
     ImGui_ImplOpenGL3_Init();
     ImGui_ImplIWindow_Init(window);
+
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
+    io.ConfigWindowsResizeFromEdges = true;
 
     io.DisplaySize.x = (float)window.GetWindowSize().x;
     io.DisplaySize.y = (float)window.GetWindowSize().y;
@@ -146,7 +151,6 @@ int main() {
     uint32_t counter = 0;
 
     while (window.IsRunning()) {
-
         // ImGui Loop
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
@@ -168,7 +172,7 @@ int main() {
         deltaTime = currentTime - prevTime;
         counter++;
         if (deltaTime >= 1.0 / 1.0) {
-            std::string FPS = std::to_string((1.0 / deltaTime) * counter);
+            std::string FPS = std::to_string((int64_t)((1.0 / deltaTime) * counter));
             window.SetTitle(std::string{"IWindow OpenGL Example | FPS: "} + FPS);
         }
         prevTime = currentTime;
