@@ -33,6 +33,8 @@
 typedef HGLRC WINAPI FNP_wglCreateContextAttribsARB(HDC hdc, HGLRC hShareContext,
         const int *attribList);
 
+typedef BOOL WINAPI FNP_wglSwapIntervalEXT(int interval);
+
 // See https://www.khronos.org/registry/OpenGL/extensions/ARB/WGL_ARB_create_context.txt for all values
 #define WGL_CONTEXT_MAJOR_VERSION_ARB             0x2091
 #define WGL_CONTEXT_MINOR_VERSION_ARB             0x2092
@@ -60,6 +62,8 @@ namespace IWindow {
     namespace GL {
         FNP_wglCreateContextAttribsARB* wglCreateContextAttribsARB;
         FNP_wwglChoosePixelFormatARB* wglChoosePixelFormatARB;
+        FNP_wglSwapIntervalEXT* wglSwapIntervalEXT;
+
 
         // We need to create a dummy context because wgl requires a context before loading
         // any modern wgl functions
@@ -175,12 +179,22 @@ namespace IWindow {
 
             if (!wglMakeCurrent(window.GetNativeDeviceContext(), m_rendereringContext)) return false;
 
+            wglSwapIntervalEXT = (FNP_wglSwapIntervalEXT*)LoadOpenGLFunction("wglSwapIntervalEXT");
+
+            if (!wglSwapIntervalEXT)
+                std::cout << "VSync is not supported!\n";
+
             return true;
         }
       
 
         void Context::SwapBuffers() { 
             ::SwapBuffers(m_window->GetNativeDeviceContext());
+        }
+
+        void Context::vSync(bool vSync) {
+            if (wglSwapIntervalEXT)
+                wglSwapIntervalEXT(vSync);
         }
 
         void Context::MakeContextNotCurrent() {
