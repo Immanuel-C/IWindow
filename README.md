@@ -36,6 +36,10 @@ Run the build.bash on Linux or if your on Windows you can use the build.bat if y
 
 The documentation of this library is on this [website](https://immanuel-c.github.io/IWindow).
 
+# Building IWindow into a DLL
+
+When compiling define `IWINDOW_BUILD_DLL` in preprocessor defines.
+
 # Contribute
 
 See [Contribute](./Contribute.md).
