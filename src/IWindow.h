@@ -33,6 +33,7 @@
 
 #include "IWindowPlatform.h"
 #include "IWindowCodes.h"
+#include "IWindowCore.h"
 
 #include <chrono>
 #include <functional>
@@ -57,7 +58,7 @@ namespace IWindow {
     };
 
 
-    class Window {
+    class IWINDOW_API Window {
     public:
         Window() = default;
         Window(int64_t width, int64_t height, const std::string& title, int64_t x = 100, int64_t y = 100);

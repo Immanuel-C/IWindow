@@ -35,11 +35,13 @@
 
 #include "IWindowCodes.h"
 #include "IWindowPlatform.h"
+#include "IWindowCore.h"
+
 
 namespace IWindow {
     typedef std::function<void(GamepadID, bool)> GamepadConnectedCallback;
 
-    class Gamepad {
+    class IWINDOW_API Gamepad {
     public:
         Gamepad() = default;
         Gamepad(GamepadID gamepadIndex, float triggerDeadzone = 0.15, float stickDeadzone = 0.15);

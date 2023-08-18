@@ -29,12 +29,14 @@
 
 #include "IWindow.h"
 #include "IWindowPlatform.h"
+#include "IWindowCore.h"
+
 
 #include <iostream>
 
 namespace IWindow {
     namespace GL {
-        class Context {
+        class IWINDOW_API Context {
         public:
             Context() = default;
             Context(Window& window, uint16_t majorVersion, uint16_t minorVersion);

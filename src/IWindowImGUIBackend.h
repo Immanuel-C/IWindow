@@ -29,7 +29,7 @@
 #include <iostream>
 
 #include "IWindow.h"
-
+#include "IWindowCore.h"
 
 struct ImGui_ImplIWindow_Data {
 	IWindow::Window* window;
@@ -52,15 +52,15 @@ struct ImGui_ImplIWindow_Data {
 
 };
 
-bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks = true);
-void ImGui_ImplIWindow_NewFrame();
-void ImGui_ImplIWindow_Shutdown();
+IWINDOW_API bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks = true);
+IWINDOW_API void ImGui_ImplIWindow_NewFrame();
+IWINDOW_API void ImGui_ImplIWindow_Shutdown();
 
-static void ImGui_ImplIWindow_SetClipboardText(void* userdata, const char* text);
-static const char* ImGui_ImplIWindow_GetClipboardText(void* userdata);
+IWINDOW_API void ImGui_ImplIWindow_SetClipboardText(void* userdata, const char* text);
+IWINDOW_API const char* ImGui_ImplIWindow_GetClipboardText(void* userdata);
 
-void ImGui_ImplIWindow_SetCallbacksChainForAllWindows(bool chainForAllWindows);
-bool ImGui_ImplIWindow_ShouldChainCallback(IWindow::Window& window);
+IWINDOW_API void ImGui_ImplIWindow_SetCallbacksChainForAllWindows(bool chainForAllWindows);
+IWINDOW_API bool ImGui_ImplIWindow_ShouldChainCallback(IWindow::Window& window);
 
-void ImGui_ImplIWindow_RestoreCallbacks(IWindow::Window& window);
-void ImGui_ImplIWindow_InstallCallbacks(IWindow::Window& window);
+IWINDOW_API void ImGui_ImplIWindow_RestoreCallbacks(IWindow::Window& window);
+IWINDOW_API void ImGui_ImplIWindow_InstallCallbacks(IWindow::Window& window);

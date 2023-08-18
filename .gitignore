@@ -43,6 +43,3 @@ bin-int
 .vscode
 *.make
 Makefile
-
-# Dont need this file on github
-test/TestWindowGL/imgui.ini

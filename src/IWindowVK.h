@@ -28,12 +28,13 @@
 #pragma once
 
 #include "IWindow.h"
+#include "IWindowCore.h"
 
 #include <vulkan/vulkan.h>
 
 namespace IWindow {
     namespace Vk {
-        void GetRequiredInstanceExtensions(std::vector<const char*>& extensionNames);
-        VkResult CreateSurface(VkInstance instance, const VkSurfaceKHR& surface, Window& window);
+        void IWINDOW_API GetRequiredInstanceExtensions(std::vector<const char*>& extensionNames);
+        VkResult IWINDOW_API CreateSurface(VkInstance instance, const VkSurfaceKHR& surface, Window& window);
     }
 }
