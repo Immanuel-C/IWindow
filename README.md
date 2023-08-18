@@ -38,7 +38,7 @@ The documentation of this library is on this [website](https://immanuel-c.github
 
 # Building IWindow into a DLL
 
-When compiling define `IWINDOW_BUILD_DLL` in preprocessor defines.
+When compiling define `IWINDOW_BUILD_DLL` in preprocessor defines. Also use `IWINDOW_DLL` in preprocessor defines and client applications preprocessor defines.
 
 # Contribute
 
