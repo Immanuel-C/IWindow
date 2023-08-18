@@ -53,9 +53,6 @@ workspace "IWindow"
             "%{prj.location}/WindowGL.cpp", 
             "%{prj.location}/glad.cpp", 
             "%{prj.location}/../../deps/imgui/backends/imgui_impl_opengl3.cpp", 
-            "%{prj.location}/../../deps/imgui/imgui_draw.cpp", 
-            "%{prj.location}/../../deps/imgui/imgui_tables.cpp",
-            "%{prj.location}/../../deps/imgui/imgui_widgets.cpp",
             "%{prj.location}/../../deps/imgui/imgui_demo.cpp",
             "%{prj.location}/../../src/IWindowImGUIBackend.cpp",
         }
@@ -153,8 +150,9 @@ workspace "IWindow"
         files {
             "%{prj.location}/imgui.cpp", 
             "%{prj.location}/imgui.h", 
-            "%{prj.location}/backends/imgui_impl_win32.cpp", 
-            "%{prj.location}/backends/imgui_impl_win32.h", 
+            "%{prj.location}/imgui_draw.cpp", 
+            "%{prj.location}/imgui_tables.cpp",
+            "%{prj.location}/imgui_widgets.cpp",
         }
 
         includedirs {
