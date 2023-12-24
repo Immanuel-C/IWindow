@@ -1,7 +1,6 @@
 ﻿#include "IWindow.h"
 #include "IWindowGamepad.h"
 #include "stbi.h"
-#include "IWindowWinRTGamepad.h"
 
 #include <iostream>
 

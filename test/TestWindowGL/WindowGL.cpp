@@ -147,6 +147,15 @@ int main() {
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
+    std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
+
+    for (IWindow::Monitor& monitor : monitors) {
+        std::wcout << "Name: " << monitor.name << ", x: " << monitor.position.x << " y: " << monitor.position.y << " Width: " << monitor.size.x << " Height: " << monitor.size.y << '\n';
+    }
+
+   // window.Fullscreen(true, monitors[0]);
+
+
     while (window.IsRunning()) {
         std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(8.33333));
 
