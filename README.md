@@ -1,10 +1,6 @@
 # IWindow
 
-### **IWindow is currently in pre-alpha, stability is not guaranteed!** 
-
-## This Branch is for ImGui dev ##
-
-This branch is not guaranteed to be stable
+### **IWindow is currently in alpha, stability is not guaranteed!** 
 
 ## IWindow does not support Linux anymore! ##
 
