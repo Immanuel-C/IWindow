@@ -26,6 +26,29 @@ DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
 */
 #include "IWindowImGUIBackend.h"
 
+struct ImGui_ImplIWindow_Data {
+	IWindow::Window* window;
+	IWindow::Window* mouseWindow;
+	IWindow::Window::KeyCallback PrevUserCallbackKey;
+	IWindow::Window::WindowFocusCallback PrevUserCallbackFocus;
+	IWindow::Window::MouseMoveCallback PrevUserCallbackMouseMove;
+	IWindow::Window::MouseButtonCallback PrevUserCallbackMouseButton;
+	IWindow::Window::MouseScrollCallback PrevUserCallbackScroll;
+	IWindow::Window::MouseEnteredCallback PrevUserCallbackMouseEntered;
+	IWindow::Window::CharCallback PrevUserCallbackChar;
+	// A hook into the WndProc function so we dont remove the WndProc function in IWindow
+	WNDPROC IWindowWndProc;
+
+	std::array<IWindow::CursorID, (size_t)IWindow::CursorID::Max> mouseCursors;
+
+	bool installedCallbacks = false;
+	bool callbacksChainForAllWindows = true;
+	ImVec2 lastValidMousePos;
+
+	double time;
+
+};
+
 static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo() {
 	LPARAM extra_info = ::GetMessageExtraInfo();
 	if ((extra_info & 0xFFFFFF80) == 0xFF515700)
@@ -150,12 +173,8 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 		return ImGuiKey_Tab;
 	case IWindow::Key::Enter:
 		return ImGuiKey_Enter;
-	case IWindow::Key::Alt:
-		return ImGuiKey_LeftAlt;
 	case IWindow::Key::Pause:
 		return ImGuiKey_Pause;
-	case IWindow::Key::CapsLock:
-		return ImGuiKey_None;
 	case IWindow::Key::Escape:
 		return ImGuiKey_Escape;
 	case IWindow::Key::Space:
@@ -182,10 +201,6 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 		return ImGuiKey_Insert;
 	case IWindow::Key::Delete:
 		return ImGuiKey_Delete;
-	case IWindow::Key::LeftSuper:
-		return ImGuiKey_LeftSuper;
-	case IWindow::Key::RightSuper:
-		return ImGuiKey_RightSuper;
 	case IWindow::Key::Add:
 		return ImGuiKey_KeypadAdd;
 	case IWindow::Key::Multiply:
@@ -198,43 +213,25 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 		return ImGuiKey_KeypadDivide;
 	case IWindow::Key::ScrollLock:
 		return ImGuiKey_None;
-	case IWindow::Key::NumLock:
-		return ImGuiKey_None;
-	case IWindow::Key::LShift:
-		return ImGuiKey_None;
-	case IWindow::Key::RShift:
-		return ImGuiKey_None;
-	case IWindow::Key::LControl:
-		return ImGuiKey_None;
-	case IWindow::Key::RControl:
-		return ImGuiKey_None;
-	case IWindow::Key::Control:
-		return ImGuiKey_None;
-	case IWindow::Key::Shift:
-		return ImGuiKey_None;
-	case IWindow::Key::LMenu:
-		return ImGuiKey_Menu;
-	case IWindow::Key::RMenu:
-		return ImGuiKey_Menu;
-	case IWindow::Key::Np0:
+	case IWindow::Key::Numpad0:
 		return ImGuiKey_Keypad0;
-	case IWindow::Key::Np1:
+	case IWindow::Key::Numpad1:
 		return ImGuiKey_Keypad1;
-	case IWindow::Key::Np2:
+	case IWindow::Key::Numpad2:
 		return ImGuiKey_Keypad2;
-	case IWindow::Key::Np3:
+	case IWindow::Key::Numpad3:
 		return ImGuiKey_Keypad3;
-	case IWindow::Key::Np4:
+	case IWindow::Key::Numpad4:
 		return ImGuiKey_Keypad4;
-	case IWindow::Key::Np5:
+	case IWindow::Key::Numpad5:
 		return ImGuiKey_Keypad5;
-	case IWindow::Key::Np6:
+	case IWindow::Key::Numpad6:
 		return ImGuiKey_Keypad6;
-	case IWindow::Key::Np7:
+	case IWindow::Key::Numpad7:
 		return ImGuiKey_Keypad7;
-	case IWindow::Key::Np8:
+	case IWindow::Key::Numpad8:
 		return ImGuiKey_Keypad8;
-	case IWindow::Key::Np9:
+	case IWindow::Key::Numpad9:
 		return ImGuiKey_Keypad9;
 	case IWindow::Key::F1:
 		return ImGuiKey_F1;
@@ -284,10 +281,42 @@ ImGuiKey ImGui_ImplIWindow_KeyToImGuiKey(IWindow::Key key) {
 		return ImGuiKey_None;
 	case IWindow::Key::Max:
 		return ImGuiKey_None;
-
+	case IWindow::Key::LControl:
+		return ImGuiKey_LeftCtrl;
+	case IWindow::Key::RControl:
+		return ImGuiKey_RightCtrl;
+	case IWindow::Key::LAlt:
+		return ImGuiKey_LeftAlt;
+	case IWindow::Key::RAlt:
+		return ImGuiKey_RightAlt;
+	case IWindow::Key::LShift:
+		return ImGuiKey_LeftShift;
+	case IWindow::Key::RShift:
+		return ImGuiKey_RightShift;
+	case IWindow::Key::LSuper:
+		return ImGuiKey_LeftSuper;
+	case IWindow::Key::RSuper:
+		return ImGuiKey_RightSuper;
+	case IWindow::Key::CapsLock:
+		return ImGuiKey_CapsLock;
+	case IWindow::Key::NumLock:
+		return ImGuiKey_NumLock;
+	default:
+		return ImGuiKey_None;
 	}
 }
 
+
+static void ImGui_ImplIWindow_SetClipboardText(void* userdata, const char* text) {
+	IWindow::Window* window = (IWindow::Window*)userdata;
+	window->SetClipboardText(text);
+}
+
+static const char* ImGui_ImplIWindow_GetClipboardText(void* userdata) {
+	IWindow::Window* window = (IWindow::Window*)userdata;
+	const char* text = _strdup(window->GetClipboardText().c_str());
+	return text;
+}
 
 bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks) {
 	ImGuiIO& io = ImGui::GetIO();
@@ -307,6 +336,16 @@ bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks) {
 	io.SetClipboardTextFn = ImGui_ImplIWindow_SetClipboardText;
 	io.GetClipboardTextFn = ImGui_ImplIWindow_GetClipboardText;
 	io.UserData = &window;
+
+	data->mouseCursors[ImGuiMouseCursor_Arrow] = IWindow::CursorID::Arrow;
+	data->mouseCursors[ImGuiMouseCursor_TextInput] = IWindow::CursorID::IBeam;
+	data->mouseCursors[ImGuiMouseCursor_ResizeNS] = IWindow::CursorID::VerticalResize;
+	data->mouseCursors[ImGuiMouseCursor_ResizeEW] = IWindow::CursorID::HorizontalResize;
+	data->mouseCursors[ImGuiMouseCursor_Hand] = IWindow::CursorID::Hand;
+	data->mouseCursors[ImGuiMouseCursor_ResizeAll] = IWindow::CursorID::Move;
+	data->mouseCursors[ImGuiMouseCursor_ResizeNWSE] = IWindow::CursorID::DiagonalResize1;
+	data->mouseCursors[ImGuiMouseCursor_ResizeNESW] = IWindow::CursorID::DiagonalResize2;
+	data->mouseCursors[ImGuiMouseCursor_NotAllowed] = IWindow::CursorID::No;
 
 	if (installCallbacks)
 		ImGui_ImplIWindow_InstallCallbacks(window);
@@ -332,20 +371,40 @@ void ImGui_ImplIWindow_UpdateMouseData() {
 
 	if (window->IsFocused()) 
 		if (io.WantSetMousePos)
-			window->SetMousePos((int64_t)io.MousePos.x, (int64_t)io.MousePos.y);
+			window->SetMousePosition({ (int32_t)io.MousePos.x, (int32_t)io.MousePos.y });
+}
+
+static void ImGui_ImplIWindow_UpdateMouseCursor() {
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	IWindow::Window* window = data->window;
+
+	ImGuiMouseCursor imGuiCursor = ImGui::GetMouseCursor();
+	if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange))
+		return;
+
+	// (those braces are here to reduce diff with multi-viewports support in 'docking' branch)
+	{
+		if (imGuiCursor == ImGuiMouseCursor_None || io.MouseDrawCursor) 
+			// Hide cursor if imgui wants to draw to it or if it wants no cursor
+			window->SetCursor(IWindow::CursorID::Hidden);
+		else {
+			window->SetCursor(data->mouseCursors[imGuiCursor]);
+		}
+	}
 }
 
 void ImGui_ImplIWindow_NewFrame() { 
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
 	if (data == nullptr) {
-		std::cout << "Did you call ImGui_ImplIWindow_Init?\n";
+		std::cerr << "Did you call ImGui_ImplIWindow_Init?\n";
 		return;
 	}
-	IWindow::IVector2 windowSize, frameBufferSize;
+	IWindow::Vector2<int32_t> windowSize, frameBufferSize;
 	windowSize = data->window->GetWindowSize();
 	frameBufferSize = data->window->GetFramebufferSize();
-	io.DisplaySize = ImVec2(windowSize.x, windowSize.y);
+	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
 	// window not minimized
 	// Causes Imgui to think the mouse is offset and program works fine without
 	//if (windowSize.x > 0 && windowSize.y > 0)
@@ -362,6 +421,8 @@ void ImGui_ImplIWindow_NewFrame() {
 
 	
 	ImGui_ImplIWindow_UpdateMouseData();
+	// Broken
+	// ImGui_ImplIWindow_UpdateMouseCursor();
 }
 
 void ImGui_ImplIWindow_Shutdown() { 
@@ -385,18 +446,6 @@ void ImGui_ImplIWindow_Shutdown() {
 	IM_DELETE(data);
 }
 
-void ImGui_ImplIWindow_SetClipboardText(void* userdata, const char* text) {
-	IWindow::Window* window = (IWindow::Window*)userdata;
-	window->SetClipboardText(text);
-}
-
-const char* ImGui_ImplIWindow_GetClipboardText(void* userdata) {
-	IWindow::Window* window = (IWindow::Window*)userdata;
-	const char* text = strdup(window->GetClipboardText().c_str());
-	return text;
-	
-}
-
 void ImGui_ImplIWindow_SetCallbacksChainForAllWindows(bool chainForAllWindows)
 {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
@@ -411,41 +460,53 @@ bool ImGui_ImplIWindow_ShouldChainCallback(IWindow::Window& window)
 	return data->callbacksChainForAllWindows ? true : (window == (*data->window));
 }
 
-void ImGui_ImplIWindow_MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState state) {
+
+static void ImGui_ImplIWindow_UpdateKeyModifiers(IWindow::Window& window, ImGuiIO& io) {
+	io.AddKeyEvent(ImGuiMod_Ctrl, window.IsKeyModifiersDown(IWindow::KeyModifier::Control));
+	io.AddKeyEvent(ImGuiMod_Shift, window.IsKeyModifiersDown(IWindow::KeyModifier::Shift));
+	io.AddKeyEvent(ImGuiMod_Alt, window.IsKeyModifiersDown(IWindow::KeyModifier::Alt));
+	io.AddKeyEvent(ImGuiMod_Super, window.IsKeyModifiersDown(IWindow::KeyModifier::Super));
+}
+
+void ImGui_ImplIWindow_MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::KeyModifier mods, IWindow::InputState state) {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
 	if (data->PrevUserCallbackMouseButton != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window))
-		data->PrevUserCallbackMouseButton(window, button, state);
+		data->PrevUserCallbackMouseButton(window, button, mods, state);
 
 	ImGuiIO& io = ImGui::GetIO();
 
 	int translatedButton = ImGui_ImplIWindow_ButtonToImGuiButton(button);
 
+	ImGui_ImplIWindow_UpdateKeyModifiers(window, io);
 
 	if (translatedButton >= 0 && translatedButton < ImGuiMouseButton_COUNT)
 		io.AddMouseButtonEvent(translatedButton, state == IWindow::InputState::Down);
 }
 
 
-void ImGui_ImplIWindow_ScrollCallback(IWindow::Window& window, float xOffset, float yOffset) {
+void ImGui_ImplIWindow_ScrollCallback(IWindow::Window& window, IWindow::Vector2<float> scrollOffset) {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
 	if (data->PrevUserCallbackScroll != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window))
-		data->PrevUserCallbackScroll(window, xOffset, yOffset);
+		data->PrevUserCallbackScroll(window, scrollOffset);
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.AddMouseWheelEvent(xOffset, yOffset);
+	io.AddMouseWheelEvent(scrollOffset.x, scrollOffset.y);
 }
 
-
-void ImGui_ImplIWindow_KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::InputState state) {
+void ImGui_ImplIWindow_KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::KeyModifier mods, IWindow::InputState state, bool repeated) {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
 	if (data->PrevUserCallbackKey != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window))
-		data->PrevUserCallbackKey(window, key, state);
+		data->PrevUserCallbackKey(window, key, mods, state, repeated);
 
 	ImGuiKey translatedKey = ImGui_ImplIWindow_KeyToImGuiKey(key);
 	if (translatedKey == ImGuiKey_None)
 		return;
 
+	if (repeated && state == IWindow::InputState::Down)
+		return;
+
 	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplIWindow_UpdateKeyModifiers(window, io);
 	io.AddKeyEvent(translatedKey, state == IWindow::InputState::Down);
 }
 
@@ -459,13 +520,13 @@ void ImGui_ImplIWindow_WindowFocusCallback(IWindow::Window& window, bool focused
 }
 
 
-void ImGui_ImplIWindow_MousePosCallback(IWindow::Window& window, int64_t x, int64_t y) {
+void ImGui_ImplIWindow_MousePosCallback(IWindow::Window& window, IWindow::Vector2<int32_t> mousePosition) {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
-	if (data->PrevUserCallbackMouseMove != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window)) data->PrevUserCallbackMouseMove(window, x, y);
+	if (data->PrevUserCallbackMouseMove != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window)) data->PrevUserCallbackMouseMove(window, mousePosition);
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.AddMousePosEvent((float)x, (float)y);
-	data->lastValidMousePos = ImVec2((float)x, (float)y);
+	io.AddMousePosEvent((float)mousePosition.x, (float)mousePosition.y);
+	data->lastValidMousePos = ImVec2((float)mousePosition.x, (float)mousePosition.y);
 }
 
 void ImGui_ImplIWindow_CursorEnterCallback(IWindow::Window& window, bool entered) {
@@ -485,10 +546,10 @@ void ImGui_ImplIWindow_CursorEnterCallback(IWindow::Window& window, bool entered
 	}
 }
 
-void ImGui_ImplIWindow_CharCallback(IWindow::Window& window, uint16_t c) {
+void ImGui_ImplIWindow_CharCallback(IWindow::Window& window, char32_t c, IWindow::KeyModifier mods) {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
 	if (data->PrevUserCallbackChar != nullptr && ImGui_ImplIWindow_ShouldChainCallback(window))
-		data->PrevUserCallbackChar(window, c);
+		data->PrevUserCallbackChar(window, c, mods);
 
 
 	ImGuiIO& io = ImGui::GetIO();
@@ -529,7 +590,6 @@ void ImGui_ImplIWindow_InstallCallbacks(IWindow::Window& window) {
 	if (data->installedCallbacks) {
 		std::cout << "ImGui_Impl_IWindow: Callbacks already installed. Did you call ImGui_ImplIWindow_Init twice?\n";
 	}
-
 	
 	data->PrevUserCallbackFocus = window.SetWindowFocusCallback(ImGui_ImplIWindow_WindowFocusCallback);
 	data->PrevUserCallbackMouseEntered = window.SetMouseEnteredCallback(ImGui_ImplIWindow_CursorEnterCallback);

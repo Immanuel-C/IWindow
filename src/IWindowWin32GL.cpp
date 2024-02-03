@@ -74,7 +74,7 @@ namespace IWindow {
             wc.hInstance = ::GetModuleHandleA(nullptr);
             wc.lpszClassName = L"IWindow::DummyWindow";
 
-            if (!RegisterClass(&wc)) return false;
+            if (!::RegisterClass(&wc)) return false;
 
             HWND dummyWindow = ::CreateWindowEx(
                 0,
@@ -118,8 +118,8 @@ namespace IWindow {
 
             if (!wglMakeCurrent(dummyDeviceContext, dummyRendereringContext)) return false;
 
-            wglCreateContextAttribsARB = (FNP_wglCreateContextAttribsARB*)LoadOpenGLFunction("wglCreateContextAttribsARB");
-            wglChoosePixelFormatARB = (FNP_wwglChoosePixelFormatARB*)LoadOpenGLFunction("wglChoosePixelFormatARB");
+            wglCreateContextAttribsARB = (FNP_wglCreateContextAttribsARB*)Context::LoadOpenGLFunction("wglCreateContextAttribsARB");
+            wglChoosePixelFormatARB = (FNP_wwglChoosePixelFormatARB*)Context::LoadOpenGLFunction("wglChoosePixelFormatARB");
 
             if (!wglCreateContextAttribsARB || !wglChoosePixelFormatARB) return false;
 
@@ -127,14 +127,15 @@ namespace IWindow {
             wglDeleteContext(dummyRendereringContext);
             ::ReleaseDC(dummyWindow, dummyDeviceContext);
             ::DestroyWindow(dummyWindow);
+            ::UnregisterClass(wc.lpszClassName, nullptr);
 
             return true;
         }
 
         Context::Context(Window& window, uint16_t majorVersion, uint16_t minorVersion) : m_window { &window } { Create(window, majorVersion, minorVersion); }
 
-        Context::~Context() { 
-            MakeContextNotCurrent();
+        void Context::Destroy() { 
+            MakeContextCurrent(false);
             wglDeleteContext(m_rendereringContext);
         }
 
@@ -188,25 +189,26 @@ namespace IWindow {
         }
       
 
-        void Context::SwapBuffers() { 
+        void Context::SwapBuffers() const {
             ::SwapBuffers(m_window->GetNativeDeviceContext());
         }
 
-        void Context::vSync(bool vSync) {
+        void Context::vSync(bool vSync) const {
             if (wglSwapIntervalEXT)
                 wglSwapIntervalEXT(vSync);
         }
 
-        void Context::MakeContextNotCurrent() {
+
+        void Context::MakeContextCurrent(bool current) const {
+            if (current) {
+                wglMakeCurrent(m_window->GetNativeDeviceContext(), m_rendereringContext);
+                return;
+            }
+
             wglMakeCurrent(m_window->GetNativeDeviceContext(), nullptr);
         }
 
-        void Context::MakeContextCurrent()
-        {
-            wglMakeCurrent(m_window->GetNativeDeviceContext(), m_rendereringContext);
-        }
-
-        void* LoadOpenGLFunction(const char* name) {
+        void* Context::LoadOpenGLFunction(const char* name) {
             // For opengl functions from version 1.2 to 4.6 (current)
             void* fun = (void*)wglGetProcAddress(name); 
             // While the MSDN documentation says that wglGetProcAddress 

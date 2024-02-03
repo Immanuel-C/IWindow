@@ -34,7 +34,18 @@
 
 namespace IWindow {
     namespace Vk {
+        /// <summary>
+        /// Get the Vulkan instance extensions IWindow requires.
+        /// </summary>
+        /// <param name="extensionNames">This funciton will push back all the required extensions to this vector.</param>
         void IWINDOW_API GetRequiredInstanceExtensions(std::vector<const char*>& extensionNames);
-        VkResult IWINDOW_API CreateSurface(VkInstance instance, const VkSurfaceKHR& surface, Window& window);
+        /// <summary>
+        /// Creates a VkSurface.
+        /// </summary>
+        /// <param name="window">The window Vulkan will draw too.</param>
+        /// <param name="instance">A valid VkInstance.</param>
+        /// <param name="surface">The VkSurfaceKHR handle that IWindow will store the surface in.</param>
+        /// <returns>Return the value of the vkCreateXXXXSurfaceKHR function.</returns>
+        VkResult IWINDOW_API CreateSurface(Window& window, VkInstance& instance, VkSurfaceKHR& surface);
     }
 }

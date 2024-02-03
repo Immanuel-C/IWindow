@@ -1,6 +1,7 @@
-// Include glad or any other function loader before IWindow
+﻿// Include glad or any other function loader before IWindow
 #include <glad/glad.h>
 #include "IWindow.h"
+#include "IWindowWindow.h"
 #include "IWindowGL.h"
 #include "IWindowGamepad.h"
 #include "IWindowImGUIBackend.h"
@@ -29,20 +30,38 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
-void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState state) {
-    std::cout << "Mouse button " << (int)button << " was " << (int)state << '\n';
+void MouseEnteredCallback(IWindow::Window& window, bool entered) {
+    std::cout << std::boolalpha << "Mouse entered: " << entered << std::noboolalpha << '\n';
 }
 
+void WindowFucosCallback(IWindow::Window& window, bool focused) {
+    std::cout << std::boolalpha << "Window is focused: " << focused << std::noboolalpha << '\n';
+}
+
+void PathDropCallback(IWindow::Window& window, std::vector<std::wstring>& paths, IWindow::Vector2<int32_t> mousePosition) {
+    for (const std::wstring& path : paths)
+        std::wcout << L"Path dropped: " << path << L'\n';
+}
+
+void FramebufferSizeCallback(IWindow::Window& window, IWindow::Vector2<int32_t> size) {
+    glViewport(0, 0, (int)size.x , (int)size.y);
+}
 
 int main() {
+    IWindow::Initialize(IWindow::CurrentVersion);
+    // Or
+    // IWindow::Initialize(IWindow::V100);
+
     IWindow::Window window{};
     IWindow::GL::Context glcontext{};
     IWindow::Gamepad gp{ IWindow::GamepadID::GP1 };
 
-    if (!window.Create(WINDOW_WIDTH, WINDOW_HEIGHT, "Hello IWindow")) return EXIT_FAILURE;
+    std::vector<IWindow::Monitor> monitors = IWindow::Monitor::GetAllMonitors();
+
+    if (!window.Create({ WINDOW_WIDTH, WINDOW_HEIGHT }, u"Hello IWindow! (UTF-16 Symbol: π)", monitors[0])) return EXIT_FAILURE;
 
     if (!glcontext.Create(window, GL_VERSION_MAJOR, GL_VERSION_MINOR)) { 
-        std::cout << "Failed to create a IWindow context!\nThis is probably because your computor doesn't support the required version of OpenGL\n";
+        std::cout << "Failed to create a IWindow context!\nThis is probably because your computer doesn't support the required version of OpenGL\n";
         return EXIT_FAILURE;
     }
     
@@ -51,10 +70,13 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    glcontext.MakeContextCurrent();
+    glcontext.MakeContextCurrent(true);
     glcontext.vSync(true);
 
-    window.SetMouseButtonCallback(MouseButtonCallback);
+    window.SetMouseEnteredCallback(MouseEnteredCallback);
+    window.SetWindowFocusCallback(WindowFucosCallback);
+    window.SetPathDropCallback(PathDropCallback);
+    window.SetFramebufferSizeCallback(FramebufferSizeCallback);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -70,7 +92,6 @@ int main() {
     io.DisplaySize.y = (float)window.GetWindowSize().y;
 
     ImGui::StyleColorsDark();
-
 
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -147,25 +168,52 @@ int main() {
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     glBindVertexArray(0);
 
-    std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
-
     for (IWindow::Monitor& monitor : monitors) {
-        std::wcout << "Name: " << monitor.name << ", x: " << monitor.position.x << " y: " << monitor.position.y << " Width: " << monitor.size.x << " Height: " << monitor.size.y << '\n';
+        std::cout << "Name: " << monitor.name << ", x: " << monitor.position.x << " y: " << monitor.position.y << " Width: " << monitor.size.x << " Height: " << monitor.size.y << '\n';
     }
 
-   // window.Fullscreen(true, monitors[0]);
+    // window.Fullscreen(true, monitors[0]);
 
+    window.SetClipboardText("IWindow set the clipboard to this!");
 
+    std::cout << "Clipboard Text: " << window.GetClipboardText() << '\n';
+
+    bool open = true;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     while (window.IsRunning()) {
-        std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(8.33333));
-
+        static double framesPerSecond = 0.0;
+        static int fps;
+        static double lastTime = 0.0;
+        double currentTime = window.GetTime() * 0.001;
+        ++framesPerSecond;
+        if (currentTime - lastTime > 1.0)
+        {
+            lastTime = currentTime;
+            fps = (int)framesPerSecond;
+            framesPerSecond = 0;
+        }
 
         // ImGui Loop
         ImGui_ImplOpenGL3_NewFrame();
         ImGui::NewFrame();
         ImGui_ImplIWindow_NewFrame();
         ImGui::ShowDemoWindow();
+
+        if (ImGui::Begin("Example: Simple overlay", &open, windowFlags))
+        {
+            ImGui::Text("Frames Per Second");
+            ImGui::Separator();
+            ImGui::Text("FPS: %i", fps);
+        }
+        ImGui::End();
+
         ImGui::Render();
+
+        if (window.IsKeyDown(IWindow::Key::M)) {
+            window.SetMousePosition({});
+        }
+
+        std::cout << "Mouse x: " << window.GetMousePosition().x << " Mouse y: " << window.GetMousePosition().y << '\n';
 
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -177,18 +225,8 @@ int main() {
         //glDrawArrays(GL_TRIANGLES, 0, 6);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        static float framesPerSecond = 0.0f;
-        static int fps;
-        static float lastTime = 0.0f;
-        float currentTime = window.GetTime() * 0.001f;
-        ++framesPerSecond;
-        window.SetTitle(std::string{ "Current Frames Per Second: " } + std::to_string( fps ));
-        if (currentTime - lastTime > 1.0f)
-        {
-            lastTime = currentTime;
-            fps = (int)framesPerSecond;
-            framesPerSecond = 0;
-        }
+
+        if (window.IsKeyJustPressed(IWindow::Key::Escape)) break;
 
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -208,4 +246,8 @@ int main() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplIWindow_Shutdown();
     ImGui::DestroyContext();
+
+    glcontext.Destroy();
+    window.Destroy();
+    IWindow::Shutdown();
 }

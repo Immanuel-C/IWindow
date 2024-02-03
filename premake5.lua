@@ -33,7 +33,7 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/Window.cpp", "%{prj.location}/stb.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp"}
+        files {"%{prj.location}/Window.cpp", "%{prj.location}/stb.cpp", "src/IWindowWin32.cpp", "src/IWindowWin32Gamepad.cpp", "src/IWindow.cpp", "src/IWindowUtilsWin32.cpp"}
 
         includedirs { "src" }
 
@@ -57,7 +57,7 @@ workspace "IWindow"
             "%{prj.location}/../../src/IWindowImGUIBackend.cpp",
         }
 
-        includedirs { "src", "%{prj.location}/deps/glad/include", "%{prj.location}/../../deps/imgui", "%{prj.location}/../../deps/imgui/backends"}
+        includedirs { "src", "%{prj.location}/deps/glad/include", "%{prj.location}/../../deps/imgui", "%{prj.location}/../../deps/imgui/backends", "src/IWindow.cpp", "src/IWindowUtilsWin32.cpp"}
 
 
         links {"IWindowWin32GL", "OpenGL32", "ImGui"}
@@ -98,7 +98,7 @@ workspace "IWindow"
 
         includedirs { "src" }
 
-        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32GL.cpp", "src/IWindowWin32Gamepad.cpp", "src/IWindow.cpp", "src/IWindowUtilsWin32.cpp"}
 
         links {"User32", "OpenGL32", "XInput"}
 
@@ -113,7 +113,7 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp", "src/IWindowWin32Gamepad.cpp"}
+        files {"%{prj.location}/IWindowWin32.cpp", "%{prj.location}/IWindowWin32Vk.cpp", "src/IWindowWin32Gamepad.cpp", "src/IWindow.cpp", "src/IWindowUtilsWin32.cpp"}
 
         includedirs { vulkanSdk .. "/Include", "src" }
 
@@ -130,9 +130,9 @@ workspace "IWindow"
         language "C++"
         cppdialect "C++17"
 
-        files {"%{prj.location}/**.cpp", "%{prj.location}/**.h", "%{prj.location}/**.hpp"}
+        files {"%{prj.location}/**.cpp", "%{prj.location}/**.h", "%{prj.location}/**.hpp", "src/IWindow.cpp"}
 
-        includedirs { vulkanSdk .. "/Include", "src", "%{prj.location}/../deps/imgui/", "%{prj.location}/../deps/imgui/backends"}
+        includedirs { vulkanSdk .. "/Include", "src", "%{prj.location}/../deps/imgui/", "%{prj.location}/../deps/imgui/backends", "src/IWindowUtilsWin32.cpp"}
 
         libdirs { vulkanSdk .. "/Lib" }
         links {"User32", "vulkan-1", "OpenGL32", "XInput", "ImGui"}

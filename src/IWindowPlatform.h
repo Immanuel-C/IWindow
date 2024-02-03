@@ -39,17 +39,59 @@ namespace IWindow {
     typedef HGLRC NativeGLRendereringContext;
     typedef HCURSOR NativeCursor;
     typedef HICON NativeIcon; 
+    typedef int32_t NativeStyle;
 
-    enum struct NativeCursorID {
-        Arrow = (int64_t)IDC_ARROW,
-        Hand = (int64_t)IDC_HAND,
+    enum struct CursorID {
+        Arrow,
+        IBeam,
+        Hand,
+        Busy,
+        BusyBackground,
+        DiagonalResize1,
+        DiagonalResize2,
+        HorizontalResize,
+        VerticalResize,
+        Move,
+        No,
+        Hidden,
         Max
     };
 
-    enum struct NativeIconID {
+    inline wchar_t* CursorIDToWin32ID(CursorID cursorID) {
+        switch (cursorID)
+        {
+        case IWindow::CursorID::Arrow:
+            return IDC_ARROW;
+        case IWindow::CursorID::IBeam:
+            return IDC_IBEAM;
+        case IWindow::CursorID::Hand:
+            return IDC_HAND;
+        case IWindow::CursorID::Busy:
+            return IDC_WAIT;
+        case IWindow::CursorID::BusyBackground:
+            return IDC_APPSTARTING;
+        case IWindow::CursorID::DiagonalResize1:
+            return IDC_SIZENWSE;
+        case IWindow::CursorID::DiagonalResize2:
+            return IDC_SIZENESW;
+        case IWindow::CursorID::HorizontalResize:
+            return IDC_SIZEWE;
+        case IWindow::CursorID::VerticalResize:
+            return IDC_SIZENS;
+        case IWindow::CursorID::Move:
+            return IDC_SIZEALL;
+        case IWindow::CursorID::No:
+            return IDC_NO;
+        default:
+            return nullptr;
+        }
+    }
+
+    enum struct IconID {
         Default = (int64_t)IDI_APPLICATION,
-        Max
+        Max = 2
     };
+
 
     // Gamepad
     typedef XINPUT_STATE NativeGamepadState;
