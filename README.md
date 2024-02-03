@@ -28,7 +28,7 @@ No this isn't as good as GLFW yet...
 Use premake5. If you dont have premake5 you can install it [here](https://premake.github.io/). 
 Add the premake5 executable into the main folder or into your environment path.
 
-Run the build.bash on Linux or if your on Windows you can use the build.bat if you have visual studio 2022. If you dont have visual studio 2022 you can use `premake5 [build target] [args]`.
+on Windows you can use the build.bat if you have visual studio 2022. If you dont have visual studio 2022 you can use `premake5 [build target] [args]`.
 
 The documentation of this library is on this [website](https://immanuel-c.github.io/IWindow).
 
