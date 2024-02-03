@@ -37,14 +37,15 @@
 namespace IWindow {
     uint32_t Window::m_sWindowCount;
 
-    Window::Window(const Vector2<int32_t>& size, const std::u16string& title, const Monitor& monitor, const Vector2<int32_t>& position, const Style& style) { Create(size, title, monitor, position, style); }
+    Window::Window(const Vector2<int32_t>& size, const std::wstring& title, const Monitor& monitor, const Vector2<int32_t>& position, const Style& style) { Create(size, title, monitor, position, style); }
 
-    bool Window::Create(const Vector2<int32_t>& size, const std::u16string& title, const Monitor& monitor, const Vector2<int32_t>& position, const Style& style) {
+    bool Window::Create(const Vector2<int32_t>& size, const std::wstring& title, const Monitor& monitor, const Vector2<int32_t>& position, const Style& style) {
         // User did not call IWindow::Initialize
-        if (GetVersion() == "") {
-            ::MessageBoxA(nullptr, "You have to initialize IWindow before creating a window!", "Error", MB_ICONEXCLAMATION | MB_OK);
-            return false;
-        }
+        std::string setVersion = GetVersion();
+
+        IWINDOW_CHECK_ERROR(setVersion == "", ErrorType::WindowApi, ErrorSeverity::Warning, "You have to call IWindow::Initialize before creating a window! The version is set the current version.", false, false);
+
+        if (setVersion == "") IWindow::Initialize(IWindow::CurrentVersion);
 
         m_size = size;
         m_oldSize = size;
@@ -83,12 +84,8 @@ namespace IWindow {
         wc.hCursor = m_cursor;
         wc.hIcon = m_icon;
         
-        // If already registered dont register again
-        if (!::RegisterClass(&wc) ) {
-            ::MessageBoxA(nullptr, "Failed to register window class!", "Error", MB_ICONEXCLAMATION | MB_OK);
-            return false;
-        }
-        
+        IWINDOW_CHECK_ERROR(!::RegisterClass(&wc), ErrorType::WindowApi, ErrorSeverity::FatalError, "RegisterClass() failed. Failed to register a class!", true, false);
+
         m_window = 
         ::CreateWindowEx
         (
@@ -106,10 +103,8 @@ namespace IWindow {
             nullptr                                                     // lpParam LPVOID?
         );
 
-        if (!m_window) {
-            ::MessageBoxA(nullptr, "Failed to create window!", "Error", MB_ICONEXCLAMATION | MB_OK);
-            return false; 
-        }
+
+        IWINDOW_CHECK_ERROR(!m_window, ErrorType::WindowApi, ErrorSeverity::FatalError, "CreateWindowEx() failed. Failed to create a window!", true, false);
 
         ::DragAcceptFiles(m_window, true);
 
@@ -124,7 +119,9 @@ namespace IWindow {
 
         ::ShowWindow(m_window, SW_SHOW);
 
-        m_deviceContext = GetDC(m_window);
+        m_deviceContext = ::GetDC(m_window);
+
+        IWINDOW_CHECK_ERROR(!m_deviceContext, ErrorType::WindowApi, ErrorSeverity::FatalError, "GetDC() failed. Failed to obtain device context!", true, false);
 
         m_timeMS = std::chrono::high_resolution_clock::now();
 
@@ -664,19 +661,14 @@ namespace IWindow {
     {
         HGLOBAL mem = ::GlobalAlloc(GMEM_MOVEABLE, (text.size() + 1) * sizeof(char));
 
-        if (!mem) {
-            std::cout << "Cant set clipboard text!\n";
-            return;
-        }
+        IWINDOW_CHECK_ERROR(!mem, ErrorType::WindowApi, ErrorSeverity::Error, "GlobalAlloc() failed! Could not allocate memory.", true, ;);
 
         memcpy(::GlobalLock(mem), text.c_str(), (text.size() + 1) * sizeof(char));
         ::GlobalUnlock(mem);
 
-        if (!::OpenClipboard(nullptr)) {
-            auto lasterror = GetLastError();
-            std::cout << "Cant set clipboard text!\n";
-            return;
-        }
+        BOOL result = ::OpenClipboard(nullptr);
+        if (!result) ::GlobalFree(mem);
+        IWINDOW_CHECK_ERROR(!result, ErrorType::WindowApi, ErrorSeverity::Error, "OpenClipboard() failed! Could not set clipboard text.", true, ;);
 
         ::EmptyClipboard();
         ::SetClipboardData(CF_TEXT, mem);
@@ -695,10 +687,12 @@ namespace IWindow {
     bool Window::IsIconified() const { return m_iconified; }
     bool Window::IsMaximized() const { return m_maximized; }
 
-    void IWindow::Window::SetTitle(const std::u16string& title) {  
+    void Window::SetTitle(const std::wstring& title) {  
         m_title = title;
-        ::SetWindowText(m_window, (LPCWSTR)title.c_str());
+        IWINDOW_CHECK_ERROR(!::SetWindowText(m_window, (LPCWSTR)title.c_str()), ErrorType::WindowApi, ErrorSeverity::Error, "SetWindowLong() failed! Could not set window style.", false,;);
     }
+
+    std::wstring Window::GetTitle() const { return m_title; }
 
 
     void Window::SetStyle(Style style) {
@@ -742,7 +736,7 @@ namespace IWindow {
             ShowWindow(m_window, SW_RESTORE);
         }
 
-        ::SetWindowLong(m_window, GWL_STYLE, m_windowStyle);
+        IWINDOW_CHECK_ERROR(!::SetWindowLong(m_window, GWL_STYLE, m_windowStyle), ErrorType::WindowApi, ErrorSeverity::Error, "SetWindowLong failed! Could not set window style.", false, ;);
     }
 
     Window::WindowPosCallback Window::SetPosCallback(WindowPosCallback callback) {

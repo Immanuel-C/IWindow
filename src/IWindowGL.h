@@ -37,6 +37,57 @@
 namespace IWindow {
     namespace GL {
         /// <summary>
+        /// Specifies which profile mode the OpenGL context will created in.
+        /// </summary>
+        enum struct Profile {
+            Compatibility,
+            Core,
+            Max
+        };
+
+        /// <summary>
+        /// Always specify OpenGL.
+        /// Reserved.
+        /// </summary>
+        enum struct API {
+            OpenGL,
+            Max
+        };
+
+        /// <summary>
+        /// Information to create a OpenGL context.
+        /// version the x component is the major version and the y component is the minor version.
+        /// Api Reserved. Must be OpenGL.
+        /// What profile the OpenGL context will be created with.
+        /// doubleBuffer create a back and front framebuffer that are swapped when IWindow::GL::Context::SwapBuffers is called.
+        /// steroscopicRendering enable left and right framebuffers. Currently broken.
+        /// debugMode enables debug features such as the debug messenger. See https://registry.khronos.org/OpenGL/extensions/KHR/KHR_debug.txt.
+        /// noError disables all debug features. GL_OUT_OF_MEMORY are still sent on devices that dont crash when they are out of memory. See https://registry.khronos.org/OpenGL/extensions/KHR/KHR_no_error.txt.
+        /// sRgb allows the use of sRgb framebuffers.
+        /// forwardCompatibility all deprecated functions are removed from the OpenGL version is 3.0+. The profile must be IWindow::Profile::Core if this is enabled.
+        /// samples the amount of samples taken for multisampling.
+        /// rgbaBits The size of the framebuffer colour attachment. Each component is a value in a vector4. The size is represented as bits.
+        /// depthBits The size of the framebuffer depth attachment in a single int32_t. The sum of all the components is the depth buffer size. The size is represented as bits.
+        /// stencilBits The size of the framebuffer stencil attachment in a single int32_t. The sum of all the components is the stencil buffer size. The size is represented as bits.
+        /// </summary>
+        struct ContextCreateInfo {
+            Vector2<int32_t> version = { 4, 6 };
+            API api = API::OpenGL;
+            Profile profile = Profile::Compatibility;
+            bool doubleBuffer = true;
+            bool steroscopicRendering = false;
+            bool debugMode = false;
+            bool noError = false;
+            bool sRGB = false;
+            bool forwardCompatibility = false;
+            int32_t samples = 0;
+            // Framebuffer info.
+            Vector4<int32_t> rgbaBits = { 8, 8, 8, 8 };
+            int32_t depthBits = 24;
+            int32_t stencilBits = 8;
+        };
+
+        /// <summary>
         /// a wrapper around an OpenGL context.
         /// </summary>
         class IWINDOW_API Context {
@@ -46,9 +97,8 @@ namespace IWindow {
             /// Creates an OpenGL context. Perfer to use Create.
             /// </summary>
             /// <param name="window">The window this context will draw to.</param>
-            /// <param name="majorVersion">Major OpenGL version that this context will initialize.</param>
-            /// <param name="minorVersion">Minor OpenGL version that this context will initialize.</param>
-            Context(Window& window, uint16_t majorVersion, uint16_t minorVersion);
+            /// <param name="contextCreateInfo">Information on how this OpenGL context should be created.</param>
+            Context(Window& window, const ContextCreateInfo& contextCreateInfo = {});
             /// <summary>
             /// Destroy the OpenGL context.
             /// </summary>
@@ -57,13 +107,12 @@ namespace IWindow {
             /// Creates an OpenGL context. 
             /// </summary>
             /// <param name="window">The window this context will draw to.</param>
-            /// <param name="majorVersion">Major OpenGL version that this context will initialize.</param>
-            /// <param name="minorVersion">Minor OpenGL version that this context will initialize.</param>
+            /// <param name="contextCreateInfo">Information on how this OpenGL context should be created.</param>
             /// <returns>
             /// true if the function succeeded.
             /// false if the function failed.
             /// </returns>
-            bool Create(Window& window, uint16_t majorVersion, uint16_t minorVersion);
+            bool Create(Window& window, const ContextCreateInfo& contextCreateInfo = {});
             /// <summary>
             /// Make this context current or not current.
             /// </summary>
@@ -73,9 +122,9 @@ namespace IWindow {
             /// </param>
             void MakeContextCurrent(bool current) const;
             /// <summary>
-            /// Swap the framebuffers.
+            /// Swap the framebuffers. Call this every frame.
             /// </summary>
-            void SwapBuffers() const;
+            void SwapFramebuffers() const;
             /// <summary>
             /// Enable or disable v-sync. 
             /// </summary>

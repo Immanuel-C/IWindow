@@ -47,10 +47,119 @@ void FramebufferSizeCallback(IWindow::Window& window, IWindow::Vector2<int32_t> 
     glViewport(0, 0, (int)size.x , (int)size.y);
 }
 
+void APIENTRY DebugMessenger(GLenum source​, GLenum type​, GLuint id​,
+    GLenum severity​, GLsizei length​, const GLchar* message​, const void* userParam​) {
+    // Dont care.
+    if (severity​ == GL_DEBUG_SEVERITY_NOTIFICATION) return;
+
+    std::string sourceStr = "";
+    std::string typeStr = "";
+    std::string severityStr = "";
+
+    switch (source​) {
+        case GL_DEBUG_SOURCE_API:
+            sourceStr = "GL_DEBUG_SOURCE_API";
+            break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+            sourceStr = "GL_DEBUG_SOURCE_WINDOW_SYSTEM";
+            break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER:
+            sourceStr = "GL_DEBUG_SOURCE_SHADER_COMPILER";
+            break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:
+            sourceStr = "GL_DEBUG_SOURCE_THIRD_PARTY";
+            break;
+        case GL_DEBUG_SOURCE_APPLICATION:
+            sourceStr = "GL_DEBUG_SOURCE_APPLICATION";
+            break;
+        case GL_DEBUG_SOURCE_OTHER:
+            sourceStr = "GL_DEBUG_SOURCE_OTHER";
+            break;
+        default:
+            break;
+    }
+
+
+    switch (type​) {
+        case GL_DEBUG_TYPE_ERROR:
+            typeStr = "GL_DEBUG_TYPE_ERROR";
+            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+            typeStr = "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR";
+            break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+            typeStr = "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR";
+            break;
+        case GL_DEBUG_TYPE_PORTABILITY:
+            typeStr = "GL_DEBUG_TYPE_PORTABILITY";
+            break;
+        case GL_DEBUG_TYPE_PERFORMANCE:
+            typeStr = "GL_DEBUG_TYPE_PERFORMANCE";
+            break;
+        case GL_DEBUG_TYPE_MARKER:
+            typeStr = "GL_DEBUG_TYPE_MARKER";
+            break;
+        case GL_DEBUG_TYPE_PUSH_GROUP:
+            typeStr = "GL_DEBUG_TYPE_PUSH_GROUP";
+            break;
+        case GL_DEBUG_TYPE_POP_GROUP:
+            typeStr = "GL_DEBUG_TYPE_POP_GROUP";
+            break;
+        case GL_DEBUG_TYPE_OTHER:
+            typeStr = "GL_DEBUG_TYPE_OTHER";
+            break;
+        default:
+            break;
+    }
+
+    switch (severity​)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:
+        severityStr = "GL_DEBUG_SEVERITY_HIGH";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        severityStr = "GL_DEBUG_SEVERITY_MEDIUM";
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        severityStr = "GL_DEBUG_SEVERITY_LOW";
+        break;
+    default:
+        break;
+    }
+
+    IWindow::Window* window = (IWindow::Window*)userParam​;
+
+
+    std::wstring wTitle = window->GetTitle();
+
+    std::string utf8Title{};
+    utf8Title.resize(wTitle.size());
+
+    for (size_t i = 0; i < wTitle.size(); i++) 
+        utf8Title[i] = (char)wTitle[i];
+
+    std::cout << "OpenGL context attached to window: " << utf8Title << " generated a message\n";
+    std::cout << "Source: " << sourceStr << "\nType: " << typeStr << "\nSeverity: " << severityStr << "\nMessage: " << message​ << '\n';
+}
+
+/// Return true always.
+bool IWindowErrorCallback(const IWindow::Error& error) {
+    std::cout <<
+        "IWindow error callback: " <<
+        IWindow::ErrorTypeToString(error.type) << ' ' <<
+        IWindow::ErrorSeverityToString(error.severity) << '\n' <<
+        "Message: " << error.message << '\n';
+        
+        
+    return true;
+}
+
 int main() {
     IWindow::Initialize(IWindow::CurrentVersion);
     // Or
     // IWindow::Initialize(IWindow::V100);
+
+    IWindow::SetErrorCallback(IWindowErrorCallback);
 
     IWindow::Window window{};
     IWindow::GL::Context glcontext{};
@@ -58,10 +167,37 @@ int main() {
 
     std::vector<IWindow::Monitor> monitors = IWindow::Monitor::GetAllMonitors();
 
-    if (!window.Create({ WINDOW_WIDTH, WINDOW_HEIGHT }, u"Hello IWindow! (UTF-16 Symbol: π)", monitors[0])) return EXIT_FAILURE;
+    if (!window.Create({ WINDOW_WIDTH, WINDOW_HEIGHT }, L"Hello IWindow! (UTF-16 Symbol: π)", monitors[0])) return EXIT_FAILURE;
+    
+    IWindow::GL::ContextCreateInfo contextCreateInfo{};
+    // Default value: 4, 6
+    contextCreateInfo.version = { 4, 6 };
+    // Default value: IWindow::GL::API::OpenGL
+    contextCreateInfo.api = IWindow::GL::API::OpenGL;
+    // Default value: IWindow::GL::Profile::Compatibility
+    contextCreateInfo.profile = IWindow::GL::Profile::Core;
+    // Default value: false
+    contextCreateInfo.debugMode = true;
+    // Default value: false
+    contextCreateInfo.noError = false;
+    // Default value: true
+    contextCreateInfo.doubleBuffer = true;
+    // Default value: 8, 8, 8, 8
+    contextCreateInfo.rgbaBits = { 8, 8, 8, 8 };
+    // Default value: 24
+    contextCreateInfo.depthBits = 24;
+    // Default value: 8
+    contextCreateInfo.stencilBits = 8;
+    // Default value: 0
+    contextCreateInfo.samples = 0;
+    // Default value: false
+    contextCreateInfo.sRGB = true;
+    // Default value: false. Broken.
+    contextCreateInfo.steroscopicRendering = false;
 
-    if (!glcontext.Create(window, GL_VERSION_MAJOR, GL_VERSION_MINOR)) { 
-        std::cout << "Failed to create a IWindow context!\nThis is probably because your computer doesn't support the required version of OpenGL\n";
+
+    if (!glcontext.Create(window, contextCreateInfo)) {
+        std::cout << "Failed to create a IWindow OpenGL context!\nThis is probably because your computer doesn't support the required version of OpenGL\n";
         return EXIT_FAILURE;
     }
     
@@ -73,6 +209,14 @@ int main() {
     glcontext.MakeContextCurrent(true);
     glcontext.vSync(true);
 
+    if (contextCreateInfo.samples > 0)
+        glEnable(GL_MULTISAMPLE);
+    if (contextCreateInfo.sRGB)
+        glEnable(GL_FRAMEBUFFER_SRGB);
+    if (contextCreateInfo.debugMode && !contextCreateInfo.noError) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(DebugMessenger, &window);
+    }
     window.SetMouseEnteredCallback(MouseEnteredCallback);
     window.SetWindowFocusCallback(WindowFucosCallback);
     window.SetPathDropCallback(PathDropCallback);
@@ -82,7 +226,7 @@ int main() {
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-    ImGui_ImplOpenGL3_Init();
+    ImGui_ImplOpenGL3_Init("#version 450 core");
     ImGui_ImplIWindow_Init(window);
 
     io.ConfigWindowsMoveFromTitleBarOnly = true;
@@ -93,6 +237,9 @@ int main() {
 
     ImGui::StyleColorsDark();
 
+
+    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << '\n';
+    
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
@@ -178,6 +325,8 @@ int main() {
 
     std::cout << "Clipboard Text: " << window.GetClipboardText() << '\n';
 
+    int32_t polygonLineMode = GL_FILL;
+
     bool open = true;
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     while (window.IsRunning()) {
@@ -213,10 +362,13 @@ int main() {
             window.SetMousePosition({});
         }
 
-        std::cout << "Mouse x: " << window.GetMousePosition().x << " Mouse y: " << window.GetMousePosition().y << '\n';
+        if (window.IsKeyJustPressed(IWindow::Key::W)) {
+            polygonLineMode = polygonLineMode == GL_FILL ? GL_LINE : GL_FILL;
+            glPolygonMode(GL_FRONT_AND_BACK, polygonLineMode);
+        }
 
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.5f, 0.05f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw our first triangle
@@ -232,9 +384,9 @@ int main() {
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         ImGui::EndFrame();
 
-        window.Update();
 
-        glcontext.SwapBuffers();
+        glcontext.SwapFramebuffers();
+        window.Update();
         gp.Update();
     }
 

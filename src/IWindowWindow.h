@@ -70,7 +70,7 @@ namespace IWindow {
         /// The style of the window. Must be a valid IWindow::Style.
         /// Defualt value of this param is IWindow::Style::Defualt.
         /// </param>
-        Window(const Vector2<int32_t>& size, const std::u16string& title, const Monitor& monitor = Monitor::GetPrimaryMonitor(), const Vector2<int32_t>& position = {}, const Style& style = Style::Default);
+        Window(const Vector2<int32_t>& size, const std::wstring& title, const Monitor& monitor = Monitor::GetPrimaryMonitor(), const Vector2<int32_t>& position = {}, const Style& style = Style::Default);
         /// <summary>
         /// Creates the window. Call IWindow::Initialize before creating the window.
         /// </summary>
@@ -88,7 +88,7 @@ namespace IWindow {
         /// The style of the window. Must be a valid IWindow::Style.
         /// Defualt value of this param is IWindow::Style::Defualt.
         /// </param>
-        bool Create(const Vector2<int32_t>& size, const std::u16string& title, const Monitor& monitor = Monitor::GetPrimaryMonitor(), const Vector2<int32_t>& position = {}, const Style& style = Style::Default);
+        bool Create(const Vector2<int32_t>& size, const std::wstring& title, const Monitor& monitor = Monitor::GetPrimaryMonitor(), const Vector2<int32_t>& position = {}, const Style& style = Style::Default);
         /// <summary>
         /// Destroys the window.
         /// </summary>
@@ -329,7 +329,8 @@ namespace IWindow {
         /// Set the title of the window. Only applies to decorated windows.
         /// </summary>
         /// <param name="title">New title of the window in utf-16 format.</param>
-        void SetTitle(const std::u16string& title);
+        void SetTitle(const std::wstring& title);
+        std::wstring GetTitle() const;
         /// <summary>
         /// Sets the OS's underlying windowing api's window styles.
         /// </summary>
@@ -377,8 +378,8 @@ namespace IWindow {
 #endif
         Vector2<int32_t> m_size, m_oldSize, m_position, m_framebufferSize, m_mousePosition;
         Vector2<float> m_scrollOffset;
-        // u16string guarantees that the chars are 16 bit not 32 bit which std::wstring does not guarantee.
-        std::u16string m_title;
+        // wstring guarantees that the chars are 16 bit not 32 bit which std::wstring does not guarantee.
+        std::wstring m_title;
 
         bool m_fullscreen;
         bool m_running;

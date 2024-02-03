@@ -44,7 +44,11 @@ namespace IWindow {
             surfaceInfo.hinstance = GetModuleHandle(nullptr);
             surfaceInfo.hwnd = window.GetNativeWindowHandle();
 
-            return vkCreateWin32SurfaceKHR(instance, &surfaceInfo, nullptr, (VkSurfaceKHR*)&surface);
+            VkResult result = vkCreateWin32SurfaceKHR(instance, &surfaceInfo, nullptr, (VkSurfaceKHR*)&surface);
+
+            IWINDOW_CHECK_ERROR(result != VK_SUCCESS, ErrorType::Vulkan, ErrorSeverity::FatalError, "vkCreateWin32SurfaceKHR() failed. Failed to create a VkSurfaceKHR!", false, ;);
+
+            return result;
         }
     }
 }

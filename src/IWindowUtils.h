@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <cstdint>
+#include <cassert>
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -29,11 +29,11 @@ namespace IWindow {
     template <typename T>
     struct Vector2 {
         union {
-            T x, width;
+            T x, r, width;
         };
 
         union {
-            T y, height;
+            T y, g, height;
         };
 
         /// <summary>
@@ -54,15 +54,15 @@ namespace IWindow {
     template <typename T>
     struct Vector3 {
         union {
-            T x, width;
+            T x, r, width;
         };
 
         union {
-            T y, height;
+            T y, g, height;
         };
 
         union {
-            T z, depth;
+            T z, b, depth;
         };
 
         /// <summary>
@@ -72,6 +72,36 @@ namespace IWindow {
 
         inline bool operator==(const Vector3<T>& right) { return x == right.x && y == right.y && z == right.z; }
         inline bool operator!=(const Vector3<T>& right) { return x != right.x && y != right.y && z != right.z; }
+    };
+
+    /// A Vector4 of value of type T. 
+    /// </summary>
+    /// <typeparam name="T">What this vector will be holding. Must be a numeral type.</typeparam>
+    template <typename T>
+    struct Vector4 {
+        union {
+            T x, r, width;
+        };
+
+        union {
+            T y, g, height;
+        };
+
+        union {
+            T z, b, depth;
+        };
+
+        union {
+            T w, a;
+        };
+
+        /// <summary>
+        /// Checks if all the unions are equal to zero.
+        /// </summary>
+        inline bool IsEmpty() const { return x == 0 && y == 0 && z == 0 && w == 0; }
+
+        inline bool operator==(const Vector3<T>& right) { return x == right.x && y == right.y && z == right.z && w == right.w; }
+        inline bool operator!=(const Vector3<T>& right) { return x != right.x && y != right.y && z != right.z && w != right.w; }
     };
 
     /// <summary>
@@ -159,4 +189,54 @@ namespace IWindow {
         Max
     };
     IWINDOW_CREATE_FLAGS_FROM_ENUM_STRUCT(Style)
+
+
+    enum struct ErrorType {
+        WindowApi,
+        OpenGL,
+        Vulkan,
+    };
+
+    inline std::string ErrorTypeToString(const ErrorType& error) {
+        switch (error)
+        {
+        case ErrorType::WindowApi:
+            return "ErrorType::WindowApi";
+        case ErrorType::OpenGL:
+            return "ErrorType::OpenGL";
+        case ErrorType::Vulkan:
+            return "ErrorType::Vulkan";
+        default:
+            return "Invalid Enum";
+        }
+    }
+
+    enum struct ErrorSeverity {
+        FatalError,
+        Error,
+        Warning,
+        Info
+    };
+
+    inline std::string ErrorSeverityToString(const ErrorSeverity& severity) {
+        switch (severity)
+        {
+        case ErrorSeverity::FatalError:
+            return "ErrorSeverity::FatalError";
+        case ErrorSeverity::Error:
+            return "ErrorSeverity::Error";
+        case ErrorSeverity::Warning:
+            return "ErrorSeverity::Warning";
+        case ErrorSeverity::Info:
+            return "ErrorSeverity::Info";
+        default:
+            return "Invalid Enum";
+        }
+    }
+
+    struct Error {
+        std::string message;
+        ErrorType type;
+        ErrorSeverity severity;
+    };
 }

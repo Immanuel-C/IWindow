@@ -6,15 +6,15 @@
 
 
 namespace Example {
-    void WindowPosCallback(IWindow::Window& window, int64_t x, int64_t y) {
-        std::cout << "Window position: " << x << ", " << y << '\n';
+    void WindowPosCallback(IWindow::Window& window, IWindow::Vector2<int32_t> pos) {
+        std::cout << "Window position: " << pos.x << ", " << pos.y << '\n';
     }
 }
 
-void WindowSizeCallback(IWindow::Window& window, int64_t width, int64_t height) {
+void WindowSizeCallback(IWindow::Window& window, IWindow::Vector2<int32_t> size) {
     int* userPtr = (int*)window.GetUserPointer();
     if (userPtr) std::cout << "User Pointer: " << *userPtr << '\n';
-    std::cout << "Window Size: " << width << ", " << height << '\n';
+    std::cout << "Window Size: " << size.width << ", " << size.height << '\n';
 }
 
 void KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::KeyModifier mods, IWindow::InputState state, bool repeated) {
@@ -98,12 +98,12 @@ void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, I
     std::cout << "Mouse button " << sButton << " was " << sState << '\n';
 }
 
-void MouseMoveCallback(IWindow::Window& window, int64_t x, int64_t y) {
-    std::cout << "Mouse Moved: " << x << ", " << y << '\n';
+void MouseMoveCallback(IWindow::Window& window, IWindow::Vector2<int32_t> pos) {
+    std::cout << "Mouse Moved: " << pos.x << ", " << pos.y << '\n';
 }
 
-void MouseScrollCallback(IWindow::Window& window, float xOffset, float yOffset) {
-    std::cout << "x Offset: " << xOffset << " y Offset: " << yOffset << '\n';
+void MouseScrollCallback(IWindow::Window& window, IWindow::Vector2<float> offset) {
+    std::cout << "x Offset: " << offset.x << " y Offset: " << offset.y << '\n';
 }
 
 void MouseEnteredCallback(IWindow::Window&, bool entered) {
@@ -124,7 +124,7 @@ int main() {
     // IWindow::Initialize(IWindow::CurrentVersion);
 
     IWindow::Window window{};
-    if (!window.Create({ 800, 600 }, u8"Hello IWindow!", IWindow::Monitor::GetPrimaryMonitor())) return EXIT_FAILURE;
+    if (!window.Create({ 800, 600 }, L"Hello IWindow!", IWindow::Monitor::GetPrimaryMonitor())) return EXIT_FAILURE;
     // window.SetCursor(IWindow::NativeCursorID::Hand); // Using internal windowing apis cursors
     // window.SetIcon(IWindow::NativeIconID::Default); // Using internal windowing apis icons
     IWindow::Window window2{};
@@ -132,7 +132,7 @@ int main() {
     // Gets all available monitors
     std::vector<IWindow::Monitor> monitors = IWindow::Monitor::GetAllMonitors();
 
-    if (!window2.Create({ 400, 300 }, "Hello Other Window!", monitors[monitors.size() - 1])) return EXIT_FAILURE;
+    if (!window2.Create({ 400, 300 }, L"Hello Other Window!", monitors[monitors.size() - 1])) return EXIT_FAILURE;
 
     int width = 0, height = 0, ch = 0;
 
@@ -147,7 +147,7 @@ int main() {
     // 0, 0 is top left of cursor
     // width, height is bottom right of cursor
     // width / 2, height / 2 is middle of cursor
-    window.SetCursor(image, 0, 0);
+    window.SetCursor(image, { 0, 0 });
 
     stbi_image_free(data); // delete[] data;
 
@@ -185,7 +185,7 @@ int main() {
     // Print monitor properties
     for (IWindow::Monitor& monitor : monitors) 
         // monitor.name is a std::wstring
-        std::wcout << "Monitor Name: " << monitor.name << '\n'
+        std::cout << "Monitor Name: " << monitor.name << '\n'
             << "Monitor Size: " << monitor.size.x << ", " << monitor.size.y << '\n'
             << "Monitor Position: " << monitor.position.x << ", " << monitor.position.y << '\n';
 
