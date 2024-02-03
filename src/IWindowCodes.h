@@ -28,131 +28,459 @@
 
 #pragma once
 
+#include "IWindowUtils.h"
+
 #if defined (_WIN32)
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h> // For virtual key codes 
     #include <Xinput.h> // xinput codes
 
 namespace IWindow {
+    /// <summary>
+    /// Represents keyboard key's.
+    /// </summary>
     enum struct Key {
 
         // Numbers dont have virtual key codes
-        N0 = 48,
-        N1 = 49,
-        N2 = 50,
-        N3 = 51,
-        N4 = 52,
-        N5 = 53,
-        N6 = 54,
-        N7 = 55,
-        N8 = 56,
-        N9 = 57,
+        N0,
+        N1,
+        N2,
+        N3,
+        N4,
+        N5,
+        N6,
+        N7,
+        N8,
+        N9,
 
         // Alphabet dont have virtual key codes
-        A = 65,
-        B = 66,
-        C = 67,
-        D = 68,
-        E = 69,
-        F = 70,
-        G = 71,
-        H = 72,
-        I = 73,
-        J = 74,
-        K = 75,
-        L = 76,
-        M = 77,
-        N = 78,
-        O = 79,
-        P = 80,
-        Q = 81,
-        R = 82,
-        S = 83,
-        T = 84,
-        U = 85,
-        V = 86,
-        W = 87,
-        X = 88,
-        Y = 89,
-        Z = 90,
+        A,
+        B,
+        C,
+        D,
+        E,
+        F,
+        G,
+        H,
+        I,
+        J,
+        K,
+        L,
+        M,
+        N,
+        O,
+        P,
+        Q,
+        R,
+        S,
+        T,
+        U,
+        V,
+        W,
+        X,
+        Y,
+        Z,
 
-        Back = VK_BACK,
-        Tab = VK_TAB,
-        Enter = VK_RETURN,
-        Shift = VK_SHIFT,
-        Control = VK_CONTROL,
-        Alt = VK_MENU,
-        Pause = VK_PAUSE,
-        CapsLock = VK_CAPITAL,
-        Escape = VK_ESCAPE,
-        Space = VK_SPACE,
-        PageUp = VK_PRIOR,
-        PageDown = VK_NEXT,
-        End = VK_END,
-        Home = VK_HOME,
-        ArrowLeft = VK_LEFT,
-        ArrowUp = VK_UP,
-        ArrowRight = VK_RIGHT,
-        ArrowDown = VK_DOWN,
-        PrintScreen = VK_SNAPSHOT,
-        Insert = VK_INSERT,
-        Delete = VK_DELETE,
-        LeftSuper = VK_LWIN,
-        RightSuper = VK_RWIN,
-        Add = VK_ADD,
-        Multiply = VK_MULTIPLY,
-        Subtract = VK_SUBTRACT,
-        Decimal = VK_DECIMAL,
-        Divide = VK_DIVIDE,
-        ScrollLock = VK_SCROLL,
-        NumLock = VK_NUMLOCK,
-        LShift = VK_LSHIFT,
-        RShift = VK_RSHIFT,
-        LControl = VK_LCONTROL,
-        RControl = VK_RCONTROL,
-        LMenu = VK_LMENU,
-        RMenu = VK_RMENU,
-        SemiColen = VK_OEM_1,
-        Plus = VK_OEM_PLUS,
-        Comma = VK_OEM_COMMA,
-        Minus = VK_OEM_MINUS,
-        Period = VK_OEM_PERIOD,
-        ForwardSlash = VK_OEM_2,
-        Tilde = VK_OEM_3,
-        LeftBoxBraces = VK_OEM_4,
-        BackSlash = VK_OEM_5,
-        RightBoxBraces = VK_OEM_6,
-        SingleQuotes = VK_OEM_7,
-        
+        Back,
+        Tab,
+        Enter,
+        Pause,
+        Escape,
+        Space,
+        PageUp,
+        PageDown,
+        End,
+        Home,
+        ArrowLeft,
+        ArrowUp,
+        ArrowRight,
+        ArrowDown,
+        PrintScreen,
+        Insert,
+        Delete,
+        Add,
+        Multiply,
+        Subtract,
+        Decimal,
+        Divide,
+        ScrollLock,
+        SemiColen,
+        Plus,
+        Comma,
+        Minus,
+        Period,
+        ForwardSlash,
+        Tilde,
+        LeftBoxBraces,
+        BackSlash,
+        RightBoxBraces,
+        SingleQuotes,
 
+        LControl,
+        RControl,
+        LShift,
+        RShift,
+        LAlt,
+        RAlt,
+        LSuper,
+        RSuper,
+        CapsLock,
+        NumLock,
 
-        Np0 = VK_NUMPAD0,
-        Np1 = VK_NUMPAD1,
-        Np2 = VK_NUMPAD2,
-        Np3 = VK_NUMPAD3,
-        Np4 = VK_NUMPAD4,
-        Np5 = VK_NUMPAD5,
-        Np6 = VK_NUMPAD6,
-        Np7 = VK_NUMPAD7,
-        Np8 = VK_NUMPAD8,
-        Np9 = VK_NUMPAD9,
+        Numpad0,
+        Numpad1,
+        Numpad2,
+        Numpad3,
+        Numpad4,
+        Numpad5,
+        Numpad6,
+        Numpad7,
+        Numpad8,
+        Numpad9,
 
-        F1 = VK_F1,
-        F2 = VK_F2,
-        F3 = VK_F3,
-        F4 = VK_F4,
-        F5 = VK_F5,
-        F6 = VK_F6,
-        F7 = VK_F7,
-        F8 = VK_F8,
-        F9 = VK_F9,
-        F10 = VK_F10,
-        F11 = VK_F11,
-        F12 = VK_F12,
+        F1,
+        F2,
+        F3,
+        F4,
+        F5,
+        F6,
+        F7,
+        F8,
+        F9,
+        F10,
+        F11,
+        F12,
 
-        Max = 500
+        Max
     };
 
+    /// <summary>
+    /// Convert Virtual Key codes to IWindow::Key.
+    /// </summary>
+    inline Key Win32KeyCodeToIWindowKey(uint64_t key) {
+        switch (key)
+        {
+        case 48:
+            return Key::N0;
+            break;
+        case 49:
+            return Key::N1;
+            break;
+        case 50:
+            return Key::N2;
+            break;
+        case 51:
+            return Key::N3;
+            break;
+        case 52:
+            return Key::N4;
+            break;
+        case 53:
+            return Key::N5;
+            break;
+        case 54:
+            return Key::N6;
+            break;
+        case 55:
+            return Key::N7;
+            break;
+        case 56:
+            return Key::N8;
+            break;
+        case 57:
+            return Key::N9;
+            break;
+        case 65:
+            return Key::A;
+            break;
+        case 66:
+            return Key::B;
+            break;
+        case 67:
+            return Key::C;
+            break;
+        case 68:
+            return Key::D;
+            break;
+        case 69:
+            return Key::E;
+            break;
+        case 70:
+            return Key::F;
+            break;
+        case 71:
+            return Key::G;
+            break;
+        case 72:
+            return Key::H;
+            break;
+        case 73:
+            return Key::I;
+            break;
+        case 74:
+            return Key::J;
+            break;
+        case 75:
+            return Key::K;
+            break;
+        case 76:
+            return Key::L;
+            break;
+        case 77:
+            return Key::M;
+            break;
+        case 78:
+            return Key::N;
+            break;
+        case 79:
+            return Key::O;
+            break;
+        case 80:
+            return Key::P;
+            break;
+        case 81:
+            return Key::Q;
+            break;
+        case 82:
+            return Key::R;
+            break;
+        case 83:
+            return Key::S;
+            break;
+        case 84:
+            return Key::T;
+            break;
+        case 85:
+            return Key::U;
+            break;
+        case 86:
+            return Key::V;
+            break;
+        case 87:
+            return Key::W;
+            break;
+        case 88:
+            return Key::X;
+            break;
+        case 89:
+            return Key::Y;
+            break;
+        case 90:
+            return Key::Z;
+            break;
+        case VK_BACK:
+            return Key::Back;
+            break;
+        case VK_TAB:
+            return Key::Tab;
+            break;
+        case VK_RETURN:
+            return Key::Enter;
+            break;
+        case VK_PAUSE:
+            return Key::Pause;
+            break;
+        case VK_ESCAPE:
+            return Key::Escape;
+            break;
+        case VK_SPACE:
+            return Key::Space;
+            break;
+        case VK_PRIOR:
+            return Key::PageUp;
+            break;
+        case VK_NEXT:
+            return Key::PageDown;
+            break;
+        case VK_END:
+            return Key::End;
+            break;
+        case VK_HOME:
+            return Key::Home;
+            break;
+        case VK_LEFT:
+            return Key::ArrowLeft;
+            break;
+        case VK_UP:
+            return Key::ArrowUp;
+            break;
+        case VK_RIGHT:
+            return Key::ArrowRight;
+            break;
+        case VK_DOWN:
+            return Key::ArrowDown;
+            break;
+        case VK_SNAPSHOT:
+            return Key::PrintScreen;
+            break;
+        case VK_INSERT:
+            return Key::Insert;
+            break;
+        case VK_DELETE:
+            return Key::Delete;
+            break;
+        case VK_ADD:
+            return Key::Add;
+            break;
+        case VK_MULTIPLY:
+            return Key::Multiply;
+            break;
+        case VK_SUBTRACT:
+            return Key::Subtract;
+            break;
+        case VK_DECIMAL:
+            return Key::Decimal;
+            break;
+        case VK_DIVIDE:
+            return Key::Divide;
+            break;
+        case VK_SCROLL:
+            return Key::ScrollLock;
+            break;
+        case VK_OEM_1:
+            return Key::SemiColen;
+            break;
+        case VK_OEM_PLUS:
+            return Key::Plus;
+            break;
+        case VK_OEM_COMMA:
+            return Key::Comma;
+            break;
+        case VK_OEM_MINUS:
+            return Key::Minus;
+            break;
+        case VK_OEM_PERIOD:
+            return Key::Period;
+            break;
+        case VK_OEM_2:
+            return Key::ForwardSlash;
+            break;
+        case VK_OEM_3:
+            return Key::Tilde;
+            break;
+        case VK_OEM_4:
+            return Key::LeftBoxBraces;
+            break;
+        case VK_OEM_5:
+            return Key::BackSlash;
+            break;
+        case VK_OEM_6:
+            return Key::RightBoxBraces;
+            break;
+        case VK_OEM_7:
+            return Key::SingleQuotes;
+            break;
+        case VK_NUMPAD0:
+            return Key::Numpad0;
+            break;
+        case VK_NUMPAD1:
+            return Key::Numpad1;
+            break;
+        case VK_NUMPAD2:
+            return Key::Numpad2;
+            break;
+        case VK_NUMPAD3:
+            return Key::Numpad3;
+            break;
+        case VK_NUMPAD4:
+            return Key::Numpad4;
+            break;
+        case VK_NUMPAD5:
+            return Key::Numpad5;
+            break;
+        case VK_NUMPAD6:
+            return Key::Numpad6;
+            break;
+        case VK_NUMPAD7:
+            return Key::Numpad7;
+            break;
+        case VK_NUMPAD8:
+            return Key::Numpad8;
+            break;
+        case VK_NUMPAD9:
+            return Key::Numpad9;
+            break;
+        case VK_F1:
+            return Key::F1;
+            break;
+        case VK_F2:
+            return Key::F2;
+            break;
+        case VK_F3:
+            return Key::F3;
+            break;
+        case VK_F4:
+            return Key::F4;
+            break;
+        case VK_F5:
+            return Key::F5;
+            break;
+        case VK_F6:
+            return Key::F6;
+            break;
+        case VK_F7:
+            return Key::F7;
+            break;
+        case VK_F8:
+            return Key::F8;
+            break;
+        case VK_F9:
+            return Key::F9;
+            break;
+        case VK_F10:
+            return Key::F10;
+            break;
+        case VK_F11:
+            return Key::F11;
+            break;
+        case VK_F12:
+            return Key::F12;
+            break;
+        case VK_LCONTROL:
+            return Key::LControl;
+        case VK_RCONTROL:
+            return Key::RControl;
+        case VK_LMENU:
+            return Key::LAlt;
+        case VK_RMENU:
+            return Key::RAlt;
+        case VK_LSHIFT:
+            return Key::LShift;
+        case VK_RSHIFT:
+            return Key::RShift;
+        case VK_LWIN:
+            return Key::LSuper;
+        case VK_RWIN:
+            return Key::RSuper;
+        case VK_CAPITAL:
+            return Key::CapsLock;
+        case VK_NUMLOCK:
+            return Key::NumLock;
+        default:
+            // key code not supported by IWindow
+            return Key::Max;
+            break;
+        }
+    }
+
+    /// <summary>
+    /// Represents keyboard modifiers. This is bitmask type.
+    /// </summary>
+    enum struct KeyModifier {
+        None = 0x0,
+        Shift = 0x1,
+        Control = 0x2,
+        Alt = 0x4,
+        Super = 0x8,
+        CapsLock = 0x10,
+        NumLock = 0x20,
+        Max
+    };
+    IWINDOW_CREATE_FLAGS_FROM_ENUM_STRUCT(KeyModifier)
+
+    /// <summary>
+    /// Represents mouse buttons.
+    /// </summary>
     enum struct MouseButton {
         Left,
         Right,
@@ -162,12 +490,18 @@ namespace IWindow {
         Max
     };
 
+    /// <summary>
+    /// Represents what state the key/button/modifier was in when it was pressed.
+    /// </summary>
     enum struct InputState {
         Down,
         Up,
         Max
     };
 
+    /// <summary>
+    /// Represents buttons on a gamepad.
+    /// </summary>
     enum struct GamepadButton {
         A = XINPUT_GAMEPAD_A,
         B = XINPUT_GAMEPAD_B,
@@ -191,6 +525,10 @@ namespace IWindow {
         Max,
     };
 
+
+    /// <summary>
+    /// ID of gamepads.
+    /// </summary>
     enum struct GamepadID {
         GP0,
         GP1,

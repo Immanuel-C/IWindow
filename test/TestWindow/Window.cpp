@@ -17,7 +17,7 @@ void WindowSizeCallback(IWindow::Window& window, int64_t width, int64_t height) 
     std::cout << "Window Size: " << width << ", " << height << '\n';
 }
 
-void KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::InputState state) {
+void KeyCallback(IWindow::Window& window, IWindow::Key key, IWindow::KeyModifier mods, IWindow::InputState state, bool repeated) {
     const char* sState = nullptr;
     
     switch (state) {
@@ -57,7 +57,7 @@ void GamepadConnectedCallback(IWindow::GamepadID gid, bool isConnected) {
     std::cout << "Gamepad " << (int)gid << " was " << sConnected << "!\n";
 }
 
-void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::InputState state) {
+void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, IWindow::KeyModifier mods, IWindow::InputState state) {
     const char* sButton = "";
     const char* sState = "";
 
@@ -95,7 +95,6 @@ void MouseButtonCallback(IWindow::Window& window, IWindow::MouseButton button, I
     }
 
 
-
     std::cout << "Mouse button " << sButton << " was " << sState << '\n';
 }
 
@@ -111,8 +110,8 @@ void MouseEnteredCallback(IWindow::Window&, bool entered) {
     std::cout << "Mouse entered: " << entered << '\n';
 }
 
-void CharCallback(IWindow::Window& window, uint16_t c) {
-    std::cout << "Char pressed: " << (char)c << '\n';
+void CharCallback(IWindow::Window& window, char32_t c, IWindow::KeyModifier mods) {
+    std::cout << "Char pressed: " << c << '\n';
 }
 
 void WindowFocusedCallback(IWindow::Window& window, bool focused) {
@@ -120,18 +119,28 @@ void WindowFocusedCallback(IWindow::Window& window, bool focused) {
 }
 
 int main() {
+    IWindow::Initialize(IWindow::V100);
+    // or 
+    // IWindow::Initialize(IWindow::CurrentVersion);
+
     IWindow::Window window{};
-    if (!window.Create(1280, 720, u8"Hello IWindow!")) return EXIT_FAILURE;
+    if (!window.Create({ 800, 600 }, u8"Hello IWindow!", IWindow::Monitor::GetPrimaryMonitor())) return EXIT_FAILURE;
     // window.SetCursor(IWindow::NativeCursorID::Hand); // Using internal windowing apis cursors
     // window.SetIcon(IWindow::NativeIconID::Default); // Using internal windowing apis icons
+    IWindow::Window window2{};
+
+    // Gets all available monitors
+    std::vector<IWindow::Monitor> monitors = IWindow::Monitor::GetAllMonitors();
+
+    if (!window2.Create({ 400, 300 }, "Hello Other Window!", monitors[monitors.size() - 1])) return EXIT_FAILURE;
 
     int width = 0, height = 0, ch = 0;
 
     uint8_t* data = stbi_load("assets/icon.png", &width, &height, &ch, 4);
 
     IWindow::Image image{};
-    image.width = width;
-    image.height = height;
+    image.size.width = width;
+    image.size.height = height;
     image.data = data;
 
     window.SetIcon(image);
@@ -141,7 +150,6 @@ int main() {
     window.SetCursor(image, 0, 0);
 
     stbi_image_free(data); // delete[] data;
-
 
     IWindow::Gamepad gp{ IWindow::GamepadID::GP0 };
 
@@ -174,10 +182,6 @@ int main() {
     // sleep(1);
     // window.Fullscreen(false, window.GetPrimaryMonitor());
 
-    // Gets all available monitors
-    std::vector<IWindow::Monitor> monitors = window.GetAllMonitors();
-
-
     // Print monitor properties
     for (IWindow::Monitor& monitor : monitors) 
         // monitor.name is a std::wstring
@@ -187,13 +191,13 @@ int main() {
 
     window.SetClipboardText("Hello World");
 
-    while (window.IsRunning()) {
+    while (window.IsRunning() && window2.IsRunning()) {
         //gp.Rumble();
 
-        if (window.IsKeyDown(IWindow::Key::A, IWindow::Key::W) && window.IsKeyUp(IWindow::Key::Alt))
-            std::cout << "Key A and W were pressed without Alt being pressed\n";
+        if (window.IsKeyDown(IWindow::Key::A, IWindow::KeyModifier::Shift))
+            std::cout << "Shift + A was pressed\n";
 
-        if (window.IsKeyDown(IWindow::Key::V)) {
+        if (window.IsKeyDown(IWindow::Key::V, IWindow::KeyModifier::Control)) {
          
             std::string clipboardText = window.GetClipboardText();
             std::cout << "Text in clipboard: " << clipboardText.c_str() << '\n';
@@ -218,10 +222,12 @@ int main() {
         }
 
         gp.Update();
+        window2.Update();
         window.Update();
     }
 
-
+    window.Destroy();
+    IWindow::Shutdown();
 
     return EXIT_SUCCESS;
 }

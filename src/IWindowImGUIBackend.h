@@ -31,33 +31,9 @@
 #include "IWindow.h"
 #include "IWindowCore.h"
 
-struct ImGui_ImplIWindow_Data {
-	IWindow::Window* window;
-	IWindow::Window* mouseWindow;
-	IWindow::Window::KeyCallback PrevUserCallbackKey;
-	IWindow::Window::WindowFocusCallback PrevUserCallbackFocus;
-	IWindow::Window::MouseMoveCallback PrevUserCallbackMouseMove;
-	IWindow::Window::MouseButtonCallback PrevUserCallbackMouseButton;
-	IWindow::Window::MouseScrollCallback PrevUserCallbackScroll;
-	IWindow::Window::MouseEnteredCallback PrevUserCallbackMouseEntered;
-	IWindow::Window::CharCallback PrevUserCallbackChar;
-	// A hook into the WndProc function so we dont remove the WndProc function in IWindow
-	WNDPROC IWindowWndProc;
-
-	bool installedCallbacks = false;
-	bool callbacksChainForAllWindows = true;
-	ImVec2 lastValidMousePos;
-
-	double time;
-
-};
-
 IWINDOW_API bool ImGui_ImplIWindow_Init(IWindow::Window& window, bool installCallbacks = true);
 IWINDOW_API void ImGui_ImplIWindow_NewFrame();
 IWINDOW_API void ImGui_ImplIWindow_Shutdown();
-
-IWINDOW_API void ImGui_ImplIWindow_SetClipboardText(void* userdata, const char* text);
-IWINDOW_API const char* ImGui_ImplIWindow_GetClipboardText(void* userdata);
 
 IWINDOW_API void ImGui_ImplIWindow_SetCallbacksChainForAllWindows(bool chainForAllWindows);
 IWINDOW_API bool ImGui_ImplIWindow_ShouldChainCallback(IWindow::Window& window);
