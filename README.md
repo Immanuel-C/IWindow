@@ -1,6 +1,6 @@
 # IWindow
 
-### **IWindow is currently in alpha, stability is not guaranteed!** 
+## Documentation website is not up to date. Use header files documentation.
 
 ## IWindow does not support Linux anymore! ##
 
