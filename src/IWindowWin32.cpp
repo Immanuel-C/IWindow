@@ -193,6 +193,15 @@ namespace IWindow {
             m_running = false;        
 
             return 0;
+        case WM_NCCREATE: {
+
+            // If 0 is returned ::CreateWindowEx will return nullptr
+            // IWindow depends on this.
+            if (!::EnableNonClientDpiScaling(m_window))
+                return 0;
+
+            break;
+        }
         case WM_MOVE: {
             // if lparam is less than zero than it will act like a uint
             m_position.x = GET_X_LPARAM(lparam);
@@ -210,7 +219,7 @@ namespace IWindow {
                 mouseEvent.cbSize = sizeof(mouseEvent);
                 mouseEvent.dwFlags = TME_LEAVE;
                 mouseEvent.hwndTrack = m_window;
-                TrackMouseEvent(&mouseEvent);
+                ::TrackMouseEvent(&mouseEvent);
 
                 m_mouseEntered = true;
                 m_mouseEnteredCallback(*this, m_mouseEntered);
@@ -228,16 +237,21 @@ namespace IWindow {
             return 0;
         }
 
-        case WM_DPICHANGED: {
-            RECT rect{};
-            ::SetRect(&rect, 0, 0, LOWORD(lparam), HIWORD(lparam));
-            ::AdjustWindowRectExForDpi(&rect, m_windowStyle, false, WS_EX_APPWINDOW, ::GetDpiForWindow(m_window));
+        case WM_GETDPISCALEDSIZE: {
+            RECT currentSize{}, scaledSize{};
+            SIZE* newSize = (SIZE*)lparam;
 
-            m_framebufferSize = { (int32_t)(rect.right - -(rect.left)), (int32_t)(rect.bottom - -(rect.top)) };
+            int32_t exStyle = WS_EX_APPWINDOW;
+            if (m_fullscreen)
+                exStyle |= WS_EX_TOPMOST;
 
-            m_framebufferSizeCallback(*this, m_framebufferSize);
+            ::AdjustWindowRectExForDpi(&currentSize, m_windowStyle, (int)false, exStyle, GetDpiForWindow(m_window));
+            ::AdjustWindowRectExForDpi(&scaledSize, m_windowStyle, (int)false, exStyle, LOWORD(wparam));
 
-            return 0;
+            newSize->cx += (scaledSize.right - scaledSize.left) - (currentSize.right - currentSize.left);
+            newSize->cy += (scaledSize.bottom - scaledSize.top) - (currentSize.bottom - currentSize.top);
+
+            return 1;
         }
 
         case WM_SIZE: {
@@ -253,15 +267,13 @@ namespace IWindow {
                 m_maximizedCallback(*this, false);
             }
 
-            m_size = GetWindowSize();
+
+
+            // On windows framebuffer size and window size are the same.
+            m_size = { (int32_t)(LOWORD(lparam)), (int32_t)(HIWORD(lparam)) };
+            m_framebufferSize = m_size;
+
             m_sizeCallback(*this, m_size);
-
-            RECT rect{};
-            ::SetRect(&rect, 0, 0, LOWORD(lparam), HIWORD(lparam));
-            ::AdjustWindowRectExForDpi(&rect, m_windowStyle, false, WS_EX_APPWINDOW, ::GetDpiForWindow(m_window));
-
-            m_framebufferSize = { (int32_t)(rect.right - -(rect.left)), (int32_t)(rect.bottom - -(rect.top)) };
-
             m_framebufferSizeCallback(*this, m_framebufferSize);
             return 0;        
         }
@@ -432,12 +444,7 @@ namespace IWindow {
         return ::DefWindowProc(window, msg, wparam, lparam);
     }
 
-    Vector2<int32_t> Window::GetWindowSize() const {
-        RECT rect;
-        ::GetClientRect(m_window, &rect);
-
-        return { (int32_t)rect.right - rect.left, (int32_t)rect.bottom - rect.top };
-    }
+    Vector2<int32_t> Window::GetWindowSize() const { return m_size; }
 
     void Window::SetWindowSize(const Vector2<int32_t>& size) {
         m_size = size;
@@ -699,7 +706,7 @@ namespace IWindow {
         // All styles ignored when in fullscreen.
         if (m_fullscreen) return;
 
-        m_windowStyle = GetWindowStyle(m_window);
+        m_windowStyle = ::GetWindowLong(m_window, GWL_STYLE);
 
         if ((NativeStyle)(style & Style::Default)) {
             m_windowStyle = 0;

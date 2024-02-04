@@ -129,10 +129,13 @@ int main() {
     // window.SetIcon(IWindow::NativeIconID::Default); // Using internal windowing apis icons
     IWindow::Window window2{};
 
+
     // Gets all available monitors
     std::vector<IWindow::Monitor> monitors = IWindow::Monitor::GetAllMonitors();
 
     if (!window2.Create({ 400, 300 }, L"Hello Other Window!", monitors[monitors.size() - 1])) return EXIT_FAILURE;
+
+    window2.SetStyle(IWindow::Style::NotResizable);
 
     int width = 0, height = 0, ch = 0;
 

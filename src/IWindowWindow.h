@@ -125,11 +125,11 @@ namespace IWindow {
         /// </returns>
         const NativeDeviceContext& GetNativeDeviceContext() const;
 
-        /// <returns>Size of the window including decorations, **not** adjusted for high dpi monitors.</returns>
+        /// <returns>Size of the windows client area, measured in screen coordinates.</returns>
         Vector2<int32_t> GetWindowSize() const;
         /// <returns>Position of the window in screen space.</returns>
         Vector2<int32_t> GetWindowPosition() const;
-        /// <returns>Size of the windows client area, adjusted for high dpi monitors.</returns>
+        /// <returns>Size of the windows client area, measured in pixels. The framebuffer size is adjusted for high dpi displays.</returns>
         Vector2<int32_t> GetFramebufferSize() const;
         /// <summary>
         /// Set the window size in screen space.

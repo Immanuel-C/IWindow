@@ -26,7 +26,6 @@ int main() {
     std::vector<const char*> iWindowExtensionNames;
     IWindow::Vk::GetRequiredInstanceExtensions(iWindowExtensionNames);
 
-
     VkInstanceCreateInfo instanceInfo{};
     instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instanceInfo.pApplicationInfo = &appInfo;

@@ -30,26 +30,29 @@ const char* fragmentShaderSource = "#version 330 core\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
-void MouseEnteredCallback(IWindow::Window& window, bool entered) {
+static void MouseEnteredCallback(IWindow::Window& window, bool entered) {
     std::cout << std::boolalpha << "Mouse entered: " << entered << std::noboolalpha << '\n';
 }
 
-void WindowFucosCallback(IWindow::Window& window, bool focused) {
+static void WindowFucosCallback(IWindow::Window& window, bool focused) {
     std::cout << std::boolalpha << "Window is focused: " << focused << std::noboolalpha << '\n';
 }
 
-void PathDropCallback(IWindow::Window& window, std::vector<std::wstring>& paths, IWindow::Vector2<int32_t> mousePosition) {
+static void PathDropCallback(IWindow::Window& window, std::vector<std::wstring>& paths, IWindow::Vector2<int32_t> mousePosition) {
     for (const std::wstring& path : paths)
         std::wcout << L"Path dropped: " << path << L'\n';
 }
 
-void FramebufferSizeCallback(IWindow::Window& window, IWindow::Vector2<int32_t> size) {
+static void WindowSizeCallback(IWindow::Window& window, IWindow::Vector2<int32_t> size) {
+    std::cout << "Window size: " << size.x << ", " << size.y << '\n';
+}
+
+static void FramebufferSizeCallback(IWindow::Window& window, IWindow::Vector2<int32_t> size) {
+    std::cout << "Framebuffer size: " << size.x << ", " << size.y << '\n';
     glViewport(0, 0, (int)size.x , (int)size.y);
 }
 
-void APIENTRY DebugMessenger(GLenum source​, GLenum type​, GLuint id​,
-    GLenum severity​, GLsizei length​, const GLchar* message​, const void* userParam​) {
-    // Dont care.
+static void APIENTRY DebugMessenger(GLenum source​, GLenum type​, GLuint id​, GLenum severity​, GLsizei length​, const GLchar* message​, const void* userParam​) {
     if (severity​ == GL_DEBUG_SEVERITY_NOTIFICATION) return;
 
     std::string sourceStr = "";
@@ -114,15 +117,18 @@ void APIENTRY DebugMessenger(GLenum source​, GLenum type​, GLuint id​,
 
     switch (severity​)
     {
-    case GL_DEBUG_SEVERITY_HIGH:
-        severityStr = "GL_DEBUG_SEVERITY_HIGH";
-        break;
-    case GL_DEBUG_SEVERITY_MEDIUM:
-        severityStr = "GL_DEBUG_SEVERITY_MEDIUM";
-        break;
-    case GL_DEBUG_SEVERITY_LOW:
-        severityStr = "GL_DEBUG_SEVERITY_LOW";
-        break;
+        case GL_DEBUG_SEVERITY_HIGH:
+            severityStr = "GL_DEBUG_SEVERITY_HIGH";
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM:
+            severityStr = "GL_DEBUG_SEVERITY_MEDIUM";
+            break;
+        case GL_DEBUG_SEVERITY_LOW:
+            severityStr = "GL_DEBUG_SEVERITY_LOW";
+            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+            severityStr = "GL_DEBUG_SEVERITY_NOTIFICATION";
+            break;
     default:
         break;
     }
@@ -167,8 +173,9 @@ int main() {
 
     std::vector<IWindow::Monitor> monitors = IWindow::Monitor::GetAllMonitors();
 
-    if (!window.Create({ WINDOW_WIDTH, WINDOW_HEIGHT }, L"Hello IWindow! (UTF-16 Symbol: π)", monitors[0])) return EXIT_FAILURE;
+    if (!window.Create({ 1920, 1080 }, L"Hello IWindow! (UTF-16 Symbol: π)", monitors[0])) return EXIT_FAILURE;
     
+
     IWindow::GL::ContextCreateInfo contextCreateInfo{};
     // Default value: 4, 6
     contextCreateInfo.version = { 4, 6 };
@@ -221,6 +228,7 @@ int main() {
     window.SetWindowFocusCallback(WindowFucosCallback);
     window.SetPathDropCallback(PathDropCallback);
     window.SetFramebufferSizeCallback(FramebufferSizeCallback);
+    window.SetSizeCallback(WindowSizeCallback);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -236,7 +244,6 @@ int main() {
     io.DisplaySize.y = (float)window.GetWindowSize().y;
 
     ImGui::StyleColorsDark();
-
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << '\n';
     
@@ -325,8 +332,7 @@ int main() {
 
     std::cout << "Clipboard Text: " << window.GetClipboardText() << '\n';
 
-    int32_t polygonLineMode = GL_FILL;
-
+    
     bool open = true;
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
     while (window.IsRunning()) {
@@ -362,10 +368,12 @@ int main() {
             window.SetMousePosition({});
         }
 
-        if (window.IsKeyJustPressed(IWindow::Key::W)) {
-            polygonLineMode = polygonLineMode == GL_FILL ? GL_LINE : GL_FILL;
-            glPolygonMode(GL_FRONT_AND_BACK, polygonLineMode);
-        }
+        if (window.IsKeyJustPressed(IWindow::Key::W)) 
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else if (window.IsKeyJustPressed(IWindow::Key::F)) 
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
 
 
         glClearColor(0.5f, 0.05f, 0.1f, 1.0f);
