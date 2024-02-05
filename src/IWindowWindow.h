@@ -346,7 +346,7 @@ namespace IWindow {
         typedef std::function<void(Window&, char32_t, KeyModifier)> CharCallback;
         typedef std::function<void(Window&, std::vector<std::wstring>&, Vector2<int32_t>)> PathDropCallback;
         typedef std::function<void(Window&, const Monitor&, bool)> MonitorCallback;
-        typedef std::function<void(Window&, Vector2<uint32_t>&)> DPIChangedCallback;
+        typedef std::function<void(Window&, Vector2<uint32_t>)> DPIChangedCallback;
         typedef WindowFocusCallback MouseEnteredCallback;
         typedef WindowFocusCallback WindowIconifiedCallback;
         typedef WindowFocusCallback WindowMaximizedCallback;
@@ -416,7 +416,7 @@ namespace IWindow {
         static void DefaultWindowMaximizedCallback(Window&, bool) {}
         static void DefualtPathDropCallback(Window&, std::vector<std::wstring>&, Vector2<int32_t>) {}
         static void DefualtMonitorCallback(Window&, const Monitor& monitor, bool) {}
-        static void DefualtDPIChangedCallback(Window&, Vector2<uint32_t>&) {}
+        static void DefualtDPIChangedCallback(Window&, Vector2<uint32_t>) {}
 
 
         WindowPosCallback m_posCallback = DefaultWindowPosCallback;
