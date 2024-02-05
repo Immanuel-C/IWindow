@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <cassert>
+#include "IWindowCore.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -124,10 +124,12 @@ namespace IWindow {
     /// size is a Vector2<int32_t> of the width and height of the monitor in screen coordinates.
     /// position is a Vector2<int32_t> of the x and y coordinate of monitor in screen coordinates.
     /// name is the name the OS provides when querying all the monitors.
+    /// dpi is the x and y dpi scale of this monitor.
     /// </summary>
-    struct Monitor {
+    struct IWINDOW_API Monitor {
         Vector2<int32_t> size, position;
         std::string name;
+        Vector2<uint32_t> dpi;
 
         /// <summary>
         /// Checks if size is empty, position is empty and name is empty.
@@ -191,12 +193,19 @@ namespace IWindow {
     IWINDOW_CREATE_FLAGS_FROM_ENUM_STRUCT(Style)
 
 
+    /// <summary>
+    /// Type of error returned by the error callback.
+    /// </summary>
     enum struct ErrorType {
         WindowApi,
+        Monitor,
         OpenGL,
         Vulkan,
     };
 
+    /// <summary>
+    /// Convert ErrorType into an std::string
+    /// </summary>
     inline std::string ErrorTypeToString(const ErrorType& error) {
         switch (error)
         {
@@ -211,6 +220,9 @@ namespace IWindow {
         }
     }
 
+    /// <summary>
+    /// Severity returned by the error callback.
+    /// </summary>
     enum struct ErrorSeverity {
         FatalError,
         Error,
@@ -218,6 +230,9 @@ namespace IWindow {
         Info
     };
 
+    /// <summary>
+    /// Convert ErrorSeverity into an std::string
+    /// </summary>
     inline std::string ErrorSeverityToString(const ErrorSeverity& severity) {
         switch (severity)
         {
@@ -234,6 +249,9 @@ namespace IWindow {
         }
     }
 
+    /// <summary>
+    /// Struct error callback returns.
+    /// </summary>
     struct Error {
         std::string message;
         ErrorType type;

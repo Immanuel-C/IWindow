@@ -1,5 +1,8 @@
 #include "IWindowUtils.h"
 
+#include "IWindow.h"
+
+#include <shellscalingapi.h>
 
 namespace IWindow {
     Monitor Monitor::GetPrimaryMonitor()  {
@@ -32,10 +35,7 @@ namespace IWindow {
 
         MONITORINFOEX monitorInfo{}; // EX has the monitor name
         monitorInfo.cbSize = sizeof(MONITORINFOEX);
-        if (!::GetMonitorInfo(hmonitor, &monitorInfo)) {
-            MessageBox(nullptr, L"Failed to get monitors!", L"Error", MB_ICONEXCLAMATION | MB_OK);
-            return false;
-        }
+        IWINDOW_CHECK_ERROR(!::GetMonitorInfo(hmonitor, &monitorInfo), ErrorType::Monitor, ErrorSeverity::Error, "GetMonitorInfo() failed. Failed to get monitor information!", true, false);
 
         Monitor monitor{};
 
@@ -46,6 +46,8 @@ namespace IWindow {
         int32_t size = ::WideCharToMultiByte(CP_UTF8, 0, monitorInfo.szDevice, -1, nullptr, 0, 0, 0);
         monitor.name.resize(size);
         ::WideCharToMultiByte(CP_UTF8, 0, monitorInfo.szDevice, -1, monitor.name.data(), (int32_t)monitor.name.size() * sizeof(char), 0, 0);
+
+        IWINDOW_CHECK_ERROR(!::GetDpiForMonitor(hmonitor, MDT_EFFECTIVE_DPI, (UINT*)&monitor.dpi.x, (UINT*)&monitor.dpi.y), ErrorType::Monitor, ErrorSeverity::Error, "GetMonitorInfo() failed. Failed to get monitor dpi scale! Are you using Windows 8.1 or higher?", true, false);
 
         monitorsVec->emplace_back(std::move(monitor));
 

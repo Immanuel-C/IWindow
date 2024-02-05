@@ -36,6 +36,7 @@ struct ImGui_ImplIWindow_Data {
 	IWindow::Window::MouseScrollCallback PrevUserCallbackScroll;
 	IWindow::Window::MouseEnteredCallback PrevUserCallbackMouseEntered;
 	IWindow::Window::CharCallback PrevUserCallbackChar;
+	IWindow::Window::MonitorCallback PrevUserCallbackMonitor;
 	// A hook into the WndProc function so we dont remove the WndProc function in IWindow
 	WNDPROC IWindowWndProc;
 
@@ -43,10 +44,10 @@ struct ImGui_ImplIWindow_Data {
 
 	bool installedCallbacks = false;
 	bool callbacksChainForAllWindows = true;
+	bool wantUpdateMonitors = true;
 	ImVec2 lastValidMousePos;
 
 	double time;
-
 };
 
 static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo() {
@@ -407,8 +408,8 @@ void ImGui_ImplIWindow_NewFrame() {
 	io.DisplaySize = ImVec2((float)windowSize.x, (float)windowSize.y);
 	// window not minimized
 	// Causes Imgui to think the mouse is offset and program works fine without
-	//if (windowSize.x > 0 && windowSize.y > 0)
-		//io.DisplayFramebufferScale = ImVec2(((float)frameBufferSize.x / (float)windowSize.x), ((float)frameBufferSize.y / (float)windowSize.y));
+	if (windowSize.x > 0 && windowSize.y > 0)
+		io.DisplayFramebufferScale = ImVec2(((float)frameBufferSize.x / (float)windowSize.x), ((float)frameBufferSize.y / (float)windowSize.y));
 
 
 	// Get delta time
@@ -556,14 +557,20 @@ void ImGui_ImplIWindow_CharCallback(IWindow::Window& window, char32_t c, IWindow
 	io.AddInputCharacter(c);
 }
 
+void ImGui_ImplIWindow_MonitorCallback(IWindow::Window&, const IWindow::Monitor&, bool) {
+	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
+	data->wantUpdateMonitors = true;
+}
+
+
 void ImGui_ImplIWindow_RestoreCallbacks(IWindow::Window& window) {
 	ImGui_ImplIWindow_Data* data = ImGui_ImplIWindow_GetBackendData();
 	if (data->installedCallbacks == false) {
-		std::cout << "Callbacks not installed!\n";
+		std::cout << "ImGui_Impl_IWindow: Callbacks not installed!\n";
 		return;
 	}
 	if ((*data->window) != window) {
-		std::cout << "cant restore callbacks: Wrong window!\n";
+		std::cout << "ImGui_Impl_IWindow: cant restore callbacks: Wrong window!\n";
 		return;
 	}
 
@@ -574,6 +581,7 @@ void ImGui_ImplIWindow_RestoreCallbacks(IWindow::Window& window) {
 	window.SetMouseScrollCallback(data->PrevUserCallbackScroll);
 	window.SetKeyCallback(data->PrevUserCallbackKey);
 	window.SetCharCallback(data->PrevUserCallbackChar);
+	window.SetMonitorCallback(data->PrevUserCallbackMonitor);
 	data->PrevUserCallbackFocus = nullptr;
 	data->PrevUserCallbackMouseEntered = nullptr;
 	data->PrevUserCallbackMouseMove = nullptr;
@@ -581,6 +589,7 @@ void ImGui_ImplIWindow_RestoreCallbacks(IWindow::Window& window) {
 	data->PrevUserCallbackScroll = nullptr;
 	data->PrevUserCallbackKey = nullptr;
 	data->PrevUserCallbackChar = nullptr;
+	data->PrevUserCallbackMonitor = nullptr;
 	data->installedCallbacks = false;
 
 }
@@ -598,5 +607,6 @@ void ImGui_ImplIWindow_InstallCallbacks(IWindow::Window& window) {
 	data->PrevUserCallbackScroll = window.SetMouseScrollCallback(ImGui_ImplIWindow_ScrollCallback);
 	data->PrevUserCallbackKey = window.SetKeyCallback(ImGui_ImplIWindow_KeyCallback);
 	data->PrevUserCallbackChar = window.SetCharCallback(ImGui_ImplIWindow_CharCallback);
+	data->PrevUserCallbackMonitor = window.SetMonitorCallback(ImGui_ImplIWindow_MonitorCallback);
 	data->installedCallbacks = true;
 }

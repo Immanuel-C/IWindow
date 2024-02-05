@@ -175,6 +175,7 @@ int main() {
 
     if (!window.Create({ 1920, 1080 }, L"Hello IWindow! (UTF-16 Symbol: π)", monitors[0])) return EXIT_FAILURE;
     
+    window.Fullscreen(true, monitors[0]);
 
     IWindow::GL::ContextCreateInfo contextCreateInfo{};
     // Default value: 4, 6
@@ -198,7 +199,7 @@ int main() {
     // Default value: 0
     contextCreateInfo.samples = 0;
     // Default value: false
-    contextCreateInfo.sRGB = true;
+    contextCreateInfo.sRGB = false;
     // Default value: false. Broken.
     contextCreateInfo.steroscopicRendering = false;
 

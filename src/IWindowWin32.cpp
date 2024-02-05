@@ -31,8 +31,6 @@
 
 #include <Shellapi.h>
 #include <iostream>
-#include <locale>
-#include <codecvt>
 
 namespace IWindow {
     uint32_t Window::m_sWindowCount;
@@ -125,6 +123,8 @@ namespace IWindow {
 
         m_timeMS = std::chrono::high_resolution_clock::now();
 
+        m_prevMonitors = Monitor::GetAllMonitors();
+
         return true;
     }
 
@@ -202,6 +202,33 @@ namespace IWindow {
 
             break;
         }
+        case WM_DISPLAYCHANGE: {
+            std::vector<Monitor> currentMonitors = Monitor::GetAllMonitors();
+
+            // Monitor disconnected
+            if (currentMonitors.size() < m_prevMonitors.size()) 
+                for (std::vector<Monitor>::iterator it = m_prevMonitors.begin() + currentMonitors.size(); it < m_prevMonitors.end(); it++) 
+                    m_monitorCallback(*this, *it, false);
+            // Monitor connected
+            else if (currentMonitors.size() > m_prevMonitors.size()) 
+                for (std::vector<Monitor>::iterator it = currentMonitors.begin() + m_prevMonitors.size(); it < m_prevMonitors.end(); it++)
+                    m_monitorCallback(*this, *it, true);
+
+            // Set window size to monitor size if resolution changes while window is in maximized state or fullscreen state.
+            if (m_windowStyle == SW_MAXIMIZE || m_fullscreen) {
+                RECT rClient{}, rWindow{};
+                Vector2<int32_t> sizeOfDeceration{};
+                ::GetClientRect(m_window, &rClient);
+                ::GetWindowRect(m_window, &rWindow);
+                sizeOfDeceration.x = (rWindow.right - rWindow.left) - rClient.right;
+                sizeOfDeceration.y = (rWindow.bottom - rWindow.top) - rClient.bottom;
+                SetWindowSize({ (LOWORD(lparam)) - sizeOfDeceration.x, (HIWORD(lparam)) - sizeOfDeceration.y });
+            }
+                
+
+            m_prevMonitors = currentMonitors;
+            break;
+        }
         case WM_MOVE: {
             // if lparam is less than zero than it will act like a uint
             m_position.x = GET_X_LPARAM(lparam);
@@ -236,6 +263,16 @@ namespace IWindow {
 
             return 0;
         }
+        case WM_DPICHANGED: {
+            const RECT* suggestedSize = (RECT*)lparam;
+
+            SetWindowPosition({ suggestedSize->left, suggestedSize->top });
+            SetWindowSize({ suggestedSize->right - suggestedSize->left, suggestedSize->bottom - suggestedSize->top });
+
+            m_dpiChangedCallback(*this, Vector2<uint32_t>{ (uint32_t)(LOWORD(wparam)), (uint32_t)(HIWORD(wparam)) });
+
+            return 0;
+        }
 
         case WM_GETDPISCALEDSIZE: {
             RECT currentSize{}, scaledSize{};
@@ -266,7 +303,6 @@ namespace IWindow {
                 m_maximized = maximized;
                 m_maximizedCallback(*this, false);
             }
-
 
 
             // On windows framebuffer size and window size are the same.
@@ -419,6 +455,8 @@ namespace IWindow {
             POINT mousePosition{};
 
             ::DragQueryPoint(drop, &mousePosition);
+
+            m_mouseMovecallback(*this, { mousePosition.x, mousePosition.y });
 
             const uint32_t amountOfFiles = ::DragQueryFile(drop, 0xFFFFFFFF, nullptr, 0);
             std::vector<std::wstring> paths{};
@@ -723,10 +761,10 @@ namespace IWindow {
         }
 
         if ((NativeStyle)(style & Style::Visible)) {
-            ShowWindow(m_window, SW_SHOW);
+            ::ShowWindow(m_window, SW_SHOW);
         }
         if ((NativeStyle)(style & Style::NotVisible)) {
-            ShowWindow(m_window, SW_HIDE);
+            ::ShowWindow(m_window, SW_HIDE);
         }
 
         if ((NativeStyle)(style & Style::Decorated)) {
@@ -737,16 +775,16 @@ namespace IWindow {
         }
 
         if ((NativeStyle)(style & Style::Maximize)) {
-            ShowWindow(m_window, SW_MAXIMIZE);
+            ::ShowWindow(m_window, SW_MAXIMIZE);
         }
         if ((NativeStyle)(style & Style::Restore)) {
-            ShowWindow(m_window, SW_RESTORE);
+            ::ShowWindow(m_window, SW_RESTORE);
         }
 
         IWINDOW_CHECK_ERROR(!::SetWindowLong(m_window, GWL_STYLE, m_windowStyle), ErrorType::WindowApi, ErrorSeverity::Error, "SetWindowLong failed! Could not set window style.", false, ;);
     }
 
-    Window::WindowPosCallback Window::SetPosCallback(WindowPosCallback callback) {
+    Window::WindowPosCallback Window::SetPositionCallback(WindowPosCallback callback) {
         WindowPosCallback oldCallback = m_posCallback;
         m_posCallback = callback;
         return oldCallback;
@@ -826,6 +864,20 @@ namespace IWindow {
     {
         PathDropCallback oldCallback = m_pathDropCallback;
         m_pathDropCallback = callback;
+        return oldCallback;
+    }
+
+    Window::MonitorCallback Window::SetMonitorCallback(MonitorCallback callback)
+    {
+        MonitorCallback oldCallback = m_monitorCallback;
+        m_monitorCallback = callback;
+        return oldCallback;
+    }
+
+    Window::DPIChangedCallback Window::SetDPIChangedCallback(DPIChangedCallback callback)
+    {
+        DPIChangedCallback oldCallback = m_dpiChangedCallback;
+        m_dpiChangedCallback = callback;
         return oldCallback;
     }
 

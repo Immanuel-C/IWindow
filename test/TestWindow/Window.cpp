@@ -167,7 +167,7 @@ int main() {
     IWindow::Gamepad::SetConnectedCallback(GamepadConnectedCallback);
 
     // Register callbacks
-    window.SetPosCallback(Example::WindowPosCallback);
+    window.SetPositionCallback(Example::WindowPosCallback);
     window.SetSizeCallback(WindowSizeCallback);
     window.SetKeyCallback(KeyCallback);
     window.SetMouseButtonCallback(MouseButtonCallback);
@@ -176,7 +176,6 @@ int main() {
     window.SetMouseEnteredCallback(MouseEnteredCallback);
     window.SetCharCallback(CharCallback);
     window.SetWindowFocusCallback(WindowFocusedCallback);
-
 
 
     // Set fullscreen on the primary monitor then wait 1 second then set to no fullscreen

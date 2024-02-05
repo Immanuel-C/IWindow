@@ -129,7 +129,7 @@ namespace IWindow {
         Vector2<int32_t> GetWindowSize() const;
         /// <returns>Position of the window in screen space.</returns>
         Vector2<int32_t> GetWindowPosition() const;
-        /// <returns>Size of the windows client area, measured in pixels. The framebuffer size is adjusted for high dpi displays.</returns>
+        /// <returns>Size of the windows client area, measured in pixels.</returns>
         Vector2<int32_t> GetFramebufferSize() const;
         /// <summary>
         /// Set the window size in screen space.
@@ -345,6 +345,8 @@ namespace IWindow {
         typedef std::function<void(Window&, bool)> WindowFocusCallback;
         typedef std::function<void(Window&, char32_t, KeyModifier)> CharCallback;
         typedef std::function<void(Window&, std::vector<std::wstring>&, Vector2<int32_t>)> PathDropCallback;
+        typedef std::function<void(Window&, const Monitor&, bool)> MonitorCallback;
+        typedef std::function<void(Window&, Vector2<uint32_t>&)> DPIChangedCallback;
         typedef WindowFocusCallback MouseEnteredCallback;
         typedef WindowFocusCallback WindowIconifiedCallback;
         typedef WindowFocusCallback WindowMaximizedCallback;
@@ -353,7 +355,7 @@ namespace IWindow {
         typedef WindowPosCallback WindowSizeCallback;
         typedef WindowSizeCallback FramebufferSizeCallback;
 
-        WindowPosCallback SetPosCallback(WindowPosCallback callback);
+        WindowPosCallback SetPositionCallback(WindowPosCallback callback);
         WindowSizeCallback SetSizeCallback(WindowSizeCallback callback);
         KeyCallback SetKeyCallback(KeyCallback callback);
         MouseMoveCallback SetMouseMoveCallback(MouseMoveCallback callback);
@@ -366,9 +368,10 @@ namespace IWindow {
         WindowIconifiedCallback SetWindowIconifiedCallback(WindowIconifiedCallback callback);
         WindowMaximizedCallback SetWindowMaximizedCallback(WindowMaximizedCallback callback);
         PathDropCallback SetPathDropCallback(PathDropCallback callback);
+        MonitorCallback SetMonitorCallback(MonitorCallback callback);
+        DPIChangedCallback SetDPIChangedCallback(DPIChangedCallback callback);
 
-        void operator=(Window&) = delete;
-        Window(Window&) = delete;
+
         bool operator==(IWindow::Window& window);
         bool operator!=(IWindow::Window& window);
     private:
@@ -392,12 +395,12 @@ namespace IWindow {
 
         std::chrono::high_resolution_clock::time_point m_timeMS;
 
-        NativeWindowHandle m_window;
-
         std::vector<bool> m_keys{ false };
         std::vector<bool> m_keysPressedOnce{ false };
         KeyModifier m_mods;
         std::vector<bool> m_mouseButtons{ false };
+
+        std::vector<Monitor> m_prevMonitors{};
 
         static void DefaultWindowPosCallback(Window&, Vector2<int32_t>) {}
         static void DefaultWindowSizeCallback(Window&, Vector2<int32_t>) {}
@@ -412,6 +415,9 @@ namespace IWindow {
         static void DefaultWindowIconifiedCallback(Window&, bool) {}
         static void DefaultWindowMaximizedCallback(Window&, bool) {}
         static void DefualtPathDropCallback(Window&, std::vector<std::wstring>&, Vector2<int32_t>) {}
+        static void DefualtMonitorCallback(Window&, const Monitor& monitor, bool) {}
+        static void DefualtDPIChangedCallback(Window&, Vector2<uint32_t>&) {}
+
 
         WindowPosCallback m_posCallback = DefaultWindowPosCallback;
         WindowSizeCallback m_sizeCallback = DefaultWindowSizeCallback;
@@ -426,8 +432,11 @@ namespace IWindow {
         WindowIconifiedCallback m_inconifiedCallback = DefaultWindowIconifiedCallback;
         WindowMaximizedCallback m_maximizedCallback = DefaultWindowMaximizedCallback;
         PathDropCallback m_pathDropCallback = DefualtPathDropCallback;
+        MonitorCallback m_monitorCallback = DefualtMonitorCallback;
+        DPIChangedCallback m_dpiChangedCallback = DefualtDPIChangedCallback;
 
         NativeDeviceContext m_deviceContext;
+        NativeWindowHandle m_window;
 
         NativeCursor m_cursor;
         NativeIcon m_icon;
